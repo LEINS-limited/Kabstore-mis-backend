@@ -27,6 +27,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { RoleService } from './modules/roles/role.service';
 import { RoleModule } from './modules/roles/role.module';
 import { ProductsModule } from './modules/products/products.module';
+import { Product } from './entities/products.entity';
 
 @Module({
   imports: [
@@ -42,7 +43,7 @@ import { ProductsModule } from './modules/products/products.module';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [User, Role],
+        entities: [User, Role, Product ],
         synchronize: true,
       }),
       inject: [ConfigService],
