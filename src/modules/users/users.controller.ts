@@ -21,10 +21,10 @@ import { NotFoundException } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/utils/decorators/roles.decorator';
 import { UUID } from 'crypto';
-import { ApiResponse } from 'src/payload/ApiResponse';
+import { ApiResponse } from 'src/common/payload/ApiResponse';
 import { Public } from 'src/decorators/public.decorator';
-import { CreateUserDto } from 'src/dtos/create-user.dto';
-import { UpdateUserDto } from 'src/dtos/update-user.dto';
+import { CreateUserDto } from 'src/common/dtos/create-user.dto';
+import { UpdateUserDto } from 'src/common/dtos/update-user.dto';
 @ApiTags('users')
 @Controller('users')
 export class UsersController {

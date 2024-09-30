@@ -11,7 +11,7 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Role } from 'src/entities/role.entity';
 import { User } from 'src/entities/user.entity';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from 'src/modules/users/users.service';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -22,7 +22,6 @@ export class RolesGuard implements CanActivate {
     @Inject(UsersService) private userService: UsersService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
-
     const requiredRoles = this.reflector.getAllAndOverride<String[]>('roles', [
       context.getHandler(),
       context.getClass(),

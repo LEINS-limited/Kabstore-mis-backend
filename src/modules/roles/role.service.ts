@@ -10,11 +10,12 @@
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Role } from '../entities/role.entity';
-import { ERole } from '../Enum/ERole.enum';
+
 import { NotFoundException } from '@nestjs/common/exceptions/not-found.exception';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from 'src/modules/users/users.service';
 import { forwardRef, Inject } from '@nestjs/common';
+import { Role } from 'src/entities/role.entity';
+import { ERole } from 'src/common/Enum/ERole.enum';
 
 @Injectable()
 export class RoleService {

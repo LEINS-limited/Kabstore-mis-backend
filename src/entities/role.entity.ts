@@ -7,7 +7,7 @@
  * @file
  * @brief Role entity
  */
-import { ERole } from 'src/Enum/ERole.enum';
+import { ERole } from 'src/common/Enum/ERole.enum';
 import {
   Column,
   Entity,

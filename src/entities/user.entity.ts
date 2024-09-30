@@ -16,8 +16,8 @@ import {
   ManyToMany,
   JoinTable,
 } from 'typeorm';
-import { EGender } from '../Enum/EGender.enum';
-import { EAccountStatus } from '../Enum/EAccountStatus.enum';
+import { EGender } from '../common/Enum/EGender.enum';
+import { EAccountStatus } from '../common/Enum/EAccountStatus.enum';
 import { Role } from 'src/entities/role.entity';
 import { InitiatorAudit } from 'src/audits/Initiator.audit';
 import { UUID } from 'crypto';

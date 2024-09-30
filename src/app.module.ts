@@ -8,24 +8,25 @@
  * @brief file App module
  */
 import { Module, OnModuleInit } from '@nestjs/common';
-import { UsersModule } from './users/users.module';
+import { UsersModule } from './modules/users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { RoleService } from './roles/role.service';
-import { RoleModule } from './roles/role.module';
 import { Role } from './entities/role.entity';
 import { HomeController } from './home/home.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MailingModule } from './mailing/mailing.module';
+import { MailingModule } from './integrations/mailing/mailing.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
-import { AuthModule } from './auth/auth.module';
-import { AuthController } from './auth/auth.controller';
-import { FilesModule } from './files/files.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { AuthController } from './modules/auth/auth.controller';
+import { FilesModule } from './integrations/files/files.module';
 import { UtilsModule } from './utils/utils.module';
-import { RolesGuard } from './auth/guards/roles.guard';
+import { RolesGuard } from './modules/auth/guards/roles.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
+import { RoleService } from './modules/roles/role.service';
+import { RoleModule } from './modules/roles/role.module';
+import { ProductsModule } from './modules/products/products.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { JwtModule } from '@nestjs/jwt';
     AuthModule,
     FilesModule,
     UtilsModule,
+    ProductsModule,
   ],
   controllers: [AuthController, HomeController],
   providers: [{ provide: APP_GUARD, useClass: RolesGuard }],

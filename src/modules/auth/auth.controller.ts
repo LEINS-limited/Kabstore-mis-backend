@@ -17,13 +17,13 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
-import { LoginDTO } from 'src/dtos/lodin.dto';
-import { UsersService } from 'src/users/users.service';
+import { LoginDTO } from 'src/common/dtos/lodin.dto';
+import { UsersService } from 'src/modules/users/users.service';
 import * as bcrypt from 'bcrypt';
-import { ApiResponse } from 'src/payload/ApiResponse';
-import { VerifyAccountDTO } from 'src/dtos/verify-account.dto';
+import { ApiResponse } from 'src/common/payload/ApiResponse';
+import { VerifyAccountDTO } from 'src/common/dtos/verify-account.dto';
 import { User } from 'src/entities/user.entity';
-import { ResetPasswordDTO } from 'src/dtos/reset-password.dto';
+import { ResetPasswordDTO } from 'src/common/dtos/reset-password.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';

@@ -15,17 +15,17 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common/exceptions';
-import { EAccountStatus } from 'src/Enum/EAccountStatus.enum';
-import { EGender } from 'src/Enum/EGender.enum';
-import { ERole } from 'src/Enum/ERole.enum';
+import { EAccountStatus } from 'src/common/Enum/EAccountStatus.enum';
+import { EGender } from 'src/common/Enum/EGender.enum';
+import { ERole } from 'src/common/Enum/ERole.enum';
 import { User } from 'src/entities/user.entity';
-import { RoleService } from 'src/roles/role.service';
 import { UtilsService } from 'src/utils/utils.service';
-import { LoginDTO } from 'src/dtos/lodin.dto';
-import { CreateUserDto } from 'src/dtos/create-user.dto';
+import { LoginDTO } from 'src/common/dtos/lodin.dto';
+import { CreateUserDto } from 'src/common/dtos/create-user.dto';
 import { UUID } from 'crypto';
-import { EUserType } from 'src/Enum/EUserType.enum';
-import { MailingService } from 'src/mailing/mailing.service';
+import { EUserType } from 'src/common/Enum/EUserType.enum';
+import { MailingService } from 'src/integrations/mailing/mailing.service';
+import { RoleService } from '../roles/role.service';
 
 @Injectable()
 export class UsersService {

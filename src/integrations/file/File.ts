@@ -1,7 +1,7 @@
 import { Global } from '@nestjs/common';
 import { UUID } from 'crypto';
-import { EFileSizeType } from 'src/Enum/EFileSize.enum';
-import { EFileStatus } from 'src/Enum/EFileStatus.enum';
+import { EFileSizeType } from 'src/common/Enum/EFileSize.enum';
+import { EFileStatus } from 'src/common/Enum/EFileStatus.enum';
 import { InitiatorAudit } from 'src/audits/Initiator.audit';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 

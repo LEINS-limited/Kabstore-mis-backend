@@ -1,5 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { CreateUserDto } from 'src/dtos/create-user.dto';
+import {  Controller, Get } from '@nestjs/common';
 
 @Controller()
 export class AppController {
