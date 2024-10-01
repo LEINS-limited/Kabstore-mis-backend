@@ -14,6 +14,7 @@ import {
   ForbiddenException,
   Get,
   Post,
+  Put,
   Req,
   Res,
 } from '@nestjs/common';
@@ -56,21 +57,18 @@ export class AuthController {
       await this.userService.login(dto),
     );
   }
-  @Post('verify_account')
+  @Put('verify_account')
+  @Public()
   async VerifyAccount(@Body() dto: VerifyAccountDTO): Promise<ApiResponse> {
-    this.isUserAvailable = await this.userService.getUserByEmail(dto.email);
-    if (this.isUserAvailable.activationCode != dto.verificationCode)
-      throw new BadRequestException(
-        'The provided verification code is invalid',
-      );
     return new ApiResponse(
       true,
       'Your account is verified successfully',
-      await this.userService.verifyAccount(dto.email),
+      await this.userService.verifyAccount(dto.verificationCode),
     );
   }
 
-  @Post('reset_password')
+  @Put('reset_password')
+  @Public()
   async resetPassword(@Body() dto: ResetPasswordDTO): Promise<ApiResponse> {
     return new ApiResponse(
       true,

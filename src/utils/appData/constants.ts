@@ -2,7 +2,7 @@ export const headerHTML = `<html lang='en'>
 <head>
   <meta charset='UTF-8' />
   <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-  <title>Email Verification</title>
+  <title>Email notification</title>
   <style>
     body { margin: 0; padding: 0; font-family: Arial, sans-serif;
     background-color: #f4f4f4; } .container { max-width: 600px; margin: 0
@@ -18,9 +18,10 @@ export const headerHTML = `<html lang='en'>
 <body>
   <div class='container'>
     <div class='header'>
-      <h1 style='text-align: center;'>Rwanda Coding Academy</h1>`;
+      <h1 style='text-align: center;'>Kabstore</h1>`;
 
 export const footerHTML = `     <div class='footer'>
+<p>Kabstore, you are our priority</p>
 <p>This is an automated email. Please do not reply.</p>
 </div>
 </div>

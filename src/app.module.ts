@@ -31,9 +31,7 @@ import { Product } from './entities/products.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }), // Import ConfigModule here
+    ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule], // Import ConfigModule here
       useFactory: (configService: ConfigService) => ({
@@ -43,18 +41,17 @@ import { Product } from './entities/products.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [User, Role, Product ],
+        entities: [User, Role, Product],
         synchronize: true,
       }),
       inject: [ConfigService],
     }),
     MailerModule.forRoot({
-      transport: 'smtps://user@domain.com:pass@smtp.domain.com',
-      template: {
-        dir: process.cwd() + '/src/templates/',
-        adapter: new HandlebarsAdapter(),
-        options: {
-          strict: true,
+      transport: {
+        host: 'smtp.gmail.com',
+        auth: {
+          user: process.env.EMAIL_USERNAME,
+          pass: process.env.EMAIL_PASSWORD,
         },
       },
     }),
