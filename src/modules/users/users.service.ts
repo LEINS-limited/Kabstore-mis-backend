@@ -56,6 +56,15 @@ export class UsersService {
       );
     return user;
   }
+  async getUserByVerificationCode(code: number) {
+    const user = await this.userRepo.findOne({
+      where: {
+        activationCode: code,
+      },
+      relations: ['roles'],
+    });
+    return user;
+  }
 
   async getOneByEmail(email: any) {
     const user = await this.userRepo.findOne({
@@ -88,10 +97,7 @@ export class UsersService {
 
   async login(dto: LoginDTO) {
     const user = await this.getOneByEmail(dto.email);
-    if (
-      user.status == EAccountStatus[EAccountStatus.WAIT_EMAIL_VERIFICATION] ||
-      user.status == EAccountStatus[EAccountStatus.PENDING]
-    )
+    if (user.status == EAccountStatus[EAccountStatus.WAIT_EMAIL_VERIFICATION])
       throw new BadRequestException(
         'This account is not yet verified, please check your gmail inbox for verification details',
       );
@@ -103,21 +109,24 @@ export class UsersService {
       user: user,
     };
   }
-  async verifyAccount(email: string) {
-    const verifiedAccount = await this.getUserByEmail(email);
+
+  async verifyAccount(code: number) {
+    const verifiedAccount = await this.getUserByVerificationCode(code);
+    if (!verifiedAccount)
+      throw new BadRequestException(
+        'The provided verification code is invalid',
+      );
     if (verifiedAccount.status === EAccountStatus[EAccountStatus.ACTIVE])
       throw new BadRequestException('This is already verified');
-    verifiedAccount.status = EAccountStatus[EAccountStatus.PENDING];
-    verifiedAccount.roles.forEach((role) => {
-      if (role.role_name == ERole[ERole.ADMIN]) {
-        verifiedAccount.status = EAccountStatus[EAccountStatus.ACTIVE];
-      }
-    });
-    const verifiedAccount2 = await this.userRepo.save(verifiedAccount);
-    const tokens = await this.utilsService.getTokens(verifiedAccount2);
-    delete verifiedAccount2.password;
-    return { tokens, user: verifiedAccount2 };
+    verifiedAccount.status = EAccountStatus[EAccountStatus.ACTIVE];
+    const updatedAccount = await this.userRepo.save(verifiedAccount);
+    const tokens = await this.utilsService.getTokens(updatedAccount);
+    delete updatedAccount.password;
+    delete updatedAccount.activationCode;
+
+    return { tokens, user: updatedAccount };
   }
+
   async resetPassword(
     email: string,
     activationCode: number,
@@ -126,7 +135,6 @@ export class UsersService {
     const account = await this.getUserByEmail(email);
     if (!account) throw new BadRequestException('This account does not exist');
     if (
-      account.status === EAccountStatus[EAccountStatus.PENDING] ||
       account.status == EAccountStatus[EAccountStatus.WAIT_EMAIL_VERIFICATION]
     )
       throw new BadRequestException(
@@ -182,7 +190,9 @@ export class UsersService {
         gender = EGender[EGender.FEMALE];
         break;
       default:
-        throw new BadRequestException('The provided gender is invalid');
+        throw new BadRequestException(
+          'The provided gender is invalid, should male or female',
+        );
     }
     const userToCreate = new User(
       firstName,
@@ -195,23 +205,27 @@ export class UsersService {
       password,
       EAccountStatus.WAIT_EMAIL_VERIFICATION,
     );
-    const activationCode = this.generateRandomFourDigitNumber();
-    userToCreate.activationCode = activationCode;
+    userToCreate.activationCode = this.generateRandomFourDigitNumber();
     userToCreate.password = await this.utilsService.hashString(password);
     try {
       const userEntity = this.userRepo.create(userToCreate);
       const createdEnity = this.userRepo.save({ ...userEntity, roles: [role] });
-      // await this.mailingService.sendEmail('', false, createdEnity);
+      await this.mailingService.sendEmail('', false, createdEnity);
       return {
         success: true,
-        message: ` ${
-          (await createdEnity).activationCode
-        } we have sent an verification code to your inbox , please head their and verify your account`,
+        message: `We have sent a verification code to your inbox , please verify your account`,
       };
     } catch (error) {
       console.log(error);
     }
   }
+  async verifyProfile(code: number) {
+    try {
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async updateUser(id: UUID, attrs: Partial<User>) {
     const user = await this.getUserById(id, 'User');
     if (!user) {
