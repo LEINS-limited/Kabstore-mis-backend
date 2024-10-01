@@ -28,6 +28,8 @@ import { RoleService } from './modules/roles/role.service';
 import { RoleModule } from './modules/roles/role.module';
 import { ProductsModule } from './modules/products/products.module';
 import { Product } from './entities/products.entity';
+import { VendorsModule } from './modules/vendors/vendors.module';
+import { Vendor } from './entities/vendors.entity';
 
 @Module({
   imports: [
@@ -43,7 +45,7 @@ import { Product } from './entities/products.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [User, Role, Product ],
+        entities: [User, Role, Product, Vendor ],
         synchronize: true,
       }),
       inject: [ConfigService],
@@ -66,6 +68,7 @@ import { Product } from './entities/products.entity';
     FilesModule,
     UtilsModule,
     ProductsModule,
+    VendorsModule,
   ],
   controllers: [AuthController, HomeController],
   providers: [{ provide: APP_GUARD, useClass: RolesGuard }],

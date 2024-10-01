@@ -1,6 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { EDiscountType } from "src/common/Enum/EDiscount.enum";
+import { EProductStatus } from "src/common/Enum/EProductStatus.enum";
+import { Vendor } from "src/entities/vendors.entity";
 
 export class CreateProductDTO {
   @ApiProperty()
@@ -24,15 +26,7 @@ export class CreateProductDTO {
 
   @ApiProperty()
   @IsString()
-  vendor: string;
-
-  @ApiProperty()
-  @IsString()
-  vendorContactNumber: string;
-
-  @ApiProperty()
-  @IsString()
-  vendorLocation: string;
+  vendor: Vendor;
 
   @ApiProperty()
   @IsNumber()
@@ -52,6 +46,10 @@ export class CreateProductDTO {
 
   @ApiProperty()
   expiryDate: Date;
+
+  @ApiProperty()
+  status : EProductStatus;
+
 }
 
 export class UpdateProductDto {

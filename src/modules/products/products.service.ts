@@ -9,11 +9,12 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product) public productRepository: Repository<Product>,
   ) {}
-  async findAll(): Promise<Product[]> {
-    return this.productRepository.find();
+  async getProducts(): Promise<Product[]> {
+    const response = await this.productRepository.find({relations: ['products']});
+    return response;
   }
 
-  async findOne(id: string): Promise<Product> {
+  async getProductById(id: string): Promise<Product> {
     const product = await this.productRepository.findOne({ where: { id } });
     if (!product) {
       throw new NotFoundException(`Product with ID ${id} not found`);
@@ -30,7 +31,7 @@ export class ProductsService {
     id: string,
     updateProductDto: UpdateProductDto,
   ): Promise<Product> {
-    const product = await this.findOne(id);
+    const product = await this.getProductById(id);
     Object.assign(product, updateProductDto);
     return this.productRepository.save(product);
   }
