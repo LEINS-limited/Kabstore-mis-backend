@@ -90,8 +90,8 @@ export class UsersService {
   }
 
   generateRandomFourDigitNumber(): number {
-    const min = 1000;
-    const max = 9999;
+    const min = 100000;
+    const max = 999999;
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
@@ -149,7 +149,7 @@ export class UsersService {
     return { tokens, user: savedUser };
   }
 
-  async getVerificationCode(email: string) {
+  async getVerificationCode(email: string, reset: boolean) {
     const account = await this.getUserByEmail(email);
     if (!account) throw new BadRequestException('This account does not exist');
     if (
@@ -159,6 +159,7 @@ export class UsersService {
         "Please first verify your account and we'll help you to remember your password later",
       );
     account.activationCode = this.generateRandomFourDigitNumber();
+    if (reset) account.status = EAccountStatus[EAccountStatus.INACTIVE];
     await this.userRepo.save(account);
     this.mailingService.sendEmail('', true, account);
   }

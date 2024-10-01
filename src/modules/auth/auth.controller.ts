@@ -75,7 +75,7 @@ export class AuthController {
     return new ApiResponse(
       true,
       'We have sent a verification code to your email',
-      await this.userService.getVerificationCode(email),
+      await this.userService.getVerificationCode(email, true),
     );
   }
 
