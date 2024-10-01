@@ -127,22 +127,17 @@ export class UsersService {
     return { tokens, user: updatedAccount };
   }
 
-  async resetPassword(
-    email: string,
-    activationCode: number,
-    newPassword: string,
-  ) {
-    const account = await this.getUserByEmail(email);
-    if (!account) throw new BadRequestException('This account does not exist');
+  async resetPassword(code: number, newPassword: string) {
+    const account = await this.getUserByVerificationCode(code);
+    if (!account)
+      throw new BadRequestException(
+        'The provided code is invalid does not exist',
+      );
     if (
       account.status == EAccountStatus[EAccountStatus.WAIT_EMAIL_VERIFICATION]
     )
       throw new BadRequestException(
         "Please first verify your account and we'll help you to remember your password later",
-      );
-    if (account.activationCode != activationCode)
-      throw new BadRequestException(
-        'Your provided invalid activation code, you can request another.',
       );
     account.password = await this.utilsService.hashString(
       newPassword.toString(),
@@ -152,6 +147,20 @@ export class UsersService {
     delete savedUser.password;
     delete savedUser.activationCode;
     return { tokens, user: savedUser };
+  }
+
+  async getVerificationCode(email: string) {
+    const account = await this.getUserByEmail(email);
+    if (!account) throw new BadRequestException('This account does not exist');
+    if (
+      account.status == EAccountStatus[EAccountStatus.WAIT_EMAIL_VERIFICATION]
+    )
+      throw new BadRequestException(
+        "Please first verify your account and we'll help you to remember your password later",
+      );
+    account.activationCode = this.generateRandomFourDigitNumber();
+    await this.userRepo.save(account);
+    this.mailingService.sendEmail('', true, account);
   }
   async createUser(body: CreateUserDto) {
     let {

@@ -13,6 +13,7 @@ import {
   Controller,
   ForbiddenException,
   Get,
+  Param,
   Post,
   Put,
   Req,
@@ -66,18 +67,25 @@ export class AuthController {
       await this.userService.verifyAccount(dto.verificationCode),
     );
   }
+  @Get('get_code/:email')
+  @Public()
+  async getVerificationCode(
+    @Param('email') email: string,
+  ): Promise<ApiResponse> {
+    return new ApiResponse(
+      true,
+      'We have sent a verification code to your email',
+      await this.userService.getVerificationCode(email),
+    );
+  }
 
   @Put('reset_password')
   @Public()
   async resetPassword(@Body() dto: ResetPasswordDTO): Promise<ApiResponse> {
     return new ApiResponse(
       true,
-      'Your account was rest successfully ',
-      await this.userService.resetPassword(
-        dto.email,
-        dto.activationCode,
-        dto.newPassword,
-      ),
+      'Your password was rest successfully ',
+      await this.userService.resetPassword(dto.code, dto.newPassword),
     );
   }
   @Get('/get-profile')

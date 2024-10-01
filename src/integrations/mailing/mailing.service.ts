@@ -18,7 +18,7 @@ export class MailingService {
         this.options = {
           transporterName: null,
           to: recipient.email,
-          subject: 'KabStore account reset',
+          subject: 'KabStore password reset',
           html: `${headerHTML}
           </div>
           <div class='content'>
