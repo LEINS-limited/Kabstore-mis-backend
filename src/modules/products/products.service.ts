@@ -16,7 +16,7 @@ export class ProductsService {
     private vendorService : VendorsService
   ) {}
   async getProducts(): Promise<Product[]> {
-    const response = await this.productRepository.find({relations: ['products']});
+    const response = await this.productRepository.find();
     return response;
   }
 
@@ -32,16 +32,19 @@ export class ProductsService {
     let category = null;
     let vendor = null;
     if(createProductDto.categoryId){
-      category = this.categoryService.getCategoryById(createProductDto.categoryId);
+            
+      category = await this.categoryService.getCategoryById(createProductDto.categoryId);
+      console.log(category);
+      
     }else{
-      category = this.categoryService.create(createProductDto.category);
+      category = await this.categoryService.create(createProductDto.category);
     }
     if (createProductDto.vendorId) {
-      vendor = this.vendorService.getVendorById(
+      vendor = await this.vendorService.getVendorById(
         createProductDto.vendorId,
       );
     }else{
-      vendor = this.vendorService.create(createProductDto.vendor);
+      vendor = await this.vendorService.create(createProductDto.vendor);
     }
 
     const newProduct = this.productRepository.create({...createProductDto, vendors : [vendor], categories:[category]});

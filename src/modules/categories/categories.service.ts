@@ -10,9 +10,7 @@ export class CategoriesService {
     @InjectRepository(Category) public categoryRepository: Repository<Category>,
   ) {}
   async getCategories(): Promise<Category[]> {
-    const response = await this.categoryRepository.find({
-      relations: ['categories'],
-    });
+    const response = await this.categoryRepository.find();
     return response;
   }
 

@@ -10,9 +10,7 @@ export class VendorsService {
     @InjectRepository(Vendor) public vendorRepository: Repository<Vendor>,
   ) {}
   async getVendors(): Promise<Vendor[]> {
-    const response = await this.vendorRepository.find({
-      relations: ['vendors'],
-    });
+    const response = await this.vendorRepository.find();
     return response;
   }
 
