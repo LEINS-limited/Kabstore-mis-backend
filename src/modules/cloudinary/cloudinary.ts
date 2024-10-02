@@ -6,7 +6,7 @@ export const CloudinaryProvider = {
     return v2.config({
       cloud_name: 'daso1btiz',
       api_key: '468557256968463',
-      api_secret: '3S13jGO6WJPZ6-ojNFRUZmeshaY',
+      api_secret: '3S13jGO6WJPZ6-ojNFRUZmeshaY'
     });
   },
 };

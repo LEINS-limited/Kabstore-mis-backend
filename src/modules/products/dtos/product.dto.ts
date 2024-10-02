@@ -2,7 +2,6 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString, IsUUID } from "class-validator";
 import { EDiscountType } from "src/common/Enum/EDiscount.enum";
 import { EProductStatus } from "src/common/Enum/EProductStatus.enum";
-import { Vendor } from "src/entities/vendors.entity";
 import { CreateCategoryDTO } from "src/modules/categories/dto/categories.dto";
 import { CreateVendorDTO } from "src/modules/vendors/dtos/vendors.dto";
 
@@ -11,41 +10,37 @@ export class CreateProductDTO {
   @IsString()
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({required:false})
   @IsOptional()
   category: CreateCategoryDTO;
 
-  @ApiProperty()
-  @IsUUID()
+  @ApiProperty({required:false})
+  // @IsUUID()
+  @IsOptional()
   categoryId: string;
 
   @ApiProperty()
-  @IsNumber()
   sellingPrice: number;
 
   @ApiProperty()
-  @IsNumber()
   costPrice: number;
 
   @ApiProperty()
-  @IsNumber()
   quantity: number;
 
-  @ApiProperty()
+  @ApiProperty({required:false})
   @IsOptional()
   vendor: CreateVendorDTO;
 
-  @ApiProperty()
-  @IsUUID()
+  @ApiProperty({required:false})
+  // @IsUUID()
   @IsOptional()
   vendorId: string;
 
   @ApiProperty()
-  @IsNumber()
   safetyStock: number;
 
   @ApiProperty()
-  @IsBoolean()
   hasDiscount: false;
 
   @ApiProperty({ enum: EDiscountType })
@@ -53,15 +48,22 @@ export class CreateProductDTO {
   discountType: EDiscountType;
 
   @ApiProperty()
-  @IsNumber()
   discountValue: number;
 
   @ApiProperty()
   expiryDate: Date;
 
-  @ApiProperty({enum: EProductStatus})
+  @ApiProperty({ enum: EProductStatus })
   @IsEnum(EProductStatus)
-  status : EProductStatus;
+  status: EProductStatus;
+
+  @ApiProperty({
+    description: 'Product icon',
+    type: 'string',
+    format: 'binary',
+  })
+  @IsOptional()
+  picture: Express.Multer.File;
 }
 
 export class UpdateProductDto {
