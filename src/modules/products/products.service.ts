@@ -1,19 +1,26 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Product } from 'src/entities/products.entity';
 import { CreateProductDTO, UpdateProductDto } from './dtos/product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { CategoriesService } from '../categories/categories.service';
+import { VendorsService } from '../vendors/vendors.service';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product) public productRepository: Repository<Product>,
+    private categoryService : CategoriesService,
+    private cloudinary : CloudinaryService,
+    private vendorService : VendorsService
   ) {}
-  async findAll(): Promise<Product[]> {
-    return this.productRepository.find();
+  async getProducts(): Promise<Product[]> {
+    const response = await this.productRepository.find();
+    return response;
   }
 
-  async findOne(id: string): Promise<Product> {
+  async getProductById(id: string): Promise<Product> {
     const product = await this.productRepository.findOne({ where: { id } });
     if (!product) {
       throw new NotFoundException(`Product with ID ${id} not found`);
@@ -22,15 +29,37 @@ export class ProductsService {
   }
 
   async create(createProductDto: CreateProductDTO): Promise<Product> {
-    const newProduct = this.productRepository.create(createProductDto);
-    return this.productRepository.save(newProduct);
+    let category = null;
+    let vendor = null;
+    if(createProductDto.categoryId){
+            
+      category = await this.categoryService.getCategoryById(createProductDto.categoryId);
+      console.log(category);
+      
+    }else{
+      category = await this.categoryService.create(createProductDto.category);
+    }
+    if (createProductDto.vendorId) {
+      vendor = await this.vendorService.getVendorById(
+        createProductDto.vendorId,
+      );
+    }else{
+      vendor = await this.vendorService.create(createProductDto.vendor);
+    }
+
+    const newProduct = this.productRepository.create({...createProductDto, vendors : [vendor], categories:[category]});
+    // const pictureUrl = await this.cloudinary.uploadImage(createProductDto.picture).catch(() => {
+    //   throw new BadRequestException('Invalid file type.');
+    // });
+    // console.log(pictureUrl);
+    return await this.productRepository.save(newProduct);
   }
 
   async update(
     id: string,
     updateProductDto: UpdateProductDto,
   ): Promise<Product> {
-    const product = await this.findOne(id);
+    const product = await this.getProductById(id);
     Object.assign(product, updateProductDto);
     return this.productRepository.save(product);
   }

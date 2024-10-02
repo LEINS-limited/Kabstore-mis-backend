@@ -10,12 +10,12 @@ export class ProductsController {
 
   @Get()
   findAll() {
-    return this.productService.findAll();
+    return this.productService.getProducts();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.productService.findOne(id);
+    return this.productService.getProductById(id);
   }
 
   @Post()
