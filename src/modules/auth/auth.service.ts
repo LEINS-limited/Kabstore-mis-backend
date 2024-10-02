@@ -20,4 +20,8 @@ export class AuthService {
       return error;
     }
   }
+
+  async verifyProfile(req: Request) {
+    const data: { code: number } = req.body;
+  }
 }

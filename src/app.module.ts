@@ -36,9 +36,7 @@ import { Category } from './entities/categories.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }), // Import ConfigModule here
+    ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule], // Import ConfigModule here
       useFactory: (configService: ConfigService) => ({
@@ -54,12 +52,11 @@ import { Category } from './entities/categories.entity';
       inject: [ConfigService],
     }),
     MailerModule.forRoot({
-      transport: 'smtps://user@domain.com:pass@smtp.domain.com',
-      template: {
-        dir: process.cwd() + '/src/templates/',
-        adapter: new HandlebarsAdapter(),
-        options: {
-          strict: true,
+      transport: {
+        host: 'smtp.gmail.com',
+        auth: {
+          user: process.env.EMAIL_USERNAME,
+          pass: process.env.EMAIL_PASSWORD,
         },
       },
     }),
