@@ -10,6 +10,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { VendorsService } from './vendors.service';
 import { CreateVendorDTO } from './dtos/vendors.dto';
+import { Public } from 'src/decorators/public.decorator';
 
 @Controller('vendors')
 @ApiTags('vendors')

@@ -1,3 +1,3 @@
 export enum EProductStatus{
-    DRAFT, PUBLISHED 
-}
+    DRAFT = 'DRAFT', PUBLISHED = 'PUBLISHED'
+} 

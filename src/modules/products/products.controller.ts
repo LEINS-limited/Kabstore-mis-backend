@@ -2,7 +2,9 @@ import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/commo
 import { ProductsService } from './products.service';
 import { CreateProductDTO, UpdateProductDto } from './dtos/product.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { Public } from 'src/decorators/public.decorator';
 
+@Public()
 @Controller('products')
 @ApiTags('products')
 export class ProductsController {

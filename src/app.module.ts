@@ -31,6 +31,8 @@ import { Product } from './entities/products.entity';
 import { VendorsModule } from './modules/vendors/vendors.module';
 import { Vendor } from './entities/vendors.entity';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import { CategoriesModule } from './modules/categories/categories.module';
+import { Category } from './entities/categories.entity';
 
 @Module({
   imports: [
@@ -46,7 +48,7 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [User, Role, Product, Vendor ],
+        entities: [User, Role, Product, Vendor , Category],
         synchronize: true,
       }),
       inject: [ConfigService],
@@ -71,6 +73,7 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
     ProductsModule,
     VendorsModule,
     CloudinaryModule,
+    CategoriesModule,
   ],
   controllers: [AuthController, HomeController],
   providers: [{ provide: APP_GUARD, useClass: RolesGuard }],

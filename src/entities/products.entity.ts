@@ -3,14 +3,12 @@ import { EProductStatus } from "src/common/Enum/EProductStatus.enum";
 import { BaseEntity } from "src/db/base-entity";
 import {  Column, Entity, JoinColumn, ManyToMany } from "typeorm";
 import { Vendor } from "./vendors.entity";
+import { Category } from "./categories.entity";
 
 @Entity('products')
 export class Product extends BaseEntity {
   @Column()
   name: string;
-
-  @Column()
-  category: string;
 
   @Column()
   sellingPrice: number;
@@ -24,6 +22,10 @@ export class Product extends BaseEntity {
   @ManyToMany(() => Vendor, (Vendor) => Vendor.products, { eager: true })
   @JoinColumn({ name: 'vendor_id' })
   vendors: Vendor[];
+
+  @ManyToMany(() => Category, (Category) => Category.products, { eager: true })
+  @JoinColumn({ name: 'category_id' })
+  categories: Category[];
 
   @Column()
   safetyStock: number;
@@ -45,7 +47,6 @@ export class Product extends BaseEntity {
 
   constructor(
     name: string,
-    category: string,
     sellingPrice: number,
     costPrice: number,
     quantity: number,
@@ -57,7 +58,6 @@ export class Product extends BaseEntity {
   ) {
     super();
     this.name = name;
-    this.category = category;
     this.sellingPrice = sellingPrice;
     this.costPrice = costPrice;
     this.quantity = quantity;

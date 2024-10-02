@@ -1,13 +1,19 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Product } from 'src/entities/products.entity';
 import { CreateProductDTO, UpdateProductDto } from './dtos/product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { CategoriesService } from '../categories/categories.service';
+import { VendorsService } from '../vendors/vendors.service';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product) public productRepository: Repository<Product>,
+    private categoryService : CategoriesService,
+    private cloudinary : CloudinaryService,
+    private vendorService : VendorsService
   ) {}
   async getProducts(): Promise<Product[]> {
     const response = await this.productRepository.find({relations: ['products']});
@@ -23,8 +29,27 @@ export class ProductsService {
   }
 
   async create(createProductDto: CreateProductDTO): Promise<Product> {
-    const newProduct = this.productRepository.create(createProductDto);
-    return this.productRepository.save(newProduct);
+    let category = null;
+    let vendor = null;
+    if(createProductDto.categoryId){
+      category = this.categoryService.getCategoryById(createProductDto.categoryId);
+    }else{
+      category = this.categoryService.create(createProductDto.category);
+    }
+    if (createProductDto.vendorId) {
+      vendor = this.vendorService.getVendorById(
+        createProductDto.vendorId,
+      );
+    }else{
+      vendor = this.vendorService.create(createProductDto.vendor);
+    }
+
+    const newProduct = this.productRepository.create({...createProductDto, vendors : [vendor], categories:[category]});
+    // const pictureUrl = await this.cloudinary.uploadImage(createProductDto.picture).catch(() => {
+    //   throw new BadRequestException('Invalid file type.');
+    // });
+    // console.log(pictureUrl);
+    return await this.productRepository.save(newProduct);
   }
 
   async update(
