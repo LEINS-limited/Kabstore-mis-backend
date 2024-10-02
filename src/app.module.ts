@@ -30,6 +30,7 @@ import { ProductsModule } from './modules/products/products.module';
 import { Product } from './entities/products.entity';
 import { VendorsModule } from './modules/vendors/vendors.module';
 import { Vendor } from './entities/vendors.entity';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { Vendor } from './entities/vendors.entity';
     UtilsModule,
     ProductsModule,
     VendorsModule,
+    CloudinaryModule,
   ],
   controllers: [AuthController, HomeController],
   providers: [{ provide: APP_GUARD, useClass: RolesGuard }],
