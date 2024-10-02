@@ -28,30 +28,29 @@ export class ProductsService {
     return product;
   }
 
-  async create(createProductDto: CreateProductDTO): Promise<Product> {
+  async create(createProductDto: CreateProductDTO, file:Express.Multer.File): Promise<Product> {
     let category = null;
     let vendor = null;
-    if(createProductDto.categoryId){
-            
-      category = await this.categoryService.getCategoryById(createProductDto.categoryId);
-      console.log(category);
-      
+    
+    if(createProductDto.categoryId != undefined){      
+      category = await this.categoryService.getCategoryById(createProductDto.categoryId);      
     }else{
-      category = await this.categoryService.create(createProductDto.category);
+      category = await this.categoryService.create(JSON.parse(createProductDto.category as unknown as string));
     }
-    if (createProductDto.vendorId) {
+    if (createProductDto.vendorId != undefined) {
       vendor = await this.vendorService.getVendorById(
-        createProductDto.vendorId,
+        createProductDto.vendorId
       );
     }else{
-      vendor = await this.vendorService.create(createProductDto.vendor);
+      vendor = await this.vendorService.create(
+        JSON.parse(createProductDto.vendor as unknown as string),
+      );      
     }
-
     const newProduct = this.productRepository.create({...createProductDto, vendors : [vendor], categories:[category]});
-    // const pictureUrl = await this.cloudinary.uploadImage(createProductDto.picture).catch(() => {
-    //   throw new BadRequestException('Invalid file type.');
-    // });
-    // console.log(pictureUrl);
+    const pictureUrl = await this.cloudinary.uploadImage(file).catch(() => {
+      throw new BadRequestException('Invalid file type.');
+    });
+    newProduct.pictureUrl = pictureUrl.url;
     return await this.productRepository.save(newProduct);
   }
 

@@ -45,6 +45,9 @@ export class Product extends BaseEntity {
   @Column()
   status: EProductStatus;
 
+  @Column({nullable:true})
+  pictureUrl: string;
+
   constructor(
     name: string,
     sellingPrice: number,
