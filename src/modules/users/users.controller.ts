@@ -18,7 +18,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { NotFoundException } from '@nestjs/common';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/utils/decorators/roles.decorator';
 import { UUID } from 'crypto';
 import { ApiResponse } from 'src/common/payload/ApiResponse';
@@ -32,12 +32,14 @@ export class UsersController {
 
   @Get('/all')
   @Roles('ADMIN')
+  @ApiBearerAuth()
   getUsers() {
     return this.usersService.getUsers();
   }
 
   @Get('/:id')
   @Roles('ADMIN')
+  @ApiBearerAuth()
   async getUserById(@Param('id') id: UUID) {
     const user = await this.usersService.getUserById(id, 'User');
     if (!user) {
@@ -55,6 +57,7 @@ export class UsersController {
 
   @Patch('update/:id')
   @Roles('ADMIN')
+  @ApiBearerAuth()
   @ApiBody({ type: UpdateUserDto })
   updateUser(@Param('id') id: UUID, @Body() body: UpdateUserDto) {
     return this.usersService.updateUser(id, body);
@@ -62,6 +65,7 @@ export class UsersController {
 
   @Patch('/{assign-role}/:userId/:roleName/:userType')
   @Roles('ADMIN')
+  @ApiBearerAuth()
   async assignRoleToUser(
     @Param('userId') userId: UUID,
     @Param('roleName') roleName: any,
@@ -76,6 +80,7 @@ export class UsersController {
 
   @Delete('delete/:id')
   @Roles('ADMIN')
+  @ApiBearerAuth()
   deleteUser(@Param('id') id: UUID) {
     return this.usersService.deleteUser(id);
   }
