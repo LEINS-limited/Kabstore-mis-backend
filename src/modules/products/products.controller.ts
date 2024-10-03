@@ -4,6 +4,7 @@ import { CreateProductDTO, UpdateProductDto } from './dtos/product.dto';
 import { ApiBody, ApiConsumes, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Public } from 'src/decorators/public.decorator';
+import { ApiResponse } from 'src/common/payload/ApiResponse';
 
 @Public() 
 @Controller('products')
@@ -28,11 +29,11 @@ export class ProductsController {
     description: 'File upload',
     type: CreateProductDTO,
   })
-  create(
+  async create(
     @Body() createProductDto: CreateProductDTO,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.productService.create(createProductDto, file);
+    return new ApiResponse( true, "Product saved successfullly!", await this.productService.create(createProductDto, file));
   }
 
   @Patch(':id')
@@ -42,6 +43,6 @@ export class ProductsController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.productService.delete(+id);
+    return this.productService.delete(id);
   }
 }
