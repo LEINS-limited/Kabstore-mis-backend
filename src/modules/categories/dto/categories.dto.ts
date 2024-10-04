@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreateCategoryDTO {
   @ApiProperty()
@@ -9,4 +9,11 @@ export class CreateCategoryDTO {
   @ApiProperty()
   description: string;
 
+  @ApiProperty({
+    description: 'Product icon',
+    type: 'string',
+    format: 'binary',
+  })
+  @IsOptional()
+  picture: Express.Multer.File;
 }

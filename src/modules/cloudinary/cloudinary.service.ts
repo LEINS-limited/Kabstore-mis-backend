@@ -9,7 +9,7 @@ export class CloudinaryService {
     const fileExtension = extname(originalName); 
     const baseName = originalName.replace(/\.[^/.]+$/, ''); 
 
-    return `${baseName}_${timestamp}${fileExtension}`;
+    return `${baseName}_${timestamp}`;
   }
   async uploadImage(
     file: Express.Multer.File,

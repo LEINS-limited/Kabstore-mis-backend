@@ -1,20 +1,16 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDTO, UpdateProductDto } from './dtos/product.dto';
-import { ApiBody, ApiConsumes, ApiProperty, ApiTags } from '@nestjs/swagger';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { Public } from 'src/decorators/public.decorator';
-import { ApiResponse } from 'src/common/payload/ApiResponse';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
-@Public() 
 @Controller('products')
 @ApiTags('products')
 export class ProductsController {
   constructor(private readonly productService: ProductsService) {}
 
   @Get()
-  findAll() {
-    return this.productService.getProducts();
+  async findAll() {
+    return await this.productService.getProducts();
   }
 
   @Get(':id')
@@ -23,17 +19,14 @@ export class ProductsController {
   }
 
   @Post()
-  @UseInterceptors(FileInterceptor('picture'))
-  @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'File upload',
     type: CreateProductDTO,
   })
-  async create(
+  create(
     @Body() createProductDto: CreateProductDTO,
-    @UploadedFile() file: Express.Multer.File,
   ) {
-    return new ApiResponse( true, "Product saved successfullly!", await this.productService.create(createProductDto, file));
+    return this.productService.create(createProductDto);
   }
 
   @Patch(':id')
