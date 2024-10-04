@@ -10,7 +10,7 @@ export class Category extends BaseEntity {
   @Column()
   description: string;
 
-  @ManyToMany(() => Product, (Product) => Product.categories)
+  @ManyToMany(() => Product, (Product) => Product.categories, {cascade:true})
   @JoinTable()
   @JoinColumn({ name: 'product_id' })
   products: Product[];

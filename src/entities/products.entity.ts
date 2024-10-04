@@ -7,7 +7,7 @@ import { Category } from "./categories.entity";
 
 @Entity('products')
 export class Product extends BaseEntity {
-  @Column()
+  @Column({unique:true})
   name: string;
 
   @Column()
@@ -16,7 +16,7 @@ export class Product extends BaseEntity {
   @Column()
   costPrice: number;
 
-  @Column()
+  @Column({default:0})
   quantity: number;
 
   @ManyToMany(() => Vendor, (Vendor) => Vendor.products, { eager: true })
@@ -27,19 +27,19 @@ export class Product extends BaseEntity {
   @JoinColumn({ name: 'category_id' })
   categories: Category[];
 
-  @Column()
+  @Column({default:0})
   safetyStock: number;
 
-  @Column()
+  @Column({default:false})
   hasDiscount: boolean;
 
-  @Column()
+  @Column({nullable:true})
   discountType: EDiscountType;
 
-  @Column()
+  @Column({default:0})
   discountValue: number;
 
-  @Column()
+  @Column({nullable:true})
   expiryDate: Date;
 
   @Column()

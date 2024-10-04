@@ -13,7 +13,7 @@ export class Vendor extends BaseEntity {
   @Column()
   location: string;
 
-  @ManyToMany(() => Product, (Product) => Product.vendors)
+  @ManyToMany(() => Product, (Product) => Product.vendors, {cascade:true})
   @JoinTable()
   @JoinColumn({ name: 'product_id' })
   products: Product[];
