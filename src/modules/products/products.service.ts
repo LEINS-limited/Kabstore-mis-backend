@@ -6,14 +6,15 @@ import { Repository } from 'typeorm';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CategoriesService } from '../categories/categories.service';
 import { VendorsService } from '../vendors/vendors.service';
+import { generateCode } from 'src/utils/generator';
+import { UUID } from 'crypto';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product) public productRepository: Repository<Product>,
-    private categoryService: CategoriesService,
-    private cloudinary: CloudinaryService,
-    private vendorService: VendorsService,
+    private categoryService : CategoriesService,
+    private vendorService : VendorsService
   ) {}
   async getProducts(): Promise<Product[]> {
     const response = await this.productRepository.find();
@@ -28,49 +29,19 @@ export class ProductsService {
     return product;
   }
 
-   async existsByName(name: string): Promise<Boolean> {
-    const exists = await this.productRepository.exist({ where: { name : name } });
-    return exists;
-  }
-
-  async create(
-    createProductDto: CreateProductDTO,
-    file: Express.Multer.File,
-  ): Promise<Product> {
-    let category = null;
+  async create(createProductDto: CreateProductDTO): Promise<Product> {
+    let category = await this.categoryService.getCategoryById(createProductDto.categoryId);
     let vendor = null;
-    let duplicate = await this.existsByName(createProductDto.name);
-    if(duplicate){
-      throw new BadRequestException(`Product with name ${createProductDto.name} already exists!`)
-    }
-    if (createProductDto.categoryId != undefined) {
-      category = await this.categoryService.getCategoryById(
-        createProductDto.categoryId,
-      );
-    } else {
-      category = await this.categoryService.create(
-        JSON.parse(createProductDto.category as unknown as string),
-      );
-    }
-    if (createProductDto.vendorId != undefined) {
+    
+    if (createProductDto.vendorId != "" ) {
       vendor = await this.vendorService.getVendorById(
-        createProductDto.vendorId,
+        createProductDto.vendorId 
       );
-    } else {
-      vendor = await this.vendorService.create(
-        JSON.parse(createProductDto.vendor as unknown as string),
-      );
+    }else{
+      vendor = await this.vendorService.create(createProductDto.vendor);      
     }
-    const newProduct = this.productRepository.create({
-      ...createProductDto,
-      vendors: [vendor],
-      categories: [category],
-      createdAt: createProductDto.addedDate
-    });
-    const pictureUrl = await this.cloudinary.uploadImage(file).catch(() => {
-      throw new BadRequestException('Invalid file type.');
-    });
-    newProduct.pictureUrl = pictureUrl.url;
+    const newProduct = this.productRepository.create({...createProductDto, vendors : [vendor], categories:[category], code: generateCode()});
+ 
     return await this.productRepository.save(newProduct);
   }
 

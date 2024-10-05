@@ -6,15 +6,19 @@ import {
   Param,
   Patch,
   Post,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDTO } from './dto/categories.dto';
 import { Public } from 'src/decorators/public.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 
 @Controller('categories')
 @ApiTags('categories')
+@ApiBearerAuth()
 export class CategoriesController {
   constructor(private readonly categoryService: CategoriesService) {}
 
@@ -29,8 +33,13 @@ export class CategoriesController {
   }
 
   @Post()
-  create(@Body() createCategoryDto: CreateCategoryDTO) {
-    return this.categoryService.create(createCategoryDto);
+  @UseInterceptors(FileInterceptor('picture'))
+  @ApiConsumes('multipart/form-data')
+  create(
+    @Body() createCategoryDto: CreateCategoryDTO,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.categoryService.create(createCategoryDto, file);
   }
 
   @Patch(':id')
@@ -43,6 +52,6 @@ export class CategoriesController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.categoryService.delete(+id);
+    return this.categoryService.delete(id);
   }
 }

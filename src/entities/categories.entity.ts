@@ -15,6 +15,9 @@ export class Category extends BaseEntity {
   @JoinColumn({ name: 'product_id' })
   products: Product[];
 
+  @Column({ nullable: true })
+  pictureUrl: string;
+
   constructor(name: string, description: string) {
     super();
     this.name = name;

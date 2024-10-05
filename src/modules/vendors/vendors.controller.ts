@@ -7,13 +7,14 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { VendorsService } from './vendors.service';
 import { CreateVendorDTO } from './dtos/vendors.dto';
 import { Public } from 'src/decorators/public.decorator';
 
 @Controller('vendors')
 @ApiTags('vendors')
+@ApiBearerAuth()
 export class VendorsController {
   constructor(private readonly vendorService: VendorsService) {}
 

@@ -18,7 +18,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { NotFoundException } from '@nestjs/common';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/utils/decorators/roles.decorator';
 import { UUID } from 'crypto';
 import { ApiResponse } from 'src/common/payload/ApiResponse';
@@ -27,6 +27,7 @@ import { CreateUserDto } from 'src/common/dtos/create-user.dto';
 import { UpdateUserDto } from 'src/common/dtos/update-user.dto';
 @ApiTags('users')
 @Controller('users')
+@ApiBearerAuth()
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
