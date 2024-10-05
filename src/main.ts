@@ -23,7 +23,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('KABSTORE BACKEND API')
     .setDescription(
-      'This is the inventory management for Kabstore sho, By LIENS',
+      'This is the inventory management for Kabstore sho, By LEINS',
     )
     .setVersion('1.0')
     .addTag('Kabstore')
