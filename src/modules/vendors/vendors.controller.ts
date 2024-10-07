@@ -15,7 +15,6 @@ import { Public } from 'src/decorators/public.decorator';
 @Controller('vendors')
 @ApiTags('vendors')
 @ApiBearerAuth()
-@Public()
 export class VendorsController {
   constructor(private readonly vendorService: VendorsService) {}
 
