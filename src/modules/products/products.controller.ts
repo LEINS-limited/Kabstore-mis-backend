@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { CreateProductDTO, UpdateProductDto } from './dtos/product.dto';
+import { CreateProductDTO, UpdateProductDto, UpdateVendorDTO } from './dtos/product.dto';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/decorators/public.decorator';
 
@@ -26,15 +26,18 @@ export class ProductsController {
     description: 'File upload',
     type: CreateProductDTO,
   })
-  create(
-    @Body() createProductDto: CreateProductDTO,
-  ) {
+  create(@Body() createProductDto: CreateProductDTO) {
     return this.productService.create(createProductDto);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     return this.productService.update(id, updateProductDto);
+  }
+
+  @Patch('/vendor/:id')
+  updateVendor(@Param('id') id: string, @Body() updateVendorDto: UpdateVendorDTO) {
+    return this.productService.updateVendor(id, updateVendorDto);
   }
 
   @Delete(':id')

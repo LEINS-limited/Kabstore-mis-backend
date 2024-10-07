@@ -68,15 +68,6 @@ export class UpdateProductDto {
   @ApiProperty()
   quantity: number;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @Type(() => CreateVendorDTO)
-  vendor?: CreateVendorDTO;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  vendorId?: string;
-
   @ApiProperty()
   safetyStock: number;
 
@@ -93,4 +84,15 @@ export class UpdateProductDto {
   @ApiProperty({ enum: EProductStatus })
   @IsEnum(EProductStatus)
   status: EProductStatus;
+}
+
+export class UpdateVendorDTO {
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @Type(() => CreateVendorDTO)
+  vendor?: CreateVendorDTO;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  vendorId?: string;
 }
