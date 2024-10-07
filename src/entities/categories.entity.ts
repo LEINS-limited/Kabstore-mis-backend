@@ -1,5 +1,5 @@
 import { BaseEntity } from 'src/db/base-entity';
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { Product } from './products.entity';
 
 @Entity('categories')
@@ -10,8 +10,7 @@ export class Category extends BaseEntity {
   @Column()
   description: string;
 
-  @ManyToMany(() => Product, (Product) => Product.categories, {cascade:true})
-  @JoinTable()
+  @OneToMany(() => Product, (Product) => Product.category, {cascade:true})
   @JoinColumn({ name: 'product_id' })
   products: Product[];
 

@@ -33,6 +33,7 @@ import { Vendor } from './entities/vendors.entity';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { Category } from './entities/categories.entity';
+import { SalesModule } from './modules/sales/sales.module';
 
 @Module({
   imports: [
@@ -71,6 +72,7 @@ import { Category } from './entities/categories.entity';
     VendorsModule,
     CloudinaryModule,
     CategoriesModule,
+    SalesModule,
   ],
   controllers: [AuthController, HomeController],
   providers: [{ provide: APP_GUARD, useClass: RolesGuard }],

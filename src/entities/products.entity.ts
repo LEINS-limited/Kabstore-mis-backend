@@ -1,7 +1,7 @@
 import { EDiscountType } from "src/common/Enum/EDiscount.enum";
 import { EProductStatus } from "src/common/Enum/EProductStatus.enum";
 import { BaseEntity } from "src/db/base-entity";
-import {  Column, Entity, JoinColumn, ManyToMany } from "typeorm";
+import {  Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany } from "typeorm";
 import { Vendor } from "./vendors.entity";
 import { Category } from "./categories.entity";
 
@@ -22,22 +22,16 @@ export class Product extends BaseEntity {
   @Column({default:0})
   quantity: number;
 
-  @ManyToMany(() => Vendor, (Vendor) => Vendor.products, { eager: true })
+  @ManyToOne(() => Vendor, (Vendor) => Vendor.products, { eager: true })
   @JoinColumn({ name: 'vendor_id' })
-  vendors: Vendor[];
+  vendor: Vendor;
 
-  @ManyToMany(() => Category, (Category) => Category.products, { eager: true })
+  @ManyToOne(() => Category, (Category) => Category.products, { eager: true })
   @JoinColumn({ name: 'category_id' })
-  categories: Category[];
+  category: Category;
 
   @Column({default:0})
   safetyStock: number;
-
-  @Column({default:false})
-  hasDiscount: boolean;
-
-  @Column({nullable:true})
-  discountType: EDiscountType;
 
   @Column({default:0})
   discountValue: number;
@@ -48,29 +42,22 @@ export class Product extends BaseEntity {
   @Column()
   status: EProductStatus;
 
-  @Column({nullable:true})
-  pictureUrl: string;
-
   constructor(
     name: string,
     sellingPrice: number,
     costPrice: number,
     quantity: number,
-    vendors: Vendor[],
+    vendor: Vendor,
     safetyStock: number,
-    hasDiscount: boolean,
     discountValue: number,
-    discountType: EDiscountType,
   ) {
     super();
     this.name = name;
     this.sellingPrice = sellingPrice;
     this.costPrice = costPrice;
     this.quantity = quantity;
-    this.vendors = vendors;
+    this.vendor = vendor;
     this.safetyStock = safetyStock;
-    this.hasDiscount = hasDiscount;
     this.discountValue = discountValue;
-    this.discountType = discountType;
   }
 }

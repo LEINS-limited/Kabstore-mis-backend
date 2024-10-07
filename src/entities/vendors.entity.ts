@@ -13,9 +13,7 @@ export class Vendor extends BaseEntity {
   @Column()
   location: string;
 
-  @ManyToMany(() => Product, (Product) => Product.vendors, {cascade:true})
-  @JoinTable()
-  @JoinColumn({ name: 'product_id' })
+  @ManyToMany(() => Product, (Product) => Product.vendor, {cascade:true})
   products: Product[];
 
   constructor(name: string, contactNumber: string, location: string) {
