@@ -2,11 +2,12 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFile,
 import { ProductsService } from './products.service';
 import { CreateProductDTO, UpdateProductDto, UpdateVendorDTO } from './dtos/product.dto';
 import { ApiBearerAuth, ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { Public } from 'src/decorators/public.decorator';
 import { ApiResponse } from 'src/common/payload/ApiResponse';
+import { Public } from 'src/decorators/public.decorator';
 
 @Controller('products')
 @ApiTags('products')
+@Public()
 @ApiBearerAuth()
 export class ProductsController {
   constructor(private readonly productService: ProductsService) {}
@@ -16,10 +17,9 @@ export class ProductsController {
     return this.productService.getProductById(id);
   }
 
-  @Get('/all')
+  @Get('')
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
-  @ApiQuery({ name: 'patientCaseId', required: false })
   @ApiQuery({ name: 'q', required: false })
   async getFollowUps(
     @Query('page') page: number = 1,
