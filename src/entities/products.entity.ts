@@ -33,12 +33,6 @@ export class Product extends BaseEntity {
   @Column({default:0})
   safetyStock: number;
 
-  @Column({default:false})
-  hasDiscount: boolean;
-
-  @Column({nullable:true})
-  discountType: EDiscountType;
-
   @Column({default:0})
   discountValue: number;
 
@@ -48,9 +42,6 @@ export class Product extends BaseEntity {
   @Column()
   status: EProductStatus;
 
-  @Column({nullable:true})
-  pictureUrl: string;
-
   constructor(
     name: string,
     sellingPrice: number,
@@ -58,9 +49,7 @@ export class Product extends BaseEntity {
     quantity: number,
     vendors: Vendor[],
     safetyStock: number,
-    hasDiscount: boolean,
     discountValue: number,
-    discountType: EDiscountType,
   ) {
     super();
     this.name = name;
@@ -69,8 +58,6 @@ export class Product extends BaseEntity {
     this.quantity = quantity;
     this.vendors = vendors;
     this.safetyStock = safetyStock;
-    this.hasDiscount = hasDiscount;
     this.discountValue = discountValue;
-    this.discountType = discountType;
   }
 }

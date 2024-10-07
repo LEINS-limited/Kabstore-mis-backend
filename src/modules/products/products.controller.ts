@@ -2,10 +2,12 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile, UseInt
 import { ProductsService } from './products.service';
 import { CreateProductDTO, UpdateProductDto } from './dtos/product.dto';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { Public } from 'src/decorators/public.decorator';
 
 @Controller('products')
 @ApiTags('products')
 @ApiBearerAuth()
+@Public()
 export class ProductsController {
   constructor(private readonly productService: ProductsService) {}
 

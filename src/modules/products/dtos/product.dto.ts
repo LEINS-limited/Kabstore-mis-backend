@@ -35,17 +35,6 @@ export class CreateProductDTO {
   safetyStock: number;
 
   @ApiProperty()
-  hasDiscount: false;
-
-  @ApiProperty({ enum: EDiscountType })
-  @IsEnum(EDiscountType)
-  @Transform(({ value }) => value as EDiscountType)
-  discountType: EDiscountType;
-
-  @ApiProperty()
-  discountValue: number;
-
-  @ApiProperty()
   // @IsISO8601()
   @Transform(({ value }) => new Date(value))
   addedDate: Date;
@@ -63,19 +52,45 @@ export class CreateProductDTO {
 }
 
 export class UpdateProductDto {
+  @ApiProperty()
   @IsString()
-  @IsOptional()
   name: string;
 
-  @IsNumber()
-  @IsOptional()
-  price: number;
+  @ApiProperty()
+  categoryId: string;
 
-  @IsString()
-  @IsOptional()
-  description: string;
+  @ApiProperty()
+  sellingPrice: number;
 
-  @IsBoolean()
+  @ApiProperty()
+  costPrice: number;
+
+  @ApiProperty()
+  quantity: number;
+
+  @ApiProperty({ required: false })
   @IsOptional()
-  inStock: boolean;
+  @Type(() => CreateVendorDTO)
+  vendor?: CreateVendorDTO;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  vendorId?: string;
+
+  @ApiProperty()
+  safetyStock: number;
+
+  @ApiProperty()
+  // @IsISO8601()
+  @Transform(({ value }) => new Date(value))
+  addedDate: Date;
+
+  @ApiProperty()
+  // @IsISO8601()
+  @Transform(({ value }) => new Date(value))
+  expiryDate: Date;
+
+  @ApiProperty({ enum: EProductStatus })
+  @IsEnum(EProductStatus)
+  status: EProductStatus;
 }
