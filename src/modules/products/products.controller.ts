@@ -1,23 +1,38 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDTO, UpdateProductDto, UpdateVendorDTO } from './dtos/product.dto';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/decorators/public.decorator';
+import { ApiResponse } from 'src/common/payload/ApiResponse';
 
 @Controller('products')
 @ApiTags('products')
 @ApiBearerAuth()
+@Public()
 export class ProductsController {
   constructor(private readonly productService: ProductsService) {}
-
-  @Get()
-  async findAll() {
-    return await this.productService.getProducts();
-  }
-
+  
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productService.getProductById(id);
+  }
+
+  @Get('')
+  @ApiQuery({ name: 'page', required: false, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, example: 10 })
+  @ApiQuery({ name: 'patientCaseId', required: false })
+  @ApiQuery({ name: 'q', required: false })
+  async getFollowUps(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('q') q?: string,
+  ) {
+    const products = await this.productService.getProductsPaginated(
+      page,
+      limit,
+      q,
+    );
+    return new ApiResponse(true, "Products retrieved successfully!", products);
   }
 
   @Post()
@@ -35,7 +50,10 @@ export class ProductsController {
   }
 
   @Patch('/vendor/:id')
-  updateVendor(@Param('id') id: string, @Body() updateVendorDto: UpdateVendorDTO) {
+  updateVendor(
+    @Param('id') id: string,
+    @Body() updateVendorDto: UpdateVendorDTO,
+  ) {
     return this.productService.updateVendor(id, updateVendorDto);
   }
 

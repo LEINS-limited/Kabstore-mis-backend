@@ -16,6 +16,7 @@ import { CategoriesService } from '../categories/categories.service';
 import { VendorsService } from '../vendors/vendors.service';
 import { generateCode } from 'src/utils/generator';
 import { UUID } from 'crypto';
+import { paginator } from 'src/utils/paginator';
 
 @Injectable()
 export class ProductsService {
@@ -37,13 +38,40 @@ export class ProductsService {
     return product;
   }
 
-  async existsByName(name:string): Promise<Boolean>{
-    let exists = await this.productRepository.exist({where:{name}});
+  async getProductsPaginated(
+    page: number,
+    limit: number,
+    search?: string,
+  ) {
+    const query = this.productRepository.createQueryBuilder('product')
+
+
+    if (search) {
+      query.where(
+        'product.name ILIKE :search OR product.code ILIKE :search',
+        { search: `%${search}%` },
+      );
+      query.orWhere('product.code = :search', { search });
+    }
+
+    const [products, count] = await query
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    const meta = paginator({ page, limit, total: count });
+    return { products, meta };
+  }
+
+  async existsByName(name: string): Promise<Boolean> {
+    let exists = await this.productRepository.exist({ where: { name } });
     return exists;
   }
   async create(createProductDto: CreateProductDTO): Promise<Product> {
-    if(this.existsByName(createProductDto.name)){
-      throw new BadRequestException(`Product with name ${createProductDto.name} already exists!`);
+    if (this.existsByName(createProductDto.name)) {
+      throw new BadRequestException(
+        `Product with name ${createProductDto.name} already exists!`,
+      );
     }
     let category = await this.categoryService.getCategoryById(
       createProductDto.categoryId,
