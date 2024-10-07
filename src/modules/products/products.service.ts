@@ -10,12 +10,10 @@ import {
   UpdateVendorDTO,
 } from './dtos/product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { LessThan, Repository } from 'typeorm';
 import { CategoriesService } from '../categories/categories.service';
 import { VendorsService } from '../vendors/vendors.service';
 import { generateCode } from 'src/utils/generator';
-import { UUID } from 'crypto';
 import { paginator } from 'src/utils/paginator';
 
 @Injectable()
@@ -38,19 +36,31 @@ export class ProductsService {
     return product;
   }
 
-  async getProductsPaginated(
-    page: number,
-    limit: number,
-    search?: string,
-  ) {
-    const query = this.productRepository.createQueryBuilder('product')
+  async productsStats(): Promise<any> {
+    const totalCount = await this.productRepository.count();
+    const outOfStockCount = await this.productRepository.count({where: {quantity : 0}})
+    const lowStockCount = await this.productRepository
+      .createQueryBuilder('product')
+      .where('product.quantity < product.safetyStock')
+      .getCount();
+      
+    return {totalCount, outOfStockCount, lowStockCount};
+  }
 
+  async countOutOfStockProducts(): Promise<number> {
+    const number = await this.productRepository.count({where: {
+      quantity: 0
+    }});
+    return number;
+  }
+
+  async getProductsPaginated(page: number, limit: number, search?: string) {
+    const query = this.productRepository.createQueryBuilder('product');
 
     if (search) {
-      query.where(
-        'product.name ILIKE :search OR product.code ILIKE :search',
-        { search: `%${search}%` },
-      );
+      query.where('product.name ILIKE :search OR product.code ILIKE :search', {
+        search: `%${search}%`,
+      });
       query.orWhere('product.code = :search', { search });
     }
 

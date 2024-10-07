@@ -8,16 +8,15 @@ import { ApiResponse } from 'src/common/payload/ApiResponse';
 @Controller('products')
 @ApiTags('products')
 @ApiBearerAuth()
-@Public()
 export class ProductsController {
   constructor(private readonly productService: ProductsService) {}
-  
-  @Get(':id')
+
+  @Get('/:id')
   findOne(@Param('id') id: string) {
     return this.productService.getProductById(id);
   }
 
-  @Get('')
+  @Get('/all')
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
   @ApiQuery({ name: 'patientCaseId', required: false })
@@ -32,7 +31,7 @@ export class ProductsController {
       limit,
       q,
     );
-    return new ApiResponse(true, "Products retrieved successfully!", products);
+    return new ApiResponse(true, 'Products retrieved successfully!', products);
   }
 
   @Post()
@@ -48,6 +47,16 @@ export class ProductsController {
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     return this.productService.update(id, updateProductDto);
   }
+
+  @Get('all/statistics')
+  async countTotalProducts() {
+    return new ApiResponse(
+      true,
+      'Successful!',
+      await this.productService.productsStats(),
+    );
+  }
+
 
   @Patch('/vendor/:id')
   updateVendor(

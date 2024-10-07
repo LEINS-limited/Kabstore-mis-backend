@@ -1,7 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Transform, Type } from "class-transformer";
-import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
-import { EDiscountType } from "src/common/Enum/EDiscount.enum";
+import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString, Min } from "class-validator";
 import { EProductStatus } from "src/common/Enum/EProductStatus.enum";
 import { CreateVendorDTO } from "src/modules/vendors/dtos/vendors.dto";
 
@@ -14,12 +13,15 @@ export class CreateProductDTO {
   categoryId: string;
 
   @ApiProperty()
+  @Min(0)
   sellingPrice: number;
 
   @ApiProperty()
+  @Min(0)
   costPrice: number;
 
   @ApiProperty()
+  @Min(0)
   quantity: number;
 
   @ApiProperty({required:false})
@@ -35,20 +37,16 @@ export class CreateProductDTO {
   safetyStock: number;
 
   @ApiProperty()
-  // @IsISO8601()
   @Transform(({ value }) => new Date(value))
   addedDate: Date;
 
   @ApiProperty()
-  // @IsISO8601()
   @Transform(({ value }) => new Date(value))
   expiryDate: Date;
 
   @ApiProperty({ enum: EProductStatus })
   @IsEnum(EProductStatus)
   status: EProductStatus;
-
-
 }
 
 export class UpdateProductDto {
