@@ -34,12 +34,15 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { Category } from './entities/categories.entity';
 import { SalesModule } from './modules/sales/sales.module';
+import { CustomersModule } from './modules/customers/customers.module';
+import { Customer } from './entities/customers.entity';
+import { Sale } from './entities/sales.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule], // Import ConfigModule here
+      imports: [ConfigModule], 
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         host: configService.get('DB_HOST'),
@@ -47,7 +50,7 @@ import { SalesModule } from './modules/sales/sales.module';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [User, Role, Product, Vendor , Category],
+        entities: [User, Role, Product, Vendor , Category, Customer, Sale],
         synchronize: true,
       }),
       inject: [ConfigService],
@@ -73,6 +76,7 @@ import { SalesModule } from './modules/sales/sales.module';
     CloudinaryModule,
     CategoriesModule,
     SalesModule,
+    CustomersModule
   ],
   controllers: [AuthController, HomeController],
   providers: [{ provide: APP_GUARD, useClass: RolesGuard }],
