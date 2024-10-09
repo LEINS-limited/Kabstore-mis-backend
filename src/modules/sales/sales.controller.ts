@@ -5,7 +5,7 @@ import {
   Get,
   Param,
   Post,
-  Query
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ApiResponse } from 'src/common/payload/ApiResponse';
@@ -13,8 +13,8 @@ import { Public } from 'src/decorators/public.decorator';
 import { SalesService } from './sales.service';
 import { CreateSaleDTO } from './dto/sale.dto';
 
-@Controller('products')
-@ApiTags('products')
+@Controller('sales')
+@ApiTags('sales')
 @Public()
 @ApiBearerAuth()
 export class SalesController {
@@ -34,11 +34,7 @@ export class SalesController {
     @Query('limit') limit: number = 10,
     @Query('q') q?: string,
   ) {
-    const sales = await this.saleService.getSalesPaginated(
-      page,
-      limit,
-      q,
-    );
+    const sales = await this.saleService.getSalesPaginated(page, limit, q);
     return new ApiResponse(true, 'Sales retrieved successfully!', sales);
   }
 
@@ -47,10 +43,10 @@ export class SalesController {
     return this.saleService.create(createSaleDto);
   }
 
-//   @Patch(':id')
-//   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-//     return this.saleService.update(id, updateProductDto);
-//   }
+  //   @Patch(':id')
+  //   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
+  //     return this.saleService.update(id, updateProductDto);
+  //   }
 
   @Get('all/statistics')
   async countTotalProducts() {
@@ -60,7 +56,6 @@ export class SalesController {
       await this.saleService.salesStats(),
     );
   }
-
 
   @Delete(':id')
   remove(@Param('id') id: string) {

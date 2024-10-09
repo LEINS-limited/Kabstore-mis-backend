@@ -8,11 +8,14 @@ export class SaleItem extends BaseEntity {
   @OneToOne(() => Product)
   product: Product;
 
-  @Column()
+  @Column({default:1})
   quantity: number;
 
   @ManyToOne(() => Sale, (Sale) => Sale.saleItems)
   sale: Sale;
+
+  @Column({default:0})
+  total: number;
 
   constructor(
     quantity: number,

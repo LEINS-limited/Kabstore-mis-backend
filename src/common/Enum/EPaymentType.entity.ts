@@ -1,3 +1,3 @@
 export enum EPaymentType{
-    MOMO, BANK, CASH
+    MOMO = 'MOMO', BANK='BANK', CASH='CASH'
 }

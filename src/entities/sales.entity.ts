@@ -24,17 +24,20 @@ export class Sale extends BaseEntity {
   @Column()
   saleDate: Date;
 
-  @Column()
+  @Column({enum:ESaleStatus})
   status: ESaleStatus;
 
-  @Column()
+  @Column({enum: EPaymentType})
   paymentType: EPaymentType;
+
+  @Column({default:0})
+  totalPrice: number;
 
   constructor(
     customer: Customer,
     amountDue: number, 
     saleDate: Date,
-    status: number,
+    status: ESaleStatus,
     paymentType: EPaymentType
   ) {
     super();

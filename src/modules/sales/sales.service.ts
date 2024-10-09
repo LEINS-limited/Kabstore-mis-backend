@@ -15,6 +15,7 @@ import { EPaymentType } from 'src/common/Enum/EPaymentType.entity';
 import { ESaleStatus } from 'src/common/Enum/ESaleStatus.entity';
 import { CreateSaleDTO, CreateSaleItemDto } from './dto/sale.dto';
 import { SaleItem } from 'src/entities/saleItem.entity';
+import { Customer } from 'src/entities/customers.entity';
 
 @Injectable()
 export class SalesService {
@@ -94,8 +95,9 @@ export class SalesService {
   }
 
   async create(createSaleDto: CreateSaleDTO): Promise<Sale> {
-    let customer = null;
-    let saleItems = [];
+    let customer: Customer = null;
+    let saleItems : SaleItem[] = [];
+    let total = 0;
 
     if (createSaleDto.customerId != '') {
       customer = await this.customerService.getCustomerById(
@@ -114,14 +116,18 @@ export class SalesService {
         let product =await this.productService.getProductById(createSaleDto.saleItems[i].productId);
         let item = this.saleItemRepository.create({product, quantity : createSaleDto.saleItems[i].quantity})
         item = await this.saleItemRepository.save(item);
+        item.total = item.quantity * item.product.sellingPrice;
         saleItems.push(item)
     }
-
+    for(let i = 0; i < saleItems.length; i++ ){
+        total += saleItems[i].total;
+    }
     const newSale = this.saleRepository.create({
       ...createSaleDto,
       customer: customer,
       code: generateCode(),
-      saleItems: saleItems
+      saleItems: saleItems, 
+      totalPrice: total
     });
 
     return await this.saleRepository.save(newSale);

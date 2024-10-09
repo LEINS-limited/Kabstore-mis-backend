@@ -7,6 +7,16 @@ import { ESaleStatus } from "src/common/Enum/ESaleStatus.entity";
 import { CreateCustomerDTO } from "src/modules/customers/dtos/customers.dto";
 import { CreateVendorDTO } from "src/modules/vendors/dtos/vendors.dto";
 
+export class CreateSaleItemDto {
+  @ApiProperty()
+  @Min(0)
+  quantity: number;
+
+  @ApiProperty()
+  @IsUUID()
+  productId: string;
+}
+
 export class CreateSaleDTO {
   @ApiProperty({ required: false })
   @IsOptional()
@@ -29,9 +39,10 @@ export class CreateSaleDTO {
   @IsEnum(EPaymentType)
   paymentType: EPaymentType;
 
-  @ApiProperty()
-  @IsArray({})
-  @ValidateNested()
+  @IsArray()
+  @ValidateNested({ each: true }) // Validate each item in the array
+  @Type(() => CreateSaleItemDto) // Specify the type for each object in the array
+  @ApiProperty({ type: CreateSaleItemDto, isArray: true })
   saleItems: CreateSaleItemDto[];
 
   @ApiProperty()
@@ -39,13 +50,3 @@ export class CreateSaleDTO {
   amountDue: number;
 }
 
-export class CreateSaleItemDto{
-
-  @ApiProperty()
-  @Min(0)
-  quantity: number;
-
-  @ApiProperty()
-  @IsUUID()
-  productId: string;
-}
