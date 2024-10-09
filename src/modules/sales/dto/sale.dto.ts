@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Transform, Type } from "class-transformer";
-import {  IsEnum, IsOptional, IsString, Min } from "class-validator";
+import {  IsArray, IsEnum, IsOptional, IsString, IsUUID, Min, ValidateNested } from "class-validator";
 import { EPaymentType } from "src/common/Enum/EPaymentType.entity";
 import { EProductStatus } from "src/common/Enum/EProductStatus.enum";
 import { ESaleStatus } from "src/common/Enum/ESaleStatus.entity";
@@ -30,52 +30,22 @@ export class CreateSaleDTO {
   paymentType: EPaymentType;
 
   @ApiProperty()
+  @IsArray({})
+  @ValidateNested()
+  saleItems: CreateSaleItemDto[];
+
+  @ApiProperty()
   @Min(0)
   amountDue: number;
 }
 
-export class UpdateProductDto {
-  @ApiProperty()
-  @IsString()
-  name: string;
+export class CreateSaleItemDto{
 
   @ApiProperty()
-  categoryId: string;
-
-  @ApiProperty()
-  sellingPrice: number;
-
-  @ApiProperty()
-  costPrice: number;
-
-  @ApiProperty()
+  @Min(0)
   quantity: number;
 
   @ApiProperty()
-  safetyStock: number;
-
-  @ApiProperty()
-  // @IsISO8601()
-  @Transform(({ value }) => new Date(value))
-  addedDate: Date;
-
-  @ApiProperty()
-  // @IsISO8601()
-  @Transform(({ value }) => new Date(value))
-  expiryDate: Date;
-
-  @ApiProperty({ enum: EProductStatus })
-  @IsEnum(EProductStatus)
-  status: EProductStatus;
-}
-
-export class UpdateVendorDTO {
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @Type(() => CreateVendorDTO)
-  vendor?: CreateVendorDTO;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  vendorId?: string;
+  @IsUUID()
+  productId: string;
 }

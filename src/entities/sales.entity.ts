@@ -1,63 +1,47 @@
-import { EDiscountType } from "src/common/Enum/EDiscount.enum";
-import { EProductStatus } from "src/common/Enum/EProductStatus.enum";
 import { BaseEntity } from "src/db/base-entity";
-import {  Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany } from "typeorm";
-import { Category } from "./categories.entity";
+import {  Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { Customer } from "./customers.entity";
+import { SaleItem } from "./saleItem.entity";
+import { EPaymentType } from "src/common/Enum/EPaymentType.entity";
+import { ESaleStatus } from "src/common/Enum/ESaleStatus.entity";
 
 @Entity('sales')
 export class Sale extends BaseEntity {
-  @Column({unique:true})
-  name: string;
-
-  @Column({nullable:true})
-  code: string;
-
-  @Column()
-  sellingPrice: number;
-
-  @Column()
-  costPrice: number;
-
-  @Column({default:0})
-  quantity: number;
 
   @ManyToOne(() => Customer, (Customer) => Customer.sales, { eager: true })
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;
 
-  @ManyToOne(() => Category, (Category) => Category.products, { eager: true })
-  @JoinColumn({ name: 'category_id' })
-  category: Category;
+  @OneToMany(() => SaleItem, (SaleItem) => SaleItem.sale, { eager: true })
+  saleItems: SaleItem[];
 
-  @Column({default:0})
-  safetyStock: number;
+  @Column({ default: 0 })
+  amountDue: number;
 
-  @Column({default:0})
-  discountValue: number;
-
-  @Column({nullable:true})
-  expiryDate: Date;
+  @Column({nullable:false})
+  code: string;
 
   @Column()
-  status: EProductStatus;
+  saleDate: Date;
+
+  @Column()
+  status: ESaleStatus;
+
+  @Column()
+  paymentType: EPaymentType;
 
   constructor(
-    name: string,
-    sellingPrice: number,
-    costPrice: number,
-    quantity: number,
     customer: Customer,
-    safetyStock: number,
-    discountValue: number,
+    amountDue: number, 
+    saleDate: Date,
+    status: number,
+    paymentType: EPaymentType
   ) {
     super();
-    this.name = name;
-    this.sellingPrice = sellingPrice;
-    this.costPrice = costPrice;
-    this.quantity = quantity;
+    this.amountDue = amountDue;
+    this.saleDate = saleDate;
+    this.status = status;
+    this.paymentType = paymentType;
     this.customer = customer;
-    this.safetyStock = safetyStock;
-    this.discountValue = discountValue;
   }
 }

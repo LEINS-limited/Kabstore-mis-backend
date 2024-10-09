@@ -37,6 +37,7 @@ import { SalesModule } from './modules/sales/sales.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { Customer } from './entities/customers.entity';
 import { Sale } from './entities/sales.entity';
+import { SaleItem } from './entities/saleItem.entity';
 
 @Module({
   imports: [
@@ -50,7 +51,7 @@ import { Sale } from './entities/sales.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [User, Role, Product, Vendor , Category, Customer, Sale],
+        entities: [User, Role, Product, Vendor , Category, Customer, Sale, SaleItem],
         synchronize: true,
       }),
       inject: [ConfigService],
