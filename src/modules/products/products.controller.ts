@@ -58,7 +58,7 @@ export class ProductsController {
   }
 
 
-  @Patch('/product/:id')
+  @Patch('/vendor/:id')
   updateVendor(
     @Param('id') id: string,
     @Body() updateVendorDto: UpdateVendorDTO,

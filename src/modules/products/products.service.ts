@@ -15,6 +15,7 @@ import { CategoriesService } from '../categories/categories.service';
 import { VendorsService } from '../vendors/vendors.service';
 import { generateCode } from 'src/utils/generator';
 import { paginator } from 'src/utils/paginator';
+import { EProductStatus } from 'src/common/Enum/EProductStatus.enum';
 
 @Injectable()
 export class ProductsService {
@@ -39,12 +40,17 @@ export class ProductsService {
   async productsStats(): Promise<any> {
     const totalCount = await this.productRepository.count();
     const outOfStockCount = await this.productRepository.count({where: {quantity : 0}})
+    const draft  = await this.productRepository.count({where: {status:EProductStatus.DRAFT}})
+    const published = await this.productRepository.count({
+          where: { status: EProductStatus.PUBLISHED },
+        });
+
     const lowStockCount = await this.productRepository
       .createQueryBuilder('product')
       .where('product.quantity < product.safetyStock')
       .getCount();
       
-    return {totalCount, outOfStockCount, lowStockCount};
+    return {totalCount, outOfStockCount, lowStockCount, draft, published};
   }
 
   async countOutOfStockProducts(): Promise<number> {

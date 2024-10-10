@@ -63,6 +63,8 @@ export class SalesService {
       where: { paymentType: EPaymentType.BANK },
     });
 
+    const totalCustomers = await this.customerService.getCustomerCount();
+
     return {
       totalCount,
       payment_completed,
@@ -71,13 +73,16 @@ export class SalesService {
       paid_by_bank,
       paid_by_cash,
       paid_by_momo,
+      totalCustomers
     };
   }
 
   async getSalesPaginated(page: number, limit: number, search?: string) {
     const query = this.saleRepository
       .createQueryBuilder('sale')
-      .leftJoinAndSelect('sale.customer', 'customer');
+      .leftJoinAndSelect('sale.customer', 'customer')
+      .leftJoinAndSelect('sale.saleItems', 'saleItems')
+      .leftJoinAndSelect('saleItems.product', 'product');
 
     if (search) {
       query.where('sale.status ILIKE :search OR customer.name ILIKE :search', {
@@ -94,9 +99,28 @@ export class SalesService {
     return { sales, meta };
   }
 
+  async getSalesByProductPaginated(page: number, limit: number, productId:string) {
+    const query = this.saleRepository
+      .createQueryBuilder('sale')
+      .leftJoinAndSelect('sale.customer', 'customer')
+      .leftJoinAndSelect('sale.saleItems', 'saleItems')
+      .leftJoinAndSelect('saleItems.product', 'product')
+      .where('product.id = :productId', {
+        productId: `${productId}`, 
+      });
+
+    const [sales, count] = await query
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    const meta = paginator({ page, limit, total: count });
+    return { sales, meta };
+  }
+
   async create(createSaleDto: CreateSaleDTO): Promise<Sale> {
     let customer: Customer = null;
-    let saleItems : SaleItem[] = [];
+    let saleItems: SaleItem[] = [];
     let total = 0;
 
     if (createSaleDto.customerId != '') {
@@ -112,22 +136,27 @@ export class SalesService {
         'Please select sale items to create the sale!',
       );
     }
-    for(let i = 0; i < createSaleDto.saleItems.length; i++ ){
-        let product =await this.productService.getProductById(createSaleDto.saleItems[i].productId);
-        let item = this.saleItemRepository.create({product, quantity : createSaleDto.saleItems[i].quantity})
-        item = await this.saleItemRepository.save(item);
-        item.total = item.quantity * item.product.sellingPrice;
-        saleItems.push(item)
+    for (let i = 0; i < createSaleDto.saleItems.length; i++) {
+      let product = await this.productService.getProductById(
+        createSaleDto.saleItems[i].productId,
+      );
+      let item = this.saleItemRepository.create({
+        product,
+        quantity: createSaleDto.saleItems[i].quantity,
+      });
+      item = await this.saleItemRepository.save(item);
+      item.total = item.quantity * item.product.sellingPrice;
+      saleItems.push(item);
     }
-    for(let i = 0; i < saleItems.length; i++ ){
-        total += saleItems[i].total;
+    for (let i = 0; i < saleItems.length; i++) {
+      total += saleItems[i].total;
     }
     const newSale = this.saleRepository.create({
       ...createSaleDto,
       customer: customer,
       code: generateCode(),
-      saleItems: saleItems, 
-      totalPrice: total
+      saleItems: saleItems,
+      totalPrice: total,
     });
 
     return await this.saleRepository.save(newSale);

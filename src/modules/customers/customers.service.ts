@@ -22,6 +22,11 @@ export class CustomersService {
     return customer;
   }
 
+  async getCustomerCount(): Promise<number>{
+    const total = await this.customerRepository.count();
+    return total;
+  }
+
   async create(createCustomerDto: CreateCustomerDTO ): Promise<Customer> {
     const newCustomer = this.customerRepository.create(createCustomerDto);
     return  this.customerRepository.save(newCustomer);

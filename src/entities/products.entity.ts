@@ -1,9 +1,10 @@
 import { EDiscountType } from "src/common/Enum/EDiscount.enum";
 import { EProductStatus } from "src/common/Enum/EProductStatus.enum";
 import { BaseEntity } from "src/db/base-entity";
-import {  Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany } from "typeorm";
+import {  Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import { Vendor } from "./vendors.entity";
 import { Category } from "./categories.entity";
+import { SaleItem } from "./saleItem.entity";
 
 @Entity('products')
 export class Product extends BaseEntity {
@@ -41,6 +42,9 @@ export class Product extends BaseEntity {
 
   @Column()
   status: EProductStatus;
+
+  @OneToMany(()=> SaleItem, (SaleItem)=> SaleItem.product, {eager: false})
+  saleItems: SaleItem[];
 
   constructor(
     name: string,
