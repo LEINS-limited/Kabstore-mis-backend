@@ -8,6 +8,7 @@ import { Public } from 'src/decorators/public.decorator';
 @Controller('products')
 @ApiTags('products')
 @ApiBearerAuth()
+@Public()
 export class ProductsController {
   constructor(private readonly productService: ProductsService) {}
 

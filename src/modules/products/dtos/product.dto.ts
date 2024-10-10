@@ -9,7 +9,7 @@ export class CreateProductDTO {
   @IsString()
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({required:true})
   categoryId: string;
 
   @ApiProperty()
@@ -40,7 +40,8 @@ export class CreateProductDTO {
   @Transform(({ value }) => new Date(value))
   addedDate: Date;
 
-  @ApiProperty()
+  @ApiProperty({required:false})
+  @IsOptional()
   @Transform(({ value }) => new Date(value))
   expiryDate: Date;
 

@@ -11,7 +11,6 @@ export class Category extends BaseEntity {
   description: string;
 
   @OneToMany(() => Product, (Product) => Product.category, {cascade:true})
-  @JoinColumn({ name: 'product_id' })
   products: Product[];
 
   @Column({ nullable: true })

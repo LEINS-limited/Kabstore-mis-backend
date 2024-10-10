@@ -55,7 +55,7 @@ export class ProductsService {
   }
 
   async getProductsPaginated(page: number, limit: number, search?: string) {
-    const query = this.productRepository.createQueryBuilder('product');
+    const query = this.productRepository.createQueryBuilder('product').leftJoinAndSelect('product.category', 'category').leftJoinAndSelect('product.vendor', 'vendor');
 
     if (search) {
       query.where('product.name ILIKE :search OR product.code ILIKE :search', {
