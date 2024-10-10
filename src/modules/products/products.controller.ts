@@ -7,7 +7,6 @@ import { Public } from 'src/decorators/public.decorator';
 
 @Controller('products')
 @ApiTags('products')
-@Public()
 @ApiBearerAuth()
 export class ProductsController {
   constructor(private readonly productService: ProductsService) {}
@@ -21,7 +20,7 @@ export class ProductsController {
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
   @ApiQuery({ name: 'q', required: false })
-  async getFollowUps(
+  async getProducts(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
     @Query('q') q?: string,
@@ -58,7 +57,7 @@ export class ProductsController {
   }
 
 
-  @Patch('/vendor/:id')
+  @Patch('/product/:id')
   updateVendor(
     @Param('id') id: string,
     @Body() updateVendorDto: UpdateVendorDTO,

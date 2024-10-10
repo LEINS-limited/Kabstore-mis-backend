@@ -75,10 +75,12 @@ export class ProductsService {
 
   async existsByName(name: string): Promise<Boolean> {
     let exists = await this.productRepository.exist({ where: { name } });
+    
     return exists;
   }
   async create(createProductDto: CreateProductDTO): Promise<Product> {
-    if (this.existsByName(createProductDto.name)) {
+    
+    if (await this.existsByName(createProductDto.name)) {
       throw new BadRequestException(
         `Product with name ${createProductDto.name} already exists!`,
       );

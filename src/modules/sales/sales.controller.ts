@@ -15,7 +15,6 @@ import { CreateSaleDTO } from './dto/sale.dto';
 
 @Controller('sales')
 @ApiTags('sales')
-@Public()
 @ApiBearerAuth()
 export class SalesController {
   constructor(private readonly saleService: SalesService) {}
