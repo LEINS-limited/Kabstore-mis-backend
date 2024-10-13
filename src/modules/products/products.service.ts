@@ -64,10 +64,9 @@ export class ProductsService {
     const query = this.productRepository.createQueryBuilder('product').leftJoinAndSelect('product.category', 'category').leftJoinAndSelect('product.vendor', 'vendor');
 
     if (search) {
-      query.where('product.name ILIKE :search OR product.code ILIKE :search', {
-        search: `%${search}%`,
-      });
-      query.orWhere('product.code = :search', { search });
+       query.where('product.name ILIKE :search OR product.code ILIKE :search', {
+         search: `%${search}%`, // This ensures partial matches for both name and code
+       });
     }
 
     const [products, count] = await query
@@ -107,7 +106,7 @@ export class ProductsService {
       ...createProductDto,
       vendor: vendor,
       category: category,
-      code: generateCode(),
+      code: generateCode()
     });
 
     return await this.productRepository.save(newProduct);

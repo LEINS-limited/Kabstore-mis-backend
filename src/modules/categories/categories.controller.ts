@@ -19,6 +19,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 @Controller('categories')
 @ApiTags('categories')
 @ApiBearerAuth()
+@Public()
 export class CategoriesController {
   constructor(private readonly categoryService: CategoriesService) {}
 

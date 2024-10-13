@@ -13,7 +13,7 @@ import { CustomersService } from '../customers/customers.service';
 import { ProductsService } from '../products/products.service';
 import { EPaymentType } from 'src/common/Enum/EPaymentType.entity';
 import { ESaleStatus } from 'src/common/Enum/ESaleStatus.entity';
-import { CreateSaleDTO, CreateSaleItemDto } from './dto/sale.dto';
+import { CreateSaleDTO } from './dto/sale.dto';
 import { SaleItem } from 'src/entities/saleItem.entity';
 import { Customer } from 'src/entities/customers.entity';
 

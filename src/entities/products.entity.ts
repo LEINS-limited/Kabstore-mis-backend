@@ -1,7 +1,6 @@
-import { EDiscountType } from "src/common/Enum/EDiscount.enum";
 import { EProductStatus } from "src/common/Enum/EProductStatus.enum";
 import { BaseEntity } from "src/db/base-entity";
-import {  Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne } from "typeorm";
+import {  Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { Vendor } from "./vendors.entity";
 import { Category } from "./categories.entity";
 import { SaleItem } from "./saleItem.entity";
