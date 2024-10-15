@@ -1,10 +1,12 @@
 // File: helloAlgolia.mjs
 import { algoliasearch } from 'algoliasearch';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
-const appID = 'HMX2F929EI';
+const appID = process.env.ALGOLIA_APP_ID;
 // API key with `addObject` and `editSettings` ACL
-const apiKey = '0a4ed19fe8ef7f84cc4becdcf3a23986';
-const indexName = 'product-index';
+const apiKey = process.env.ALGOLIA_API_KEY;
+const indexName = process.env.ALGOLIA_INDEX_NAME;
 
 const client = algoliasearch(appID, apiKey);
 
