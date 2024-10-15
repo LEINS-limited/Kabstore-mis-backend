@@ -13,9 +13,10 @@ import { CategoriesModule } from '../categories/categories.module';
     CloudinaryModule,
     VendorsModule,
     CategoriesModule
+    
   ],
   providers: [ProductsService],
   controllers: [ProductsController],
-  exports: [ProductsService]
+  exports: [ProductsService],
 })
 export class ProductsModule {}

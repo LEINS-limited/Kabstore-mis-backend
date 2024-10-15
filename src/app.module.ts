@@ -43,7 +43,7 @@ import { SaleItem } from './entities/saleItem.entity';
   imports: [
     ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule], 
+      imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         host: configService.get('DB_HOST'),
@@ -51,7 +51,16 @@ import { SaleItem } from './entities/saleItem.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [User, Role, Product, Vendor , Category, Customer, Sale, SaleItem],
+        entities: [
+          User,
+          Role,
+          Product,
+          Vendor,
+          Category,
+          Customer,
+          Sale,
+          SaleItem,
+        ],
         synchronize: true,
       }),
       inject: [ConfigService],

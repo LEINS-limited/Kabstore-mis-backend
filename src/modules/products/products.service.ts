@@ -10,19 +10,21 @@ import {
   UpdateVendorDTO,
 } from './dtos/product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThan, Repository } from 'typeorm';
+import {  Repository } from 'typeorm';
 import { CategoriesService } from '../categories/categories.service';
 import { VendorsService } from '../vendors/vendors.service';
 import { generateCode } from 'src/utils/generator';
 import { paginator } from 'src/utils/paginator';
 import { EProductStatus } from 'src/common/Enum/EProductStatus.enum';
+import { saveObject } from 'src/utils/algolia';
+
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product) public productRepository: Repository<Product>,
     private categoryService: CategoriesService,
-    private vendorService: VendorsService,
+    private vendorService: VendorsService
   ) {}
   async getProducts(): Promise<Product[]> {
     const response = await this.productRepository.find();
@@ -34,39 +36,48 @@ export class ProductsService {
     if (!product) {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
-    return product;
+    return product; 
   }
 
   async productsStats(): Promise<any> {
     const totalCount = await this.productRepository.count();
-    const outOfStockCount = await this.productRepository.count({where: {quantity : 0}})
-    const draft  = await this.productRepository.count({where: {status:EProductStatus.DRAFT}})
+    const outOfStockCount = await this.productRepository.count({
+      where: { quantity: 0 },
+    });
+    const draft = await this.productRepository.count({
+      where: { status: EProductStatus.DRAFT },
+    });
     const published = await this.productRepository.count({
-          where: { status: EProductStatus.PUBLISHED },
-        });
+      where: { status: EProductStatus.PUBLISHED },
+    });
 
     const lowStockCount = await this.productRepository
       .createQueryBuilder('product')
       .where('product.quantity < product.safetyStock')
       .getCount();
-      
-    return {totalCount, outOfStockCount, lowStockCount, draft, published};
+
+    return { totalCount, outOfStockCount, lowStockCount, draft, published };
   }
 
   async countOutOfStockProducts(): Promise<number> {
-    const number = await this.productRepository.count({where: {
-      quantity: 0
-    }});
+    const number = await this.productRepository.count({
+      where: {
+        quantity: 0,
+      },
+    });
     return number;
   }
 
   async getProductsPaginated(page: number, limit: number, search?: string) {
-    const query = this.productRepository.createQueryBuilder('product').leftJoinAndSelect('product.category', 'category').leftJoinAndSelect('product.vendor', 'vendor');
+    const query = this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.category', 'category')
+      .leftJoinAndSelect('product.vendor', 'vendor');
 
     if (search) {
-       query.where('product.name ILIKE :search OR product.code ILIKE :search', {
-         search: `%${search}%`, // This ensures partial matches for both name and code
-       });
+      query.where('product.name ILIKE :search OR product.code ILIKE :search', {
+        search: `%${search}%`, // This ensures partial matches for both name and code
+      });
     }
 
     const [products, count] = await query
@@ -80,11 +91,10 @@ export class ProductsService {
 
   async existsByName(name: string): Promise<Boolean> {
     let exists = await this.productRepository.exist({ where: { name } });
-    
+
     return exists;
   }
   async create(createProductDto: CreateProductDTO): Promise<Product> {
-    
     if (await this.existsByName(createProductDto.name)) {
       throw new BadRequestException(
         `Product with name ${createProductDto.name} already exists!`,
@@ -106,8 +116,10 @@ export class ProductsService {
       ...createProductDto,
       vendor: vendor,
       category: category,
-      code: generateCode()
+      code: generateCode(),
     });
+
+    saveObject(newProduct);
 
     return await this.productRepository.save(newProduct);
   }
