@@ -154,7 +154,7 @@ export class SalesService {
     const newSale = this.saleRepository.create({
       ...createSaleDto,
       customer: customer,
-      code: generateCode(),
+      code: generateCode('P'),
       saleItems: saleItems,
       totalPrice: total,
     });

@@ -116,7 +116,7 @@ export class ProductsService {
       ...createProductDto,
       vendor: vendor,
       category: category,
-      code: generateCode(),
+      code: generateCode('P'),
     });
 
     saveObject(newProduct);

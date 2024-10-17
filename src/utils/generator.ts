@@ -1,9 +1,9 @@
-export function generateCode(identifierLength: number = 3): string {
-  const fixedChar = 'P';
+export function generateCode( fixedChar: string): string {
+
   const now = new Date();
   const month = (now.getMonth() + 1).toString().padStart(2, '0'); // MM
   const day = now.getDate().toString().padStart(2, '0'); // DD
-  const uniqueIdentifier = generateUniqueIdentifier(identifierLength); // Generate custom unique identifier
+  const uniqueIdentifier = generateUniqueIdentifier(3); // Generate custom unique identifier
 
   return `${fixedChar}-${month}${day}-${uniqueIdentifier}`;
 }

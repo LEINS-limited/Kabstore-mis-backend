@@ -16,7 +16,6 @@ import { HomeController } from './home/home.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailingModule } from './integrations/mailing/mailing.module';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { AuthModule } from './modules/auth/auth.module';
 import { AuthController } from './modules/auth/auth.controller';
 import { FilesModule } from './integrations/files/files.module';
@@ -38,6 +37,9 @@ import { CustomersModule } from './modules/customers/customers.module';
 import { Customer } from './entities/customers.entity';
 import { Sale } from './entities/sales.entity';
 import { SaleItem } from './entities/saleItem.entity';
+import { ExpensesModule } from './modules/expenses/expenses.module';
+import { Expense } from './entities/expense.entity';
+import { ExpenseItem } from './entities/expenseItem.entity';
 
 @Module({
   imports: [
@@ -60,6 +62,8 @@ import { SaleItem } from './entities/saleItem.entity';
           Customer,
           Sale,
           SaleItem,
+          Expense,
+          ExpenseItem
         ],
         synchronize: true,
       }),
@@ -86,7 +90,8 @@ import { SaleItem } from './entities/saleItem.entity';
     CloudinaryModule,
     CategoriesModule,
     SalesModule,
-    CustomersModule
+    CustomersModule,
+    ExpensesModule
   ],
   controllers: [AuthController, HomeController],
   providers: [{ provide: APP_GUARD, useClass: RolesGuard }],
