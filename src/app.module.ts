@@ -73,6 +73,7 @@ import { ExpenseItem } from './entities/expenseItem.entity';
       transport: {
         host: 'live.smtp.mailtrap.io',
         port: 587,
+        from : process.env.EMAIL,
         auth: {
           user: process.env.EMAIL_USERNAME,
           pass: process.env.EMAIL_PASSWORD,
