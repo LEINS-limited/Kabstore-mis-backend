@@ -63,7 +63,7 @@ import { ExpenseItem } from './entities/expenseItem.entity';
           Sale,
           SaleItem,
           Expense,
-          ExpenseItem
+          ExpenseItem,
         ],
         synchronize: true,
       }),
@@ -71,9 +71,8 @@ import { ExpenseItem } from './entities/expenseItem.entity';
     }),
     MailerModule.forRoot({
       transport: {
-        host: 'live.smtp.mailtrap.io',
+        host: 'smtp.ethereal.email',
         port: 587,
-        from : process.env.EMAIL,
         auth: {
           user: process.env.EMAIL_USERNAME,
           pass: process.env.EMAIL_PASSWORD,
@@ -93,7 +92,7 @@ import { ExpenseItem } from './entities/expenseItem.entity';
     CategoriesModule,
     SalesModule,
     CustomersModule,
-    ExpensesModule
+    ExpensesModule,
   ],
   controllers: [AuthController, HomeController],
   providers: [{ provide: APP_GUARD, useClass: RolesGuard }],
