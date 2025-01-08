@@ -71,7 +71,8 @@ import { ExpenseItem } from './entities/expenseItem.entity';
     }),
     MailerModule.forRoot({
       transport: {
-        host: 'smtp.gmail.com',
+        host: 'live.smtp.mailtrap.io',
+        port: 587,
         auth: {
           user: process.env.EMAIL_USERNAME,
           pass: process.env.EMAIL_PASSWORD,
