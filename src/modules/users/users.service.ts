@@ -21,11 +21,12 @@ import { ERole } from 'src/common/Enum/ERole.enum';
 import { User } from 'src/entities/user.entity';
 import { UtilsService } from 'src/utils/utils.service';
 import { LoginDTO } from 'src/common/dtos/lodin.dto';
-import { CreateUserDto } from 'src/common/dtos/create-user.dto';
 import { UUID } from 'crypto';
 import { EUserType } from 'src/common/Enum/EUserType.enum';
 import { MailingService } from 'src/integrations/mailing/mailing.service';
 import { RoleService } from '../roles/role.service';
+import { CreateAdminDto } from 'src/common/dtos/create-admin.dto';
+import { CreateUserDto } from 'src/common/dtos/create-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -163,7 +164,8 @@ export class UsersService {
     await this.userRepo.save(account);
     this.mailingService.sendEmail('', true, account);
   }
-  async createUser(body: CreateUserDto) {
+  //create admin
+  async createAdmin(body: CreateAdminDto) {
     let {
       firstName,
       lastName,
@@ -224,11 +226,78 @@ export class UsersService {
       return {
         success: true,
         message: `We have sent a verification code to your inbox , please verify your account! ${userToCreate.activationCode}`,
+        activationCode : userToCreate.activationCode
       };
     } catch (error) {
       console.log(error);
     }
   }
+
+  //create another user [SALES_PERSON OR OPERATIONS MANAGER] by admin
+  async createUser(body: CreateUserDto) {
+    let {
+      firstName,
+      lastName,
+      email,
+      username,
+      myGender,
+      national_id,
+      role,
+      phonenumber,
+      password,
+    } = body;    
+
+    let email2: any = email;
+    const userFetched = await this.userRepo.findOne({
+      where: {
+        email: email2,
+      },
+    });
+    if (userFetched) return new UnauthorizedException('Email already exists');
+
+    const status: String =
+      EAccountStatus[EAccountStatus.WAIT_EMAIL_VERIFICATION].toString();
+    let gender;
+    const erole = await this.roleService.getRoleByName(role);
+    switch (myGender.toLowerCase()) {
+      case 'male':
+        gender = EGender[EGender.MALE];
+        break;
+      case 'female':
+        gender = EGender[EGender.FEMALE];
+        break;
+      default:
+        throw new BadRequestException(
+          'The provided gender is invalid, should male or female',
+        );
+    }
+    const userToCreate = new User(
+      firstName,
+      lastName,
+      email,
+      username,
+      gender,
+      national_id,
+      phonenumber,
+      password,
+      EAccountStatus.WAIT_EMAIL_VERIFICATION,
+    );
+    userToCreate.activationCode = this.generateRandomFourDigitNumber();
+    userToCreate.password = await this.utilsService.hashString(password);
+    try {
+      const userEntity = this.userRepo.create(userToCreate);
+      const createdEnity = this.userRepo.save({ ...userEntity, roles: [erole] });
+      await this.mailingService.sendEmail('', false, createdEnity);
+      return {
+        success: true,
+        message: `We have sent a verification code to your inbox , please verify your account! ${userToCreate.activationCode}`,
+        activationCode : userToCreate.activationCode
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async verifyProfile(code: number) {
     try {
     } catch (error) {

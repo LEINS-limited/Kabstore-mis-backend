@@ -21,6 +21,7 @@ import { EAccountStatus } from '../common/Enum/EAccountStatus.enum';
 import { Role } from 'src/entities/role.entity';
 import { InitiatorAudit } from 'src/audits/Initiator.audit';
 import { UUID } from 'crypto';
+import { ERole } from 'src/common/Enum/ERole.enum';
 
 @Entity('users')
 @TableInheritance({ column: { type: 'varchar', name: 'type' } })
@@ -102,5 +103,7 @@ export class User extends InitiatorAudit {
     this.phonenumber = phonenumber;
     this.password = password;
     this.status = EAccountStatus[status];
+  
   }
+
 }
