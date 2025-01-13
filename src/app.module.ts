@@ -64,7 +64,7 @@ import { ReportsModule } from './modules/reports/reports.module';
           Sale,
           SaleItem,
           Expense,
-          ExpenseItem
+          ExpenseItem,
         ],
         synchronize: true,
       }),
@@ -72,7 +72,8 @@ import { ReportsModule } from './modules/reports/reports.module';
     }),
     MailerModule.forRoot({
       transport: {
-        host: 'smtp.gmail.com',
+        host: 'smtp.ethereal.email',
+        port: 587,
         auth: {
           user: process.env.EMAIL_USERNAME,
           pass: process.env.EMAIL_PASSWORD,

@@ -223,7 +223,7 @@ export class UsersService {
       await this.mailingService.sendEmail('', false, createdEnity);
       return {
         success: true,
-        message: `We have sent a verification code to your inbox , please verify your account`,
+        message: `We have sent a verification code to your inbox , please verify your account! ${userToCreate.activationCode}`,
       };
     } catch (error) {
       console.log(error);
