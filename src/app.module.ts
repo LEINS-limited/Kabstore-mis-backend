@@ -40,6 +40,7 @@ import { SaleItem } from './entities/saleItem.entity';
 import { ExpensesModule } from './modules/expenses/expenses.module';
 import { Expense } from './entities/expense.entity';
 import { ExpenseItem } from './entities/expenseItem.entity';
+import { ReportsModule } from './modules/reports/reports.module';
 
 @Module({
   imports: [
@@ -91,7 +92,8 @@ import { ExpenseItem } from './entities/expenseItem.entity';
     CategoriesModule,
     SalesModule,
     CustomersModule,
-    ExpensesModule
+    ExpensesModule,
+    ReportsModule
   ],
   controllers: [AuthController, HomeController],
   providers: [{ provide: APP_GUARD, useClass: RolesGuard }],
