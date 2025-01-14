@@ -32,9 +32,12 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-
   app.useGlobalPipes(new ValidationPipe());
-  await app.listen(3000);
+  app.listen(3000).then(_d => {
+    console.log(`Server listening at: http://localhost:3000`);
+    console.log('Swagger api: http://localhost:3000/api');
+  });
+ 
 
   // insert the roles in the database at the application starting
 }
