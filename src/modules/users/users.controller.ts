@@ -25,7 +25,7 @@ import { ApiResponse } from 'src/common/payload/ApiResponse';
 import { Public } from 'src/decorators/public.decorator';
 import { UpdateUserDto } from 'src/common/dtos/update-user.dto';
 import { CreateAdminDto } from 'src/common/dtos/create-admin.dto';
-import { CreateUserDto } from 'src/common/dtos/create-user.dto';
+import { CreateUserByAdminDto, CreateUserDto } from 'src/common/dtos/create-user.dto';
 @ApiTags('users')
 @Controller('users')
 @ApiBearerAuth()
@@ -57,9 +57,9 @@ export class UsersController {
 
   @Public()
   @Post('/create/user')
-  @ApiBody({ type: CreateUserDto })
+  @ApiBody({ type: CreateUserByAdminDto })
   @Roles('ADMIN')
-  createUserAccount(@Body() body: CreateUserDto) {
+  createUserAccount(@Body() body: CreateUserByAdminDto) {
     return this.usersService.createUser(body);
   }
 

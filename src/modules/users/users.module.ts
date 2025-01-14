@@ -15,14 +15,25 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UtilsModule } from 'src/utils/utils.module';
 import { JwtModule } from '@nestjs/jwt';
 import { RoleModule } from '../roles/role.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Global()
 @Module({
   controllers: [UsersController],
+  
   imports: [
     TypeOrmModule.forFeature([User]),
     RoleModule,
-    JwtModule,
+    JwtModule.registerAsync({
+          imports: [ConfigModule],
+          useFactory: async (configService: ConfigService) => ({
+            secret: configService.get<string>('SECRET_KEY'),
+            signOptions: {
+              expiresIn: '1d',
+            },
+          }),
+          inject: [ConfigService],
+        }),
     UtilsModule,
   ],
   providers: [UsersService],

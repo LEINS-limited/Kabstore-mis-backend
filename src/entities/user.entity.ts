@@ -81,6 +81,9 @@ export class User extends InitiatorAudit {
   @Column()
   national_id: String;
 
+  @Column({nullable:true})
+  resetToken: string;
+
   constructor(
     firstName: String,
     lastName: String,
