@@ -23,8 +23,9 @@ import { Roles } from 'src/utils/decorators/roles.decorator';
 import { UUID } from 'crypto';
 import { ApiResponse } from 'src/common/payload/ApiResponse';
 import { Public } from 'src/decorators/public.decorator';
-import { CreateUserDto } from 'src/common/dtos/create-user.dto';
 import { UpdateUserDto } from 'src/common/dtos/update-user.dto';
+import { CreateAdminDto } from 'src/common/dtos/create-admin.dto';
+import { CreateUserByAdminDto, CreateUserDto } from 'src/common/dtos/create-user.dto';
 @ApiTags('users')
 @Controller('users')
 @ApiBearerAuth()
@@ -48,11 +49,20 @@ export class UsersController {
   }
 
   @Public()
-  @Post('/create')
-  @ApiBody({ type: CreateUserDto })
-  createAdminAccount(@Body() body: CreateUserDto) {
+  @Post('/create/admin')
+  @ApiBody({ type: CreateAdminDto })
+  createAdminAccount(@Body() body: CreateAdminDto) {
+    return this.usersService.createAdmin(body);
+  }
+
+  @Public()
+  @Post('/create/user')
+  @ApiBody({ type: CreateUserByAdminDto })
+  @Roles('ADMIN')
+  createUserAccount(@Body() body: CreateUserByAdminDto) {
     return this.usersService.createUser(body);
   }
+
 
   @Patch('update/:id')
   @Roles('ADMIN')

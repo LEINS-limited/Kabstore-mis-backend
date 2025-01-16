@@ -73,7 +73,7 @@ export class UtilsService {
       return await this.userService.getUserById(details.id, 'User');
     } else {
       throw new UnauthorizedException(
-        'Please you are not authorized to access resource',
+        'You are not authorized to access resource',
       );
     }
   }

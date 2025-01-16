@@ -21,11 +21,19 @@ import { ERole } from 'src/common/Enum/ERole.enum';
 import { User } from 'src/entities/user.entity';
 import { UtilsService } from 'src/utils/utils.service';
 import { LoginDTO } from 'src/common/dtos/lodin.dto';
-import { CreateUserDto } from 'src/common/dtos/create-user.dto';
 import { UUID } from 'crypto';
 import { EUserType } from 'src/common/Enum/EUserType.enum';
 import { MailingService } from 'src/integrations/mailing/mailing.service';
 import { RoleService } from '../roles/role.service';
+import { CreateAdminDto } from 'src/common/dtos/create-admin.dto';
+import { CreateUserByAdminDto, CreateUserDto } from 'src/common/dtos/create-user.dto';
+import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
+import { create } from 'domain';
+import { JwtService } from '@nestjs/jwt';
+import { EUserStatus } from 'src/common/Enum/EUserStatus.enum';
+import { ResetPasswordForFirstTimeUserDTO } from 'src/common/dtos/reset-password-first-time-user.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
@@ -34,6 +42,9 @@ export class UsersService {
     // @Inject(forwardRef(() => RoleService))
     private roleService: RoleService,
     @Inject(forwardRef(() => UtilsService))
+    @Inject(forwardRef(() => ConfigService))
+    private configService: ConfigService,
+    private jwtService: JwtService,
     private utilsService: UtilsService,
     private mailingService: MailingService,
   ) {}
@@ -163,7 +174,8 @@ export class UsersService {
     await this.userRepo.save(account);
     this.mailingService.sendEmail('', true, account);
   }
-  async createUser(body: CreateUserDto) {
+  //create admin
+  async createAdmin(body: CreateAdminDto) {
     let {
       firstName,
       lastName,
@@ -224,11 +236,115 @@ export class UsersService {
       return {
         success: true,
         message: `We have sent a verification code to your inbox , please verify your account! ${userToCreate.activationCode}`,
+        activationCode: userToCreate.activationCode,
       };
     } catch (error) {
       console.log(error);
     }
   }
+
+  //create another user [SALES_PERSON OR OPERATIONS MANAGER] by admin
+  async createUser(body: CreateUserByAdminDto) {
+    let {
+      firstName,
+      lastName,
+      email,
+      username,
+      myGender,
+      national_id,
+      role,
+      phonenumber,
+    } = body;
+
+    let email2: any = email;
+    const userFetched = await this.userRepo.findOne({
+      where: {
+        email: email2,
+      },
+    });
+    if (userFetched) return new UnauthorizedException('Email already exists');
+    const tempPassword = crypto.randomBytes(8).toString('hex');
+    const hashedPassword = await this.utilsService.hashString(tempPassword);
+    let gender;
+    const erole = await this.roleService.getRoleByName(role);
+    switch (myGender.toLowerCase()) {
+      case 'male':
+        gender = EGender[EGender.MALE];
+        break;
+      case 'female':
+        gender = EGender[EGender.FEMALE];
+        break;
+      default:
+        throw new BadRequestException(
+          'The provided gender is invalid, should male or female',
+        );
+    }
+    const userToCreate = new User(
+      firstName,
+      lastName,
+      email,
+      username,
+      gender,
+      national_id,
+      phonenumber,
+      hashedPassword,
+      EAccountStatus.WAIT_EMAIL_VERIFICATION,
+    );
+    userToCreate.activationCode = this.generateRandomFourDigitNumber();
+    try {
+      const userEntity = this.userRepo.create(userToCreate);
+      const tokens = await this.utilsService.getTokens(userEntity);
+      const createdEnity = await this.userRepo.save({
+        ...userEntity,
+        resetToken: tokens.accessToken.toString(),
+        roles: [erole],
+      });
+      await this.mailingService.sendEmail(
+        `https://your-frontend.com/reset-password?token=${tokens.accessToken}`,
+        true,
+        createdEnity,
+      );
+      return {
+        success: true,
+        message: `We have sent a verification code to your inbox , please verify your account and reset your password! ${userToCreate.activationCode}`,
+        activationCode: userToCreate.activationCode,
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async resetPasswordForFirstTimeUser(
+    token: string,
+    body: ResetPasswordForFirstTimeUserDTO,
+  ): Promise<void> {
+    try {
+      const user = await this.userRepo.findOne({
+        where: { resetToken: token },
+      });
+
+      if (!user) {
+        throw new BadRequestException('Invalid or expired token');
+      }
+      await this.jwtService.verifyAsync(token, {
+        //TODO
+        secret: 'RCA-MIS1234@/2323o',
+      });
+      user.password = await bcrypt.hash(body.newPassword, 10);
+      user.status = EUserStatus[EUserStatus.ACTIVE];
+      user.resetToken = null;
+      await this.userRepo.save(user);
+    } catch (error) {
+      console.log(error);
+
+      if (error.name === 'TokenExpiredError') {
+        throw new BadRequestException('Token has expired');
+      } else {
+        throw new UnauthorizedException('Token is invalid');
+      }
+    }
+  }
+
   async verifyProfile(code: number) {
     try {
     } catch (error) {
