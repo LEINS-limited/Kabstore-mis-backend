@@ -79,7 +79,7 @@ export class AuthController {
       await this.userService.getVerificationCode(email, true),
     );
   }
-  @Get('get_reset_token/:email')
+  @Get('get_reset_password_token/:email')
   @Public()
   async getResetPasswordToken(
     @Param('email') email: string,

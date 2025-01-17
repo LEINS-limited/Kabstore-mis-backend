@@ -163,14 +163,9 @@ export class UsersService {
   async getVerificationCode(email: string, reset: boolean) {
     const account = await this.getUserByEmail(email);
     if (!account) throw new BadRequestException('This account does not exist');
-    if (
-      account.status == EAccountStatus[EAccountStatus.WAIT_EMAIL_VERIFICATION]
-    )
-      throw new BadRequestException(
-        "Please first verify your account and we'll help you to remember your password later",
-      );
+   
     account.activationCode = this.generateRandomFourDigitNumber();
-    if (reset) account.status = EAccountStatus[EAccountStatus.INACTIVE];
+    if (reset) account.status = EAccountStatus[EAccountStatus.WAIT_EMAIL_VERIFICATION];
     await this.userRepo.save(account);
     this.mailingService.sendEmail('', true, account);
     return { code: account.activationCode };
