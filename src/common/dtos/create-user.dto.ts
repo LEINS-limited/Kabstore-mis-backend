@@ -37,7 +37,7 @@ export class CreateUserDto {
     @ApiProperty()
     myGender: string;
 
-    @ApiProperty({ enum: ERole , example: ERole.USER})
+    @ApiProperty({ enum: ERole })
     @IsEnum(ERole)
     role: ERole;
 
@@ -85,7 +85,7 @@ export class CreateUserByAdminDto {
   @ApiProperty()
   myGender: string;
 
-  @ApiProperty({ enum: ERole, example: ERole.USER })
+  @ApiProperty({ enum: ERole })
   @IsEnum(ERole)
   role: ERole;
 

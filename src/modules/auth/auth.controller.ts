@@ -79,6 +79,17 @@ export class AuthController {
       await this.userService.getVerificationCode(email, true),
     );
   }
+  @Get('get_reset_token/:email')
+  @Public()
+  async getResetPasswordToken(
+    @Param('email') email: string,
+  ): Promise<ApiResponse> {
+    return new ApiResponse(
+      true,
+      'We have sent a reset password token',
+      await this.userService.getResetPasswordToken(email, true),
+    );
+  }
 
   @Put('reset_password')
   @Public()
@@ -91,7 +102,10 @@ export class AuthController {
   }
   @Put('reset_password/first_time_user/:token')
   @Public()
-  async resetPasswordFirstTimeUser(@Param("token") token : string, @Body() dto: ResetPasswordForFirstTimeUserDTO): Promise<ApiResponse> {
+  async resetPasswordFirstTimeUser(
+    @Param('token') token: string,
+    @Body() dto: ResetPasswordForFirstTimeUserDTO,
+  ): Promise<ApiResponse> {
     return new ApiResponse(
       true,
       'Your password was rest successfully ',
