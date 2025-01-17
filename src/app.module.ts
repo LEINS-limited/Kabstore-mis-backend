@@ -41,6 +41,9 @@ import { ExpensesModule } from './modules/expenses/expenses.module';
 import { Expense } from './entities/expense.entity';
 import { ExpenseItem } from './entities/expenseItem.entity';
 import { ReportsModule } from './modules/reports/reports.module';
+import { IpasiProduct } from './entities/ipasiProduct.entity';
+import { ExpenseType } from './entities/expenseType.entity';
+import { GeneralStoreInfo } from './entities/generalStoreInfo.entity';
 
 @Module({
   imports: [
@@ -63,8 +66,10 @@ import { ReportsModule } from './modules/reports/reports.module';
           Customer,
           Sale,
           SaleItem,
+          IpasiProduct,
           Expense,
-          ExpenseItem,
+          ExpenseType,
+          GeneralStoreInfo
         ],
         synchronize: true,
       }),
@@ -72,8 +77,8 @@ import { ReportsModule } from './modules/reports/reports.module';
     }),
     MailerModule.forRoot({
       transport: {
-        host: 'smtp.ethereal.email',
-        port: 587,
+        host: process.env.EMAIL_HOST,
+        port: +process.env.EMAIL_PORT,
         auth: {
           user: process.env.EMAIL_USERNAME,
           pass: process.env.EMAIL_PASSWORD,

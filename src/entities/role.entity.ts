@@ -7,12 +7,10 @@
  * @file
  * @brief Role entity
  */
-import { ERole } from 'src/common/Enum/ERole.enum';
 import {
   Column,
   Entity,
   ManyToMany,
-  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from './user.entity';

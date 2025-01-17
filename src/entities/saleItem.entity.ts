@@ -3,30 +3,16 @@ import { Product } from "./products.entity";
 import { Sale } from "./sales.entity";
 import { BaseEntity } from "src/db/base-entity";
 
-@Entity()
+@Entity('sale_items')
 export class SaleItem extends BaseEntity {
-
-  @ManyToOne(() => Product,(Product )=>Product.saleItems, {eager:true })
-  @JoinColumn({name: "product_id"})
-  product: Product;
-
-  @Column({default:1})
-  quantity: number;
-
-  @ManyToOne(() => Sale, (Sale) => Sale.saleItems)
+  @ManyToOne(() => Sale)
+  @JoinColumn()
   sale: Sale;
 
-  @Column({default:0})
-  total: number;
+  @ManyToOne(() => Product)
+  @JoinColumn()
+  product: Product;
 
-  constructor(
-    quantity: number,
-    sale: Sale,
-    product: Product
-  ) {
-    super();
-    this.quantity = quantity;
-    this.sale = sale;
-    this.product = product;
-  }
+  @Column('int')
+  quantitySold: number;
 }

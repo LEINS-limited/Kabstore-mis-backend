@@ -11,7 +11,7 @@ export class ExpenseItem extends BaseEntity {
   @Column({ default: 0, enum: EExpenseCategory })
   category: EExpenseCategory;
 
-  @OneToMany(() => Expense, (Expense) => Expense.expenseItem, { cascade: true })
+  @OneToMany(() => Expense, (expense) => expense.expenseItem, { cascade: true })
   expenses: Expense[];
 
   constructor(name: string, category: EExpenseCategory) {

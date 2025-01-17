@@ -1,46 +1,32 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from "typeorm";
 import { ExpenseItem } from "./expenseItem.entity";
-import { EPaymentType } from "src/common/Enum/EPaymentType.entity";
 import { ExpenseStatus } from "src/common/Enum/ExpenseStatus.enum";
 import { BaseEntity } from "src/db/base-entity";
+import { ExpenseType } from "./expenseType.entity";
+import { PaymentMethod } from "src/common/enums/index";
 
 @Entity('expenses')
 export class Expense extends BaseEntity {
- 
-  @ManyToOne(() => ExpenseItem, (ExpenseItem) => ExpenseItem.expenses, {
-    eager: true,
-  })
-  @JoinColumn({ name: 'expense_item_id' })
-  expenseItem: ExpenseItem;
+  @ManyToOne(() => ExpenseType)
+  @JoinColumn()
+  expenseType: ExpenseType;
 
-  @Column({ default: 0 })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  timestamp: Date;
+
+  @Column('decimal', { precision: 10, scale: 2 })
   amount: number;
 
-  @Column({ nullable: false })
-  code: string;
+  @Column({
+    type: 'enum',
+    enum: PaymentMethod
+  })
+  paymentMethod: PaymentMethod;
 
-  @Column()
-  expenseDate: Date;    
-
-  @Column({ enum: ExpenseStatus })
+  @Column({
+    type: 'enum',
+    enum: ExpenseStatus,
+    default: ExpenseStatus.PENDING
+  })
   status: ExpenseStatus;
-
-  @Column({ enum: EPaymentType })
-  paymentType: EPaymentType;
-
-
-  constructor(
-    expenseItem: ExpenseItem,
-    amount: number,
-    expenseDate: Date,
-    status: ExpenseStatus,
-    paymentType: EPaymentType,
-  ) {
-    super();
-    this.amount = amount;
-    this.expenseDate = expenseDate;
-    this.status = status;
-    this.paymentType = paymentType;
-    this.expenseItem = expenseItem;
-  }
 }
