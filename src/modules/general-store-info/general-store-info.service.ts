@@ -31,7 +31,7 @@ export class GeneralStoreInfoService {
     return generalStoreInfo[0];
   }
 
-  async update(id: string, updateDto: UpdateGeneralStoreInfoDto): Promise<GeneralStoreInfo> {
+  async update(updateDto: UpdateGeneralStoreInfoDto): Promise<GeneralStoreInfo> {
     const generalStoreInfo = await this.findAll();
     Object.assign(generalStoreInfo[0], updateDto);
     return await this.generalStoreInfoRepository.save(generalStoreInfo[0]);

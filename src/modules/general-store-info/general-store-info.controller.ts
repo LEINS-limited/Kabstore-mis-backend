@@ -31,14 +31,13 @@ export class GeneralStoreInfoController {
     return await this.generalStoreInfoService.findOne(id);
   }
 
-  @Put(':id')
+  @Put('')
   @ApiOperation({ summary: 'Update general store info' })
   @ApiResponse({ status: HttpStatus.OK, type: GeneralStoreInfo })
   async update(
-    @Param('id') id: string,
     @Body() updateDto: UpdateGeneralStoreInfoDto,
   ): Promise<GeneralStoreInfo> {
-    return await this.generalStoreInfoService.update(id, updateDto);
+    return await this.generalStoreInfoService.update(updateDto);
   }
 
   @Delete(':id')

@@ -24,7 +24,7 @@ export class CreateGeneralStoreInfoDto {
   @IsNumber()
   @IsNotEmpty()
   @Min(0)
-  @ApiProperty({ description: 'The conversion rate to Dirham', example: 1000 })
+  @ApiProperty({ description: 'The conversion rate to Dirham', example: 1000 }) 
   toDirham: number;
 }
 
