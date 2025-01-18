@@ -37,10 +37,7 @@ export class GeneralStoreInfoService {
     return await this.generalStoreInfoRepository.save(generalStoreInfo[0]);
   }
 
-  async remove(id: string): Promise<void> {
-    const result = await this.generalStoreInfoRepository.delete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(`General store info with ID ${id} not found`);
-    }
+  async remove(): Promise<void> {
+    await this.generalStoreInfoRepository.clear(); // Deletes all records
   }
 } 

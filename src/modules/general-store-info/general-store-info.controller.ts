@@ -39,11 +39,10 @@ export class GeneralStoreInfoController {
   ): Promise<GeneralStoreInfo> {
     return await this.generalStoreInfoService.update(updateDto);
   }
-
-  @Delete(':id')
+  @Delete()
   @ApiOperation({ summary: 'Delete general store info' })
   @ApiResponse({ status: HttpStatus.NO_CONTENT })
-  async remove(@Param('id') id: string): Promise<void> {
-    await this.generalStoreInfoService.remove(id);
+  async remove(): Promise<void> {
+    await this.generalStoreInfoService.remove();
   }
 } 
