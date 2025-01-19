@@ -43,7 +43,8 @@ import { ExpenseItem } from './entities/expenseItem.entity';
 import { ReportsModule } from './modules/reports/reports.module';
 import { IpasiProduct } from './entities/ipasiProduct.entity';
 import { ExpenseType } from './entities/expenseType.entity';
-import { GeneralStoreInfo } from './entities/generalStoreInfo.entity';
+import { GeneralStoreInfoModule } from './modules/general-store-info/general-store-info.module';
+import { GeneralStoreInfo } from './entities/general-store-info.entity';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { GeneralStoreInfo } from './entities/generalStoreInfo.entity';
           IpasiProduct,
           Expense,
           ExpenseType,
+          ExpenseItem,
           GeneralStoreInfo
         ],
         synchronize: true,
@@ -99,7 +101,8 @@ import { GeneralStoreInfo } from './entities/generalStoreInfo.entity';
     SalesModule,
     CustomersModule,
     ExpensesModule,
-    ReportsModule
+    ReportsModule,
+    GeneralStoreInfoModule
   ],
   controllers: [AuthController, HomeController],
   providers: [{ provide: APP_GUARD, useClass: RolesGuard }],

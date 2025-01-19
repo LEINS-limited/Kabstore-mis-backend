@@ -4,6 +4,7 @@ import { Customer } from "./customers.entity";
 import { SaleItem } from "./saleItem.entity";
 import { EPaymentType } from "src/common/Enum/EPaymentType.entity";
 import { ESaleStatus } from "src/common/Enum/ESaleStatus.entity";
+import { IpasiProductDTO } from "src/common/dtos/ipasi-product.dto";
 
 @Entity('sales')
 export class Sale extends BaseEntity {
@@ -32,6 +33,9 @@ export class Sale extends BaseEntity {
 
   @Column({default:0})
   totalPrice: number;
+
+  @Column('jsonb', {nullable:true})
+  ipasiProducts: IpasiProductDTO[];
 
   constructor(
     customer: Customer,

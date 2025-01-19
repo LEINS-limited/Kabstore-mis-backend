@@ -85,7 +85,11 @@ export class CreateUserByAdminDto {
   @ApiProperty()
   myGender: string;
 
+<<<<<<< HEAD
   @ApiProperty({ enum: ERole, example: ERole.OPERATIONS_MANAGER })
+=======
+  @ApiProperty({ enum: ERole })
+>>>>>>> 86638e962096c42def97accc6354df59c6fedc34
   @IsEnum(ERole)
   role: ERole;
 

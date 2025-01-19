@@ -163,16 +163,26 @@ export class UsersService {
   async getVerificationCode(email: string, reset: boolean) {
     const account = await this.getUserByEmail(email);
     if (!account) throw new BadRequestException('This account does not exist');
-    if (
-      account.status == EAccountStatus[EAccountStatus.WAIT_EMAIL_VERIFICATION]
-    )
-      throw new BadRequestException(
-        "Please first verify your account and we'll help you to remember your password later",
-      );
+   
     account.activationCode = this.generateRandomFourDigitNumber();
+    if (reset) account.status = EAccountStatus[EAccountStatus.WAIT_EMAIL_VERIFICATION];
+    await this.userRepo.save(account);
+    this.mailingService.sendEmail('', true, account);
+    return { code: account.activationCode };
+  }
+
+  async getResetPasswordToken(email: string, reset: boolean) {
+    const account = await this.getUserByEmail(email);
+    if (!account) throw new BadRequestException('This account does not exist');
+    const tempPassword = crypto.randomBytes(8).toString('hex');
+    const hashedPassword = await this.utilsService.hashString(tempPassword);
+    account.password = hashedPassword;
+    const tokens = await this.utilsService.getTokens(account);
+    account.resetToken = tokens.accessToken.toString();
     if (reset) account.status = EAccountStatus[EAccountStatus.INACTIVE];
     await this.userRepo.save(account);
     this.mailingService.sendEmail('', true, account);
+    return { token: account.resetToken , temporaryPassword : tempPassword};
   }
   //create admin
   async createAdmin(body: CreateAdminDto) {
@@ -306,8 +316,9 @@ export class UsersService {
       );
       return {
         success: true,
-        message: `We have sent a verification code to your inbox , please verify your account and reset your password! ${userToCreate.activationCode}`,
-        activationCode: userToCreate.activationCode,
+        message: `We have sent a verification link to your inbox , please verify your account and reset your password! ${createdEnity.resetToken}`,
+        password : tempPassword,
+        token: createdEnity.resetToken,
       };
     } catch (error) {
       console.log(error);
@@ -327,7 +338,6 @@ export class UsersService {
         throw new BadRequestException('Invalid or expired token');
       }
       await this.jwtService.verifyAsync(token, {
-        //TODO
         secret: 'RCA-MIS1234@/2323o',
       });
       user.password = await bcrypt.hash(body.newPassword, 10);
