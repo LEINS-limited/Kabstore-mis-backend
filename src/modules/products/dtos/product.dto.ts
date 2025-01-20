@@ -10,7 +10,7 @@ export class CreateProductDTO {
   name: string;
 
   @ApiProperty({required:true})
-  categoryId: string;
+  categoryIds: string[];
 
   @ApiProperty()
   @Min(0)
@@ -22,7 +22,19 @@ export class CreateProductDTO {
 
   @ApiProperty()
   @Min(0)
-  quantity: number;
+  shippingCost: number;
+
+  @ApiProperty()
+  @Min(0)
+  inStock: number;
+
+  @ApiProperty()
+  @IsBoolean()
+  taxable : boolean;
+
+  @ApiProperty()
+  @Min(0)
+  taxAmount: number;
 
   @ApiProperty({required:false})
   @IsOptional()
@@ -38,7 +50,7 @@ export class CreateProductDTO {
 
   @ApiProperty()
   @Transform(({ value }) => new Date(value))
-  addedDate: Date;
+  dateAdded: Date;
 
   @ApiProperty({required:false})
   @IsOptional()
@@ -56,13 +68,29 @@ export class UpdateProductDto {
   name: string;
 
   @ApiProperty()
-  categoryId: string;
+  categoryIds: string[];
 
   @ApiProperty()
   sellingPrice: number;
 
   @ApiProperty()
   costPrice: number;
+  
+  @ApiProperty()
+  @Min(0)
+  shippingCost: number;
+
+
+  @ApiProperty()
+  @IsBoolean()
+  taxable : boolean;
+
+  @ApiProperty()
+  @Min(0)
+  taxAmount: number;
+
+  @ApiProperty()
+  profitPercentage: number;
 
   @ApiProperty()
   quantity: number;

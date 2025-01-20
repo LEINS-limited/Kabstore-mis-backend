@@ -1,6 +1,6 @@
 import { EProductStatus } from "src/common/Enum/EProductStatus.enum";
 import { BaseEntity } from "src/db/base-entity";
-import {  Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
+import {  Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany } from "typeorm";
 import { Vendor } from "./vendors.entity";
 import { Category } from "./categories.entity";
 import { SaleItem } from "./saleItem.entity";
@@ -17,6 +17,15 @@ export class Product extends BaseEntity {
   sellingPrice: number;
 
   @Column()
+  additionalExpenses :number;
+
+  @Column()
+  generalProfitPercentage : number;
+
+  @Column()
+  initialPrice : number;
+
+  @Column()
   costPrice: number;
 
   @Column()
@@ -24,9 +33,6 @@ export class Product extends BaseEntity {
 
   @Column({default: 0})
   taxAmount: number;
-
-  @Column()
-  inStock : number;
 
   @Column({default: false})
   taxable: boolean;
@@ -38,9 +44,9 @@ export class Product extends BaseEntity {
   @JoinColumn({ name: 'vendor_id' })
   vendor: Vendor;
 
-  @ManyToOne(() => Category, (Category) => Category.products, { eager: true })
+  @ManyToMany(() => Category, (Category) => Category.products, { eager: true })
   @JoinColumn({ name: 'category_id' })
-  category: Category;
+  categories: Category[];
 
   @Column({ default: 0 })
   safetyStock: number;
@@ -50,6 +56,9 @@ export class Product extends BaseEntity {
 
   @Column({ nullable: true })
   expiryDate: Date;
+
+  @Column({ nullable: true })
+  dateAdded: Date;
 
   @Column()
   status: EProductStatus;

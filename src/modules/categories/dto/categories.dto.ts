@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateCategoryDTO {
   @ApiProperty()
@@ -8,6 +8,11 @@ export class CreateCategoryDTO {
 
   @ApiProperty()
   description: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  profitPercentage: number;
 
   @ApiProperty({
     description: 'Product icon',

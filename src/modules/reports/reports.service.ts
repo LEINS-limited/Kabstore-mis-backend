@@ -45,8 +45,8 @@ export class ReportsService {
                                          (product.additionalExpenses || 0);
 
                     // Calculate selling price
-                    const profitPercentage = product.category.profitPercentage || 
-                                           product.generalProfitPercentage;
+                    // const profitPercentage = product.category.profitPercentage || 
+                    //                        product.generalProfitPercentage;
                     
                     const revenue = item.product.sellingPrice * item.quantity;
                     const cost = totalCostPrice * item.quantity;

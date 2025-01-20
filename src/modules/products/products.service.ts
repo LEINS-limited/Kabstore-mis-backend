@@ -17,6 +17,7 @@ import { generateCode } from 'src/utils/generator';
 import { paginator } from 'src/utils/paginator';
 import { EProductStatus } from 'src/common/Enum/EProductStatus.enum';
 import { saveObject } from 'src/utils/algolia';
+import { Category } from 'src/entities/categories.entity';
 
 
 @Injectable()
@@ -100,9 +101,11 @@ export class ProductsService {
         `Product with name ${createProductDto.name} already exists!`,
       );
     }
-    let category = await this.categoryService.getCategoryById(
-      createProductDto.categoryId,
-    );
+    let categories : Category[] = [];
+    for (const categoryId of createProductDto.categoryIds) {
+      const category = await this.categoryService.getCategoryById(categoryId);
+      categories.push(category);
+    }
     let vendor = null;
 
     if (createProductDto.vendorId != '') {
@@ -115,7 +118,7 @@ export class ProductsService {
     const newProduct = this.productRepository.create({
       ...createProductDto,
       vendor: vendor,
-      category: category,
+      categories: categories,
       code: generateCode('P'),
     });
 
@@ -130,11 +133,12 @@ export class ProductsService {
   ): Promise<Product> {
     const product = await this.getProductById(id);
     Object.assign(product, updateProductDto);
-    let category = await this.categoryService.getCategoryById(
-      updateProductDto.categoryId,
-    );
-
-    product.category = category;
+    let categories = [];
+    for(const categoryId of updateProductDto.categoryIds){
+      let category = await this.categoryService.getCategoryById(categoryId);
+      categories.push(category);
+    }
+    product.categories = categories;
     return this.productRepository.save(product);
   }
 

@@ -38,6 +38,6 @@ export class GeneralStoreInfoService {
   }
 
   async remove(): Promise<void> {
-    await this.generalStoreInfoRepository.clear(); // Deletes all records
+    await this.generalStoreInfoRepository.clear(); 
   }
 } 
