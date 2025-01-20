@@ -2,10 +2,8 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Transform, Type } from "class-transformer";
 import {  IsArray, IsEnum, IsOptional, IsString, IsUUID, Min, ValidateNested } from "class-validator";
 import { EPaymentType } from "src/common/Enum/EPaymentType.entity";
-import { EProductStatus } from "src/common/Enum/EProductStatus.enum";
 import { ESaleStatus } from "src/common/Enum/ESaleStatus.entity";
 import { CreateCustomerDTO } from "src/modules/customers/dtos/customers.dto";
-import { CreateVendorDTO } from "src/modules/vendors/dtos/vendors.dto";
 
 export class CreateSaleItemDto {
   @ApiProperty()
@@ -15,6 +13,16 @@ export class CreateSaleItemDto {
   @ApiProperty()
   @IsUUID()
   productId: string;
+}
+
+export class CreateIpasiSaleItemDto {
+  @ApiProperty()
+  @Min(0)
+  quantity: number;
+
+  @ApiProperty()
+  @IsString()
+  productCode: string;
 }
 
 export class CreateSaleDTO {
@@ -40,10 +48,18 @@ export class CreateSaleDTO {
   paymentType: EPaymentType;
 
   @IsArray()
-  @ValidateNested({ each: true }) // Validate each item in the array
-  @Type(() => CreateSaleItemDto) // Specify the type for each object in the array
-  @ApiProperty({ type: CreateSaleItemDto, isArray: true })
-  saleItems: CreateSaleItemDto[];
+  @ValidateNested({ each: true })
+  @Type(() => CreateSaleItemDto)
+  @ApiProperty({ type: CreateSaleItemDto, isArray: true, required: false })
+  @IsOptional()
+  saleItems?: CreateSaleItemDto[];
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateIpasiSaleItemDto)
+  @ApiProperty({ type: CreateIpasiSaleItemDto, isArray: true, required: false })
+  @IsOptional()
+  ipasiSaleItems?: CreateIpasiSaleItemDto[];
 
   @ApiProperty()
   @Min(0)

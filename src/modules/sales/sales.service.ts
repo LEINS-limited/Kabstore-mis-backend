@@ -131,32 +131,44 @@ export class SalesService {
       customer = await this.customerService.create(createSaleDto.customer);
     }
 
-    if (createSaleDto.saleItems.length == 0) {
+    if ((!createSaleDto.saleItems || createSaleDto.saleItems.length === 0) && 
+        (!createSaleDto.ipasiSaleItems || createSaleDto.ipasiSaleItems.length === 0)) {
       throw new BadRequestException(
-        'Please select sale items to create the sale!',
+        'Please select sale items or ipasi items to create the sale!',
       );
     }
-    for (let i = 0; i < createSaleDto.saleItems.length; i++) {
-      let product = await this.productService.getProductById(
-        createSaleDto.saleItems[i].productId,
-      );
-      let item = this.saleItemRepository.create({
-        product,
-        quantity: createSaleDto.saleItems[i].quantity,
-      });
-      item = await this.saleItemRepository.save(item);
-      item.total = item.quantity * item.product.sellingPrice;
-      saleItems.push(item);
+
+    if (createSaleDto.saleItems && createSaleDto.saleItems.length > 0) {
+      for (let i = 0; i < createSaleDto.saleItems.length; i++) {
+        let product = await this.productService.getProductById(
+          createSaleDto.saleItems[i].productId,
+        );
+        let item = this.saleItemRepository.create({
+          product,
+          quantity: createSaleDto.saleItems[i].quantity,
+        });
+        item = await this.saleItemRepository.save(item);
+        item.total = item.quantity * item.product.sellingPrice;
+        saleItems.push(item);
+        total += item.total;
+      }
     }
-    for (let i = 0; i < saleItems.length; i++) {
-      total += saleItems[i].total;
+
+    let ipasiProducts = [];
+    if (createSaleDto.ipasiSaleItems && createSaleDto.ipasiSaleItems.length > 0) {
+      ipasiProducts = createSaleDto.ipasiSaleItems.map(item => ({
+        productCode: item.productCode,
+        quantity: item.quantity,
+      }));
     }
+
     const newSale = this.saleRepository.create({
       ...createSaleDto,
       customer: customer,
       code: generateCode('P'),
       saleItems: saleItems,
       totalPrice: total,
+      ipasiProducts: ipasiProducts
     });
 
     return await this.saleRepository.save(newSale);

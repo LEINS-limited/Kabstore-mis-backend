@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, Post, Query, Patch } from '@nestjs/common';
+import { ApiBearerAuth, ApiQuery, ApiTags, ApiParam, ApiBody } from '@nestjs/swagger';
 import { Public } from 'src/decorators/public.decorator';
 import { ExpensesService } from './expenses.service';
 import { ApiResponse } from 'src/common/payload/ApiResponse';
 import { CreateExpenseDTO } from './dto/expense.dto';
+import { ExpenseStatus } from 'src/common/Enum/ExpenseStatus.enum';
 
 @Controller('expenses')
 @Public()
@@ -52,10 +53,26 @@ export class ExpensesController {
     return new ApiResponse(true, "Expense Created Successfully!", await this.expenseService.create(createExpenseDto));
   }
 
-  //   @Patch(':id')
-  //   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-  //     return this.saleService.update(id, updateProductDto);
-  //   }
+  @Patch(':id/status')
+  @ApiParam({ name: 'id', required: true })
+  @ApiBody({ 
+    schema: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'string',
+          enum: Object.values(ExpenseStatus)
+        }
+      }
+    }
+  })
+  async updateStatus(
+    @Param('id') id: string,
+    @Body('status') status: ExpenseStatus
+  ) {
+    const expense = await this.expenseService.updateStatus(id, status);
+    return new ApiResponse(true, 'Expense status updated successfully!', expense);
+  }
 
   @Get('all/statistics')
   async countTotalProducts() {

@@ -7,8 +7,6 @@ import { ExpenseStatus } from "src/common/Enum/ExpenseStatus.enum";
 import { ExpenseItem } from "src/entities/expenseItem.entity";
 
 export class CreateExpenseItemDto {
-  @ApiProperty()
-  name: string;
 
   @ApiProperty({enum: EExpenseCategory})
   category: EExpenseCategory;
@@ -19,10 +17,6 @@ export class CreateExpenseDTO {
   @IsOptional()
   @Type(() => CreateExpenseItemDto)
   expenseItem?: CreateExpenseItemDto;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  expenseItemId?: string;
 
   @ApiProperty()
   @Transform(({ value }) => new Date(value))
@@ -35,7 +29,6 @@ export class CreateExpenseDTO {
   @ApiProperty({ enum: EPaymentType })
   @IsEnum(EPaymentType)
   paymentType: EPaymentType;
-
 
   @ApiProperty()
   @Min(0)

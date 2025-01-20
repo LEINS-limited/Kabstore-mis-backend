@@ -33,9 +33,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   app.useGlobalPipes(new ValidationPipe());
-  app.listen(3000).then(_d => {
-    console.log(`Server listening at: http://localhost:3000`);
-    console.log('Swagger api: http://localhost:3000/api');
+  app.listen(3001).then(_d => {
+    console.log(`Server listening at: http://localhost:3001`);
+    console.log('Swagger api: http://localhost:3001/api');
   });
  
 

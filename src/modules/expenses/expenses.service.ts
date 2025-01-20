@@ -119,25 +119,23 @@ export class ExpensesService {
   }
 
   async create(createExpenseDto: CreateExpenseDTO): Promise<Expense> {
-    let expenseItem: ExpenseItem = null;
-
-    if (createExpenseDto.expenseItemId != '') {
-      expenseItem = await this.getExpenseItemById(
-        createExpenseDto.expenseItemId,
-      );
-    } else {
-         let item = this.expenseItemRepository.create(createExpenseDto.expenseItem);
-         expenseItem = await this.expenseItemRepository.save(item);
-    }
-
-
     const newExpense = this.expenseRepository.create({
       ...createExpenseDto,
-      expenseItem: expenseItem,
       code: generateCode('E'),
     });
 
     return await this.expenseRepository.save(newExpense);
+  }
+
+  async updateStatus(id: string, status: ExpenseStatus): Promise<Expense> {
+    const expense = await this.getExpenseById(id);
+    
+    if (!expense) {
+      throw new NotFoundException(`Expense with ID ${id} not found`);
+    }
+
+    expense.status = status;
+    return await this.expenseRepository.save(expense);
   }
 
   //   async update(
