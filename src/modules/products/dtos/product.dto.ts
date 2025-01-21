@@ -10,15 +10,19 @@ export class CreateProductDTO {
   name: string;
 
   @ApiProperty({required:true})
-  categoryIds: string[];
+  categoryId: string;
 
   @ApiProperty()
   @Min(0)
   sellingPrice: number;
 
   @ApiProperty()
+  @IsNumber()
+  additionalExpenses: number;
+
+  @ApiProperty()
   @Min(0)
-  costPrice: number;
+  initialPrice: number;
 
   @ApiProperty()
   @Min(0)
@@ -26,15 +30,11 @@ export class CreateProductDTO {
 
   @ApiProperty()
   @Min(0)
-  inStock: number;
+  quantity: number;
 
   @ApiProperty()
   @IsBoolean()
   taxable : boolean;
-
-  @ApiProperty()
-  @Min(0)
-  taxAmount: number;
 
   @ApiProperty({required:false})
   @IsOptional()
@@ -68,7 +68,7 @@ export class UpdateProductDto {
   name: string;
 
   @ApiProperty()
-  categoryIds: string[];
+  categoryId: string;
 
   @ApiProperty()
   sellingPrice: number;
@@ -86,8 +86,8 @@ export class UpdateProductDto {
   taxable : boolean;
 
   @ApiProperty()
-  @Min(0)
-  taxAmount: number;
+  @IsNumber()
+  additionalExpenses: number;
 
   @ApiProperty()
   profitPercentage: number;
@@ -102,11 +102,6 @@ export class UpdateProductDto {
   // @IsISO8601()
   @Transform(({ value }) => new Date(value))
   addedDate: Date;
-
-  @ApiProperty()
-  // @IsISO8601()
-  @Transform(({ value }) => new Date(value))
-  expiryDate: Date;
 
   @ApiProperty({ enum: EProductStatus })
   @IsEnum(EProductStatus)

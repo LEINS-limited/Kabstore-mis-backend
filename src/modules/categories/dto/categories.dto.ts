@@ -10,8 +10,6 @@ export class CreateCategoryDTO {
   description: string;
 
   @ApiProperty()
-  @IsNotEmpty()
-  @IsNumber()
   profitPercentage: number;
 
   @ApiProperty({
