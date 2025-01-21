@@ -13,28 +13,28 @@ export class Product extends BaseEntity {
   @Column({ nullable: true })
   code: string;
 
-  @Column()
+  @Column('float', { default: 0 })
   sellingPrice: number;
 
-  @Column()
-  additionalExpenses :number;
+  @Column('float', { default: 0 })
+  additionalExpenses: number;
 
-  @Column()
-  generalProfitPercentage : number;
+  @Column('float', { default: 0 })
+  profitPercentage: number;
 
-  @Column()
-  initialPrice : number;
+  @Column('float', { default: 0 })
+  initialPrice: number;
 
-  @Column()
+  @Column('float', { default: 0 })
   costPrice: number;
 
-  @Column()
+  @Column('float', { default: 0 })
   shippingCost: number;
 
-  @Column({default: 0})
+  @Column('float', { default: 0 })
   taxAmount: number;
 
-  @Column({default: false})
+  @Column({ default: false })
   taxable: boolean;
 
   @Column({ default: 0 })
@@ -44,18 +44,15 @@ export class Product extends BaseEntity {
   @JoinColumn({ name: 'vendor_id' })
   vendor: Vendor;
 
-  @ManyToMany(() => Category, (Category) => Category.products, { eager: true })
+  @ManyToOne(() => Category, (Category) => Category.products, { eager: true })
   @JoinColumn({ name: 'category_id' })
-  categories: Category[];
+  category: Category;
 
   @Column({ default: 0 })
   safetyStock: number;
 
   @Column({ default: 0 })
   discountValue: number;
-
-  @Column({ nullable: true })
-  expiryDate: Date;
 
   @Column({ nullable: true })
   dateAdded: Date;

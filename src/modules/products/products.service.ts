@@ -17,7 +17,6 @@ import { generateCode } from 'src/utils/generator';
 import { paginator } from 'src/utils/paginator';
 import { EProductStatus } from 'src/common/Enum/EProductStatus.enum';
 import { saveObject } from 'src/utils/algolia';
-import { Category } from 'src/entities/categories.entity';
 
 
 @Injectable()
@@ -101,12 +100,15 @@ export class ProductsService {
         `Product with name ${createProductDto.name} already exists!`,
       );
     }
-    let categories : Category[] = [];
-    for (const categoryId of createProductDto.categoryIds) {
-      const category = await this.categoryService.getCategoryById(categoryId);
-      categories.push(category);
-    }
+    let category = await this.categoryService.getCategoryById(createProductDto.categoryId);
+   
     let vendor = null;
+
+    let costPrice = createProductDto.initialPrice + createProductDto.shippingCost + createProductDto.additionalExpenses;
+
+    let taxAmount  = (costPrice * 18)/100;
+
+    let profitPercentage = (createProductDto.sellingPrice - costPrice) * 100
 
     if (createProductDto.vendorId != '') {
       vendor = await this.vendorService.getVendorById(
@@ -118,11 +120,14 @@ export class ProductsService {
     const newProduct = this.productRepository.create({
       ...createProductDto,
       vendor: vendor,
-      categories: categories,
+      category: category,
+      costPrice : costPrice,
+      taxAmount : createProductDto.taxable ? taxAmount : 0,
       code: generateCode('P'),
+      profitPercentage : profitPercentage
     });
 
-    saveObject(newProduct);
+    // saveObject(newProduct);
 
     return await this.productRepository.save(newProduct);
   }
@@ -133,12 +138,9 @@ export class ProductsService {
   ): Promise<Product> {
     const product = await this.getProductById(id);
     Object.assign(product, updateProductDto);
-    let categories = [];
-    for(const categoryId of updateProductDto.categoryIds){
-      let category = await this.categoryService.getCategoryById(categoryId);
-      categories.push(category);
-    }
-    product.categories = categories;
+    let category = await this.categoryService.getCategoryById(updateProductDto.categoryId)
+   
+    product.category = category;
     return this.productRepository.save(product);
   }
 

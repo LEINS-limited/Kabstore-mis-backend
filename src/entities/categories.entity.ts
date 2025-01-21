@@ -13,7 +13,7 @@ export class Category extends BaseEntity {
   @Column()
   profitPercentage : number;
 
-  @ManyToMany(() => Product, (Product) => Product.categories, {cascade:true})
+  @OneToMany(() => Product, (Product) => Product.category, {cascade:true})
   products: Product[];
 
   @Column({ nullable: true })
