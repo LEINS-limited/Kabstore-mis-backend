@@ -10,7 +10,7 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDTO } from './dto/categories.dto';
 import { Public } from 'src/decorators/public.decorator';
@@ -48,8 +48,8 @@ export class CategoriesController {
   @ApiConsumes('multipart/form-data')
   update(
     @Param('id') id: string,
-    @Body() updateCategoryDto: CreateCategoryDTO,
-    @UploadedFile() file: Express.Multer.File,
+    @Body() updateCategoryDto: Partial<CreateCategoryDTO>,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
     return this.categoryService.update(id, updateCategoryDto, file);
   }
