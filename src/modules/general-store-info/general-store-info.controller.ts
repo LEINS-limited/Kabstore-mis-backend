@@ -39,6 +39,7 @@ export class GeneralStoreInfoController {
   ): Promise<GeneralStoreInfo> {
     return await this.generalStoreInfoService.update(updateDto);
   }
+  
   @Delete()
   @ApiOperation({ summary: 'Delete general store info' })
   @ApiResponse({ status: HttpStatus.NO_CONTENT })
