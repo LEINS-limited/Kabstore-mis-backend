@@ -8,6 +8,7 @@ import {
   IsEmail,
   IsPhoneNumber,
 } from 'class-validator';
+import { ERole } from '../Enum/ERole.enum';
 
 export class UpdateUserDto {
   @IsString()
@@ -20,6 +21,10 @@ export class UpdateUserDto {
   @IsOptional()
   @ApiProperty()
   username: string;
+
+   @ApiProperty({ enum: ERole })
+   @IsEnum(ERole)
+   role: ERole;
 
   @IsString()
   @IsOptional()

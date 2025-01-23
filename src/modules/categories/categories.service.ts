@@ -48,8 +48,13 @@ export class CategoriesService {
   async update(
     id: string,
     updateCategoryDto: Partial<CreateCategoryDTO>,
+    file : Express.Multer.File
   ): Promise<Category> {
     const category = await this.getCategoryById(id);
+    const pictureUrl = await this.cloudinary.uploadImage(file).catch(() => {
+    throw new BadRequestException('Invalid file type.');
+    });
+    category.pictureUrl = pictureUrl.url;
     Object.assign(category, updateCategoryDto);
     return this.categoryRepository.save(category);
   }

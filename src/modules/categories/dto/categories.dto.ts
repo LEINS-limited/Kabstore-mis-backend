@@ -10,7 +10,6 @@ export class CreateCategoryDTO {
   @ApiProperty()
   description: string;
 
-  //transform the value from api to number
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()

@@ -108,7 +108,7 @@ export class ProductsService {
 
     let taxAmount  = (costPrice * 18)/100;
 
-    let profitPercentage = (createProductDto.sellingPrice - costPrice) * 100
+    let profitPercentage = (createProductDto.sellingPrice - costPrice) * 100 / costPrice;
 
     if (createProductDto.vendorId != '') {
       vendor = await this.vendorService.getVendorById(

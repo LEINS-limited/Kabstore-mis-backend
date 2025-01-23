@@ -1,4 +1,4 @@
-import { IsNumber, IsString, IsNotEmpty, Min, Max } from 'class-validator';
+import { IsNumber, IsString, IsNotEmpty, Min, Max, IsOptional } from 'class-validator';
 import { ECurrencyType } from '../Enum/ECurrenyType.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -28,4 +28,34 @@ export class CreateGeneralStoreInfoDto {
   toDirham: number;
 }
 
-export class UpdateGeneralStoreInfoDto extends CreateGeneralStoreInfoDto {} 
+export class UpdateGeneralStoreInfoDto {
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  @IsOptional()
+  @ApiProperty({
+    description: 'The percentage of profit for the store',
+    example: 10,
+  })
+  generalProfitPercentage: number;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'The base currency for the store',
+    example: ECurrencyType.RWF,
+  })
+  baseCurrency: ECurrencyType;
+
+  @IsNumber()
+  @IsOptional()
+  @Min(0)
+  @ApiProperty({ description: 'The conversion rate to USD', example: 1000 })
+  toUSD: number;
+
+  @IsNumber()
+  @IsOptional()
+  @Min(0)
+  @ApiProperty({ description: 'The conversion rate to Dirham', example: 1000 })
+  toDirham: number;
+} 

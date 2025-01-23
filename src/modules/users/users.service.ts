@@ -368,6 +368,8 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
     Object.assign(user, attrs);
+    const erole = await this.roleService.getRoleByName(attrs.roles)
+    user.roles = [erole];
     return this.userRepo.save(user);
   }
   async assignRoleToUser(userId: UUID, roleName: any, userType: string) {
