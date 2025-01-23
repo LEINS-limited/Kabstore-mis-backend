@@ -22,9 +22,10 @@ export class UpdateUserDto {
   @ApiProperty()
   username: string;
 
-   @ApiProperty({ enum: ERole })
-   @IsEnum(ERole)
-   role: ERole;
+  @ApiProperty({ enum: ERole })
+  @IsEnum(ERole)
+  @IsOptional()
+  role: ERole;
 
   @IsString()
   @IsOptional()
