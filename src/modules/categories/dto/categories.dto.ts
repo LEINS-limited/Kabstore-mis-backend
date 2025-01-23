@@ -24,3 +24,28 @@ export class CreateCategoryDTO {
   @IsOptional()
   picture: Express.Multer.File;
 }
+
+export class UpdateCategoryDTO {
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  description?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  @Transform(({ value }) => parseFloat(value))
+  profitPercentage?: number;
+
+  @ApiProperty({
+    description: 'Product icon',
+    type: 'string',
+    format: 'binary',
+  })
+  @IsOptional()
+  picture?: Express.Multer.File;
+}
