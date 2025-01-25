@@ -15,7 +15,7 @@ import { ApiResponse } from 'src/common/payload/ApiResponse';
 
 @Controller('customers')
 @ApiTags('customers')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @Public()
 export class CustomersController {
   constructor(private readonly customerService: CustomersService) {}

@@ -16,7 +16,7 @@ import { CreateSaleDTO } from './dto/sale.dto';
 @Controller('sales')
 @Public()
 @ApiTags('sales')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class SalesController {
   constructor(private readonly saleService: SalesService) {}
 

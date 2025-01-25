@@ -14,7 +14,7 @@ export class CreateCategoryDTO {
   @IsNotEmpty()
   @IsNumber()
   @Transform(({ value }) => parseFloat(value))
-  profitPercentage: number;
+  profitPercentage?: number;
 
   @ApiProperty({
     description: 'Product icon',

@@ -18,6 +18,7 @@ import {
   Put,
   Req,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { LoginDTO } from 'src/common/dtos/lodin.dto';
 import { UsersService } from 'src/modules/users/users.service';
@@ -26,14 +27,16 @@ import { ApiResponse } from 'src/common/payload/ApiResponse';
 import { VerifyAccountDTO } from 'src/common/dtos/verify-account.dto';
 import { User } from 'src/entities/user.entity';
 import { ResetPasswordDTO } from 'src/common/dtos/reset-password.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { Public } from 'src/decorators/public.decorator';
+import { AuthGuard } from './guards/auth.guard';
 import { ResetPasswordForFirstTimeUserDTO } from 'src/common/dtos/reset-password-first-time-user.dto';
 
 @ApiTags('auth')
 @Controller('auth')
+@ApiBearerAuth('JWT-auth')
 export class AuthController {
   public isUserAvailable: User;
   constructor(
@@ -113,6 +116,7 @@ export class AuthController {
     );
   }
   @Get('/get-profile')
+  @UseGuards(AuthGuard)
   async getProfile(@Req() req: Request) {
     let profile = await this.authService.getProfile(req);
     return profile;

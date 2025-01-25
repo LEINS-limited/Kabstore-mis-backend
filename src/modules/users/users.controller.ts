@@ -28,7 +28,7 @@ import { CreateAdminDto } from 'src/common/dtos/create-admin.dto';
 import { CreateUserByAdminDto, CreateUserDto } from 'src/common/dtos/create-user.dto';
 @ApiTags('users')
 @Controller('users')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class UsersController {
   constructor(private usersService: UsersService) {}
 

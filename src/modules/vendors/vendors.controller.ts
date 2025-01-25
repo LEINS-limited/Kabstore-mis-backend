@@ -13,7 +13,7 @@ import { CreateVendorDTO } from './dtos/vendors.dto';
 
 @Controller('vendors')
 @ApiTags('vendors')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class VendorsController {
   constructor(private readonly vendorService: VendorsService) {}
 

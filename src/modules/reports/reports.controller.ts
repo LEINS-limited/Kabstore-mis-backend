@@ -8,7 +8,7 @@ import { Public } from 'src/decorators/public.decorator';
 @Controller('reports')
 @ApiTags('reports')
 @Public()
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 

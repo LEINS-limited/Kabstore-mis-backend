@@ -6,7 +6,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 
 @ApiTags('general-store-info')
 @Controller('general-store-info')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class GeneralStoreInfoController {
   constructor(private readonly generalStoreInfoService: GeneralStoreInfoService) {}
 

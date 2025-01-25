@@ -4,10 +4,13 @@ import { CreateProductDTO, UpdateProductDto, UpdateVendorDTO } from './dtos/prod
 import { ApiBearerAuth, ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ApiResponse } from 'src/common/payload/ApiResponse';
 import { Public } from 'src/decorators/public.decorator';
+import { UUIDValidationPipe } from 'src/common/pipes/uuid.validation.pipe';
+import { EnumValidationPipe } from 'src/common/pipes/enum.validation.pipe';
+import { EProductStatus } from 'src/common/Enum/EProductStatus.enum';
 
 @Controller('products')
 @ApiTags('products')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @Public()
 export class ProductsController {
   constructor(private readonly productService: ProductsService) {}
@@ -39,7 +42,11 @@ export class ProductsController {
     description: 'File upload',
     type: CreateProductDTO,
   })
-  create(@Body() createProductDto: CreateProductDTO) {
+  async create(
+    @Body('categoryId', UUIDValidationPipe) categoryId: string,
+    @Body('status', new EnumValidationPipe(EProductStatus)) status: EProductStatus,
+    @Body() createProductDto: CreateProductDTO
+  ) {
     return this.productService.create(createProductDto);
   }
 

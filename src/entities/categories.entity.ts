@@ -10,7 +10,7 @@ export class Category extends BaseEntity {
   @Column()
   description: string;
 
-  @Column()
+  @Column({nullable:true})
   profitPercentage : number;
 
   @OneToMany(() => Product, (Product) => Product.category, {cascade:true})

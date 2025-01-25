@@ -17,6 +17,7 @@ import { generateCode } from 'src/utils/generator';
 import { paginator } from 'src/utils/paginator';
 import { EProductStatus } from 'src/common/Enum/EProductStatus.enum';
 import { saveObject } from 'src/utils/algolia';
+import { GeneralStoreInfoService } from '../general-store-info/general-store-info.service';
 
 
 @Injectable()
@@ -24,7 +25,8 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product) public productRepository: Repository<Product>,
     private categoryService: CategoriesService,
-    private vendorService: VendorsService
+    private vendorService: VendorsService,
+    private generalStoreService: GeneralStoreInfoService
   ) {}
   async getProducts(): Promise<Product[]> {
     const response = await this.productRepository.find();
@@ -100,34 +102,46 @@ export class ProductsService {
         `Product with name ${createProductDto.name} already exists!`,
       );
     }
-    let category = await this.categoryService.getCategoryById(createProductDto.categoryId);
-   
+
+    // Get category for profit percentage
+    const category = await this.categoryService.getCategoryById(createProductDto.categoryId);
+    
+    // Calculate base cost
+    const baseCost = createProductDto.initialPrice + 
+                    createProductDto.shippingCost + 
+                    createProductDto.additionalExpenses;
+
+    // Calculate VAT if product is taxable
+    const vatAmount = createProductDto.taxable ? (baseCost * 0.18) : 0;
+
+    // Get profit percentage (from category or general store)
+    const profitPercentage = category.profitPercentage || 
+                            (await this.generalStoreService.findAll())[0].generalProfitPercentage;
+    
+    // Calculate profit amount
+    const profitAmount = baseCost * (profitPercentage / 100);
+
+    // Calculate suggested selling price
+    const suggestedSellingPrice = baseCost + vatAmount + profitAmount;
+
+    // Handle vendor creation/lookup
     let vendor = null;
-
-    let costPrice = createProductDto.initialPrice + createProductDto.shippingCost + createProductDto.additionalExpenses;
-
-    let taxAmount  = (costPrice * 18)/100;
-
-    let profitPercentage = (createProductDto.sellingPrice - costPrice) * 100 / costPrice;
-
-    if (createProductDto.vendorId != '') {
-      vendor = await this.vendorService.getVendorById(
-        createProductDto.vendorId,
-      );
-    } else {
+    if (createProductDto.vendorId) {
+      vendor = await this.vendorService.getVendorById(createProductDto.vendorId);
+    } else if (createProductDto.vendor) {
       vendor = await this.vendorService.create(createProductDto.vendor);
     }
+
+    // Create new product with all calculated fields
     const newProduct = this.productRepository.create({
       ...createProductDto,
-      vendor: vendor,
-      category: category,
-      costPrice : costPrice,
-      taxAmount : createProductDto.taxable ? taxAmount : 0,
+      vendor,
+      category,
+      costPrice: baseCost,
+      taxAmount: vatAmount,
+      sellingPrice:suggestedSellingPrice,
       code: generateCode('P'),
-      profitPercentage : profitPercentage
     });
-
-    // saveObject(newProduct);
 
     return await this.productRepository.save(newProduct);
   }

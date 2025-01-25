@@ -2,15 +2,19 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsNumber, IsString } from "class-validator";
 
 export class IpasiProductDTO {
+    @ApiProperty()
     @IsString()
-    @ApiProperty()
-    name:string;
+    productName: string;
 
-    @IsNumber()
     @ApiProperty()
-    quantity:number;
+    @IsNumber()
+    quantitySold: number;
 
-    @IsNumber()
     @ApiProperty()
+    @IsNumber()
     initialPrice: number;
+
+    @ApiProperty()
+    @IsNumber()
+    sellingPrice: number;
 }

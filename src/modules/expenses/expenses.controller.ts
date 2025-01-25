@@ -9,7 +9,7 @@ import { ExpenseStatus } from 'src/common/Enum/ExpenseStatus.enum';
 @Controller('expenses')
 @Public()
 @ApiTags('expenses')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class ExpensesController {
   constructor(private readonly expenseService: ExpensesService) {}
 

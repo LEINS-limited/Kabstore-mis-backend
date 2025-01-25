@@ -123,55 +123,111 @@ export class SalesService {
     let saleItems: SaleItem[] = [];
     let total = 0;
 
-    if (createSaleDto.customerId != '') {
-      customer = await this.customerService.getCustomerById(
-        createSaleDto.customerId,
-      );
-    } else {
-      customer = await this.customerService.create(createSaleDto.customer);
+    // Handle customer creation/lookup
+    try {
+      if (createSaleDto.customerId) {
+        customer = await this.customerService.getCustomerById(createSaleDto.customerId);
+      } else if (createSaleDto.newCustomer) {
+        customer = await this.customerService.create(createSaleDto.newCustomer);
+      }
+    } catch (error) {
+      throw new BadRequestException(`Customer error: ${error.message}`);
     }
 
+    // Validate at least one type of sale items exists
     if ((!createSaleDto.saleItems || createSaleDto.saleItems.length === 0) && 
-        (!createSaleDto.ipasiSaleItems || createSaleDto.ipasiSaleItems.length === 0)) {
-      throw new BadRequestException(
-        'Please select sale items or ipasi items to create the sale!',
-      );
+        (!createSaleDto.ipasiProducts || createSaleDto.ipasiProducts.length === 0)) {
+      throw new BadRequestException('Please provide either regular sale items or IPASI items');
     }
 
-    if (createSaleDto.saleItems && createSaleDto.saleItems.length > 0) {
-      for (let i = 0; i < createSaleDto.saleItems.length; i++) {
-        let product = await this.productService.getProductById(
-          createSaleDto.saleItems[i].productId,
-        );
-        let item = this.saleItemRepository.create({
-          product,
-          quantity: createSaleDto.saleItems[i].quantity,
-        });
-        item = await this.saleItemRepository.save(item);
-        item.total = item.quantity * item.product.sellingPrice;
-        saleItems.push(item);
-        total += item.total;
+    // Handle regular sale items
+    if (createSaleDto.saleItems?.length > 0) {
+      for (const item of createSaleDto.saleItems) {
+        try {
+          const product = await this.productService.getProductById(item.productId);
+          
+          // Check stock availability
+          if (product.quantity < item.quantitySold) {
+            throw new BadRequestException(
+              `Insufficient stock for product ${product.name}. Available: ${product.quantity}`
+            );
+          }
+
+          // Create sale item
+          const saleItem = this.saleItemRepository.create({
+            product,
+            quantity: item.quantitySold,
+            total: item.quantitySold * product.sellingPrice
+          });
+
+          saleItems.push(await this.saleItemRepository.save(saleItem));
+          total += saleItem.total;
+
+          // Update product quantity
+          await this.productService.update(product.id, {
+            quantity: product.quantity - item.quantitySold,
+            categoryId: product.category.id,
+            name: product.name,
+            sellingPrice: product.sellingPrice,
+            profitPercentage:null,
+            costPrice: product.costPrice,
+            shippingCost: product.shippingCost,
+            taxable: product.taxable,
+            additionalExpenses: product.additionalExpenses,
+            safetyStock: product.safetyStock,
+            addedDate: product.dateAdded,
+            status: product.status
+          });
+        } catch (error) {
+          throw new BadRequestException(`Error processing product: ${error.message}`);
+        }
       }
     }
 
-    let ipasiProducts = [];
-    if (createSaleDto.ipasiSaleItems && createSaleDto.ipasiSaleItems.length > 0) {
-      ipasiProducts = createSaleDto.ipasiSaleItems.map(item => ({
-        productCode: item.productCode,
-        quantity: item.quantity,
-      }));
-    }
+    // Handle IPASI products
+    const ipasiProducts = createSaleDto.ipasiProducts?.map(item => ({
+      productName: item.productName,
+      quantitySold: item.quantitySold,
+      initialPrice: item.initialPrice,
+      sellingPrice: item.sellingPrice
+    })) || [];
 
+    // Create the sale
     const newSale = this.saleRepository.create({
-      ...createSaleDto,
-      customer: customer,
-      code: generateCode('P'),
-      saleItems: saleItems,
+      customer,
+      saleItems,
+      code: generateCode('S'), // Changed from 'P' to 'S' for Sales
       totalPrice: total,
-      ipasiProducts: ipasiProducts
+      amountDue: createSaleDto.status === ESaleStatus.PENDING ? total : 0,
+      saleDate: new Date(),
+      status: createSaleDto.status,
+      paymentType: createSaleDto.paymentType,
+      ipasiProducts
     });
 
-    return await this.saleRepository.save(newSale);
+    try {
+      return await this.saleRepository.save(newSale);
+    } catch (error) {
+      // Rollback product quantities if sale fails
+      for (const item of saleItems) {
+        await this.productService.update(item.product.id, {
+          ...item.product,
+          quantity: item.product.quantity + item.quantity,
+          categoryId: item.product.category.id,
+          name: item.product.name,
+          sellingPrice: item.product.sellingPrice,
+          profitPercentage: null,
+          costPrice: item.product.costPrice,
+          shippingCost: item.product.shippingCost,
+          taxable: item.product.taxable,
+          additionalExpenses: item.product.additionalExpenses,
+          safetyStock: item.product.safetyStock,
+          addedDate: item.product.dateAdded,
+          status: item.product.status
+        });
+      }
+      throw new BadRequestException(`Failed to create sale: ${error.message}`);
+    }
   }
 
   //   async update(

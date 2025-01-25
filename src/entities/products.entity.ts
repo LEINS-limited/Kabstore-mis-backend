@@ -1,6 +1,6 @@
 import { EProductStatus } from "src/common/Enum/EProductStatus.enum";
 import { BaseEntity } from "src/db/base-entity";
-import {  Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany } from "typeorm";
+import {  Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, UpdateDateColumn } from "typeorm";
 import { Vendor } from "./vendors.entity";
 import { Category } from "./categories.entity";
 import { SaleItem } from "./saleItem.entity";
@@ -19,8 +19,8 @@ export class Product extends BaseEntity {
   @Column('float', { default: 0 })
   additionalExpenses: number;
 
-  @Column('float', { default: 0 })
-  profitPercentage: number;
+  // @Column('float', { default: 0 })
+  // profitPercentage: number;
 
   @Column('float', { default: 0 })
   initialPrice: number;
@@ -55,7 +55,11 @@ export class Product extends BaseEntity {
   discountValue: number;
 
   @Column({ nullable: true })
+  @CreateDateColumn()
   dateAdded: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   @Column()
   status: EProductStatus;
