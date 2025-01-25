@@ -196,9 +196,9 @@ export class SalesService {
     const newSale = this.saleRepository.create({
       customer,
       saleItems,
-      code: generateCode('S'), // Changed from 'P' to 'S' for Sales
+      code: generateCode('S'),
       totalPrice: total,
-      amountDue: createSaleDto.status === ESaleStatus.PENDING ? total : 0,
+      amountDue: createSaleDto.status === ESaleStatus.CREDITED ? (createSaleDto.amountDue || total) : 0,
       saleDate: new Date(),
       status: createSaleDto.status,
       paymentType: createSaleDto.paymentType,

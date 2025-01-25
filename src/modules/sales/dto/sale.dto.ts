@@ -65,9 +65,18 @@ export class CreateSaleDTO {
   paymentType: EPaymentType;
 
   @ApiProperty({
+    example: 1000,
+    description: "Amount due for credit sales. Required when status is CREDITED",
+    required: false
+  })
+  @IsOptional()
+  @IsNumber()
+  amountDue?: number;
+
+  @ApiProperty({
     enum: ESaleStatus,
-    example: ESaleStatus.PENDING,
-    description: "Sale status (PENDING, IN_PROGRESS, COMPLETED)"
+    example: ESaleStatus.CREDITED,
+    description: "Sale status (PENDING, IN_PROGRESS, COMPLETED, CREDITED)"
   })
   @IsEnum(ESaleStatus)
   status: ESaleStatus;
