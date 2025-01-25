@@ -10,9 +10,9 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiConsumes, ApiProperty, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { CategoriesService } from './categories.service';
-import { CreateCategoryDTO } from './dto/categories.dto';
+import { CreateCategoryDTO, UpdateCategoryDTO } from './dto/categories.dto';
 import { Public } from 'src/decorators/public.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -46,6 +46,31 @@ export class CategoriesController {
   @Put(':id')
   @UseInterceptors(FileInterceptor('picture'))
   @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        picture: {
+          type: 'string',
+          format: 'binary',
+          nullable: true,
+        },
+        name: {
+          type: 'string',
+          nullable: true,
+        },
+        description: {
+          type: 'string',
+          nullable: true,
+        },
+        profitPercentage: {
+          type: 'number',
+          nullable: true,
+        },
+      },
+      required: [],
+    },
+  })
   update(
     @Param('id') id: string,
     @Body() updateCategoryDto: Partial<CreateCategoryDTO>,

@@ -34,6 +34,8 @@ import { JwtService } from '@nestjs/jwt';
 import { EUserStatus } from 'src/common/Enum/EUserStatus.enum';
 import { ResetPasswordForFirstTimeUserDTO } from 'src/common/dtos/reset-password-first-time-user.dto';
 import { ConfigService } from '@nestjs/config';
+import { UpdateCategoryDTO } from '../categories/dto/categories.dto';
+import { UpdateUserDto } from 'src/common/dtos/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -362,13 +364,14 @@ export class UsersService {
     }
   }
 
-  async updateUser(id: UUID, attrs: Partial<User>) {
+  async updateUser(id: UUID, dto: UpdateUserDto) {
     const user = await this.getUserById(id, 'User');
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    Object.assign(user, attrs);
-    const erole = await this.roleService.getRoleByName(attrs.roles)
+    Object.assign(user, dto);
+    const erole = await this.roleService.getRoleByName(dto.role);
+    
     user.roles = [erole];
     return this.userRepo.save(user);
   }

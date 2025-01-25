@@ -1,8 +1,12 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from 'src/entities/categories.entity';
-import { CreateCategoryDTO } from './dto/categories.dto';
+import { CreateCategoryDTO, UpdateCategoryDTO } from './dto/categories.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
@@ -34,8 +38,10 @@ export class CategoriesService {
     file: Express.Multer.File,
   ): Promise<Category> {
     const duplicate = await this.existsByName(createCategoryDto.name);
-    if(duplicate){
-      throw new BadRequestException(`Category with name ${createCategoryDto.name} already exists!`)
+    if (duplicate) {
+      throw new BadRequestException(
+        `Category with name ${createCategoryDto.name} already exists!`,
+      );
     }
     const newCategory = this.categoryRepository.create(createCategoryDto);
     const pictureUrl = await this.cloudinary.uploadImage(file).catch(() => {
@@ -47,14 +53,16 @@ export class CategoriesService {
 
   async update(
     id: string,
-    updateCategoryDto: Partial<CreateCategoryDTO>,
-    file : Express.Multer.File
+    updateCategoryDto: UpdateCategoryDTO,
+    file: Express.Multer.File,
   ): Promise<Category> {
     const category = await this.getCategoryById(id);
-    const pictureUrl = await this.cloudinary.uploadImage(file).catch(() => {
-    throw new BadRequestException('Invalid file type.');
-    });
-    category.pictureUrl = pictureUrl.url;
+    if (file) {
+      const pictureUrl = await this.cloudinary.uploadImage(file).catch(() => {
+        throw new BadRequestException('Invalid file type.');
+      });
+      category.pictureUrl = pictureUrl.url;
+    }
     Object.assign(category, updateCategoryDto);
     return this.categoryRepository.save(category);
   }
