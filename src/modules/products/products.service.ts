@@ -121,8 +121,9 @@ export class ProductsService {
     // Calculate profit amount
     const profitAmount = baseCost * (profitPercentage / 100);
 
-    // Calculate suggested selling price
-    const suggestedSellingPrice = baseCost + vatAmount + profitAmount;
+    // Use custom selling price if provided, otherwise use calculated price
+    const sellingPrice = createProductDto.customSellingPrice || 
+                        (baseCost + vatAmount + profitAmount);
 
     // Handle vendor creation/lookup
     let vendor = null;
@@ -139,7 +140,7 @@ export class ProductsService {
       category,
       costPrice: baseCost,
       taxAmount: vatAmount,
-      sellingPrice:suggestedSellingPrice,
+      sellingPrice,
       code: generateCode('P'),
     });
 

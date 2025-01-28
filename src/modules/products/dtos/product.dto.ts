@@ -22,10 +22,14 @@ export class CreateProductDTO {
 
   @ApiProperty({
     example: 2499000,
-    description: 'Final selling price in RWF'
+    description: 'Optional: Custom selling price. If provided, automatic price calculations will be ignored',
+    required: false
   })
+  @IsOptional()
+  @IsNumber()
   @Min(0)
-  sellingPrice: number;
+  customSellingPrice?: number;
+
 
   @ApiProperty({
     example: 75000,
