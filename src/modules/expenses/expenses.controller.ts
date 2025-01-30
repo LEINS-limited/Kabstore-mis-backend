@@ -83,6 +83,11 @@ export class ExpensesController {
     );
   }
 
+  @Get('all/expenseNames')
+  async getExpenseNames() {
+    return new ApiResponse(true, 'Expense names retrieved successfully!', await this.expenseService.getExpenseNames());
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.expenseService.delete(id);

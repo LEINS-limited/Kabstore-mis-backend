@@ -77,4 +77,9 @@ export class ProductsController {
   remove(@Param('id') id: string) {
     return this.productService.delete(id);
   }
+
+  @Get('best-selling')
+  async getBestSellingProducts() {
+    return await this.productService.getBestSellingProductsByCategory();
+  }
 }

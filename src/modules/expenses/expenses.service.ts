@@ -1,10 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EExpenseCategory } from 'src/common/Enum/EExpenseCategory.enum';
 import { EPaymentType } from 'src/common/Enum/EPaymentType.entity';
 import { ExpenseStatus } from 'src/common/Enum/ExpenseStatus.enum';
 import { Expense } from 'src/entities/expense.entity';
-import { ExpenseItem } from 'src/entities/expenseItem.entity';
 import { paginator } from 'src/utils/paginator';
 import { Repository } from 'typeorm';
 import { CreateExpenseDTO } from './dto/expense.dto';
@@ -14,8 +12,6 @@ import { generateCode } from 'src/utils/generator';
 export class ExpensesService {
   constructor(
     @InjectRepository(Expense) public expenseRepository: Repository<Expense>,
-    @InjectRepository(ExpenseItem)
-    public expenseItemRepository: Repository<ExpenseItem>,
   ) {}
   async getExpenses(): Promise<Expense[]> {
     const response = await this.expenseRepository.find();
@@ -30,8 +26,8 @@ export class ExpensesService {
     return expense;
   }
 
-  async getExpenseItemById(id: string): Promise<ExpenseItem> {
-    const expenseItem = await this.expenseItemRepository.findOne({ where: { id } });
+  async getExpenseItemById(id: string): Promise<Expense> {
+    const expenseItem = await this.expenseRepository.findOne({ where: { id } });
     if (!expenseItem) {
       throw new NotFoundException(`Expense with ID ${id} not found`);
     }
@@ -77,7 +73,6 @@ export class ExpensesService {
   async getExpensesPaginated(page: number, limit: number, search?: string) {
     const query = this.expenseRepository
       .createQueryBuilder('expense')
-      .leftJoinAndSelect('expense.expenseItem', 'expenseItem');
 
     if (search) {
       query.where(
@@ -167,6 +162,18 @@ export class ExpensesService {
   //     product.vendor = vendor;
   //     return this.saleRepository.save(product);
   //   }
+
+  async getExpenseNames(): Promise<any> {
+    try {
+      var expenses = await this.expenseRepository.find();
+      expenses = expenses.filter(expense => expense.expenseCategoryOrName !== null);
+      const uniqueNames = [...new Set(expenses.map(expense => expense.expenseCategoryOrName))];
+      return {names: uniqueNames};
+ 
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to retrieve expense names');
+    }
+  }
 
   async delete(id: string): Promise<void> {
     const result = await this.expenseRepository.delete(id);

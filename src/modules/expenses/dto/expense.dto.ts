@@ -4,19 +4,11 @@ import { IsEnum, IsOptional, Min } from "class-validator";
 import { EExpenseCategory } from "src/common/Enum/EExpenseCategory.enum";
 import { EPaymentType } from "src/common/Enum/EPaymentType.entity";
 import { ExpenseStatus } from "src/common/Enum/ExpenseStatus.enum";
-import { ExpenseItem } from "src/entities/expenseItem.entity";
-
-export class CreateExpenseItemDto {
-
-  @ApiProperty({enum: EExpenseCategory})
-  category: EExpenseCategory;
-}
 
 export class CreateExpenseDTO {
   @ApiProperty({ required: false })
   @IsOptional()
-  @Type(() => CreateExpenseItemDto)
-  expenseItem?: CreateExpenseItemDto;
+  expenseCategoryOrName?: string;
 
   @ApiProperty()
   @Transform(({ value }) => new Date(value))

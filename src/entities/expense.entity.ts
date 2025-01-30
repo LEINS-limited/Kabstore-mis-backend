@@ -1,5 +1,4 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from "typeorm";
-import { ExpenseItem } from "./expenseItem.entity";
 import { EPaymentType } from "src/common/Enum/EPaymentType.entity";
 import { ExpenseStatus } from "src/common/Enum/ExpenseStatus.enum";
 import { BaseEntity } from "src/db/base-entity";
@@ -7,11 +6,14 @@ import { BaseEntity } from "src/db/base-entity";
 @Entity('expenses')
 export class Expense extends BaseEntity {
  
-  @ManyToOne(() => ExpenseItem, (ExpenseItem) => ExpenseItem.expenses, {
-    eager: true,
-  })
-  @JoinColumn({ name: 'expense_item_id' })
-  expenseItem: ExpenseItem;
+  // @ManyToOne(() => ExpenseItem, (ExpenseItem) => ExpenseItem.expenses, {
+  //   eager: true,
+  // })
+  // @JoinColumn({ name: 'expense_item_id' })
+  // expenseItem: ExpenseItem;
+
+  @Column({ nullable: true })
+  expenseCategoryOrName: string;
 
   @Column({ default: 0 })
   amount: number;
@@ -30,7 +32,7 @@ export class Expense extends BaseEntity {
 
 
   constructor(
-    expenseItem: ExpenseItem,
+    expenseCategoryOrName: string,
     amount: number,
     expenseDate: Date,
     status: ExpenseStatus,
@@ -41,6 +43,6 @@ export class Expense extends BaseEntity {
     this.expenseDate = expenseDate;
     this.status = status;
     this.paymentType = paymentType;
-    this.expenseItem = expenseItem;
+    this.expenseCategoryOrName = expenseCategoryOrName;
   }
 }
