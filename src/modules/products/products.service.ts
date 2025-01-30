@@ -181,4 +181,26 @@ export class ProductsService {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
   }
+
+  async getBestSellingProductsByCategory(): Promise<any[]> {
+    return await this.productRepository
+      .createQueryBuilder('product')
+      .leftJoin('product.category', 'category')
+      .leftJoin('product.saleItems', 'saleItems')
+      .select([
+        'product.name as "Product"',
+        'product.code as "Product ID"',
+        'category.name as "Category"',
+        'product.quantity as "Remaining Quantity"',
+        'SUM(saleItems.quantity) as "Turn Over"',
+        'ROUND(((SUM(saleItems.quantity) * product.sellingPrice) - ' +
+        '(SUM(saleItems.quantity) * product.costPrice)) / ' +
+        '(SUM(saleItems.quantity) * product.costPrice) * 100, 2) as "Increase By"'
+      ])
+      .groupBy('product.id')
+      .addGroupBy('category.name')
+      .orderBy('SUM(saleItems.quantity)', 'DESC')
+      .limit(10)
+      .getRawMany();
+  }
 }

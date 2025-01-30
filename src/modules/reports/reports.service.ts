@@ -92,7 +92,6 @@ export class ReportsService {
             const totalCustomers = await this.customerRepository.count();
             const customersWithCredit = await this.customerRepository
                 .createQueryBuilder('customer')
-                .where('customer.creditBalance > 0')
                 .getCount();
 
             // Outstanding payments

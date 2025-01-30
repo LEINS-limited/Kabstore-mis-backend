@@ -39,7 +39,6 @@ import { Sale } from './entities/sales.entity';
 import { SaleItem } from './entities/saleItem.entity';
 import { ExpensesModule } from './modules/expenses/expenses.module';
 import { Expense } from './entities/expense.entity';
-import { ExpenseItem } from './entities/expenseItem.entity';
 import { ReportsModule } from './modules/reports/reports.module';
 import { GeneralStoreInfoModule } from './modules/general-store-info/general-store-info.module';
 import { GeneralStoreInfo } from './entities/general-store-info.entity';
@@ -66,7 +65,6 @@ import { GeneralStoreInfo } from './entities/general-store-info.entity';
           Sale,
           SaleItem,
           Expense,
-          ExpenseItem,
           GeneralStoreInfo
         ],
         synchronize: true,
