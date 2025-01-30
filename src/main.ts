@@ -48,7 +48,7 @@ async function bootstrap() {
     }
   });
   app.useGlobalPipes(new ValidationPipe());
-  app.useGlobalFilters(new GlobalExceptionFilter());
+  // app.useGlobalFilters(new GlobalExceptionFilter());
   app.listen(3001).then(_d => {
     console.log(`Server listening at: http://localhost:3001`);
     console.log('Swagger api: http://localhost:3001/api');
