@@ -84,11 +84,12 @@ export class ReportsService {
                 .leftJoinAndSelect('product.category', 'category')
                 .select([
                     'category.name as categoryName',
+                    'category."pictureUrl" as categoryImage',
                     'product.name as productName',
                     'SUM(saleItem.quantity) as totalQuantity',
                     'SUM(saleItem.quantity * product.sellingPrice) as totalRevenue'
                 ])
-                .groupBy('category.name, product.name')
+                .groupBy('category.name,category."pictureUrl", product.name')
                 .orderBy('totalQuantity', 'DESC')
                 .getRawMany();
 
@@ -249,22 +250,22 @@ export class ReportsService {
                 .createQueryBuilder('customer')
                 .leftJoin('customer.sales', 'sale')
                 .select([
-                    'customer.name as customerName',
-                    'customer.contactNumber as contactNumber',
-                    'COUNT(sale.id) as totalPurchases',
-                    'SUM(sale.totalPrice) as totalSpent',
-                    'SUM(sale.amountDue) as outstandingAmount'
+                    'customer.name as "customerName"',
+                    'customer.contactNumber as "contactNumber"',
+                    'COUNT(sale.id) as "totalPurchases"',
+                    'SUM(sale.totalPrice) as "totalSpent"',
+                    'SUM(sale.amountDue) as "outstandingAmount"'
                 ])
                 .groupBy('customer.id')
-                .orderBy('totalSpent', 'DESC')
+                .orderBy('"totalSpent"', 'DESC')
                 .limit(10)
                 .getRawMany();
             const formattedTopCustomers = topCustomers.map(customer => ({
                 ...customer,
-                totalpurchases: Number(customer.totalpurchases),
-                totalspent: Number(customer.totalspent),
-                outstandingamount: Number(customer.outstandingamount)
-            })).sort((a, b) => b.totalspent - a.totalspent);
+                totalPurchases: Number(customer.totalPurchases),
+                totalSpent: Number(customer.totalSpent),
+                outstandingAmount: Number(customer.outstandingAmount)
+            })).sort((a, b) => b.totalSpent - a.totalSpent);
             return {
                 summary: {
                     totalCustomers: Number(analytics.totalCustomers) || 0,
