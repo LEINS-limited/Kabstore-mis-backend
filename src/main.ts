@@ -15,7 +15,15 @@ import * as cors from 'cors';
 import { GlobalExceptionFilter } from './filters/global-exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: ['error', 'warn', 'debug', 'log', 'verbose'], // Enable all log levels
+  });
+
+  // Enable console logging for development
+  if (process.env.NODE_ENV !== 'production') {
+    app.useLogger(console);
+  }
+
   app.use(
     cors({
       origin: '*',
@@ -49,7 +57,7 @@ async function bootstrap() {
   });
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new GlobalExceptionFilter());
-  app.listen(3001).then(_d => {
+  await app.listen(3001).then(_d => {
     console.log(`Server listening at: http://localhost:3001`);
     console.log('Swagger api: http://localhost:3001/api');
   });

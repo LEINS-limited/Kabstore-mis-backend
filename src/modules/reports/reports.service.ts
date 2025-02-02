@@ -74,6 +74,7 @@ export class ReportsService {
     }
 
     async getStoreMetrics() {
+        console.log('getStoreMetrics');
         try {
             // Existing metrics
             const bestSellingProducts = await this.salesRepository
@@ -100,18 +101,22 @@ export class ReportsService {
             // Total products count
             const totalProducts = await this.productRepository.count();
 
-            // Monthly sales data for charts (last 12 months)
+            // Generate array of last 12 months
             const generateLast12Months = () => {
                 const months = [];
                 const today = new Date();
                 for (let i = 11; i >= 0; i--) {
                     const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
-                    months.push(date);
+                    months.push({
+                        date: date,
+                        formatted: `${date.getMonth() + 1}-${date.getFullYear()}`
+                    });
                 }
                 return months;
             };
-
+            console.log('generateLast12Months');
             const last12Months = generateLast12Months();
+            console.log('last12Months', last12Months);
 
             const monthlySales = await this.salesRepository
                 .createQueryBuilder('sale')
@@ -123,31 +128,38 @@ export class ReportsService {
                     'COALESCE(SUM(sale.amountDue), 0) as outstandingAmount'
                 ])
                 .where('sale.saleDate >= :startDate', { 
-                    startDate: last12Months[0]
+                    startDate: last12Months[0].date
                 })
                 .groupBy('month')
                 .orderBy('month', 'ASC')
                 .getRawMany();
-
+            console.log('monthlySales', monthlySales);
             // Format monthly sales data with all months
-            const formattedMonthlySales = last12Months.map(monthDate => {
+            const formattedMonthlySales = last12Months.map(monthObj => {
                 const monthData = monthlySales.find(
-                    sale => new Date(sale.month).getMonth() === monthDate.getMonth() &&
-                           new Date(sale.month).getFullYear() === monthDate.getFullYear()
+                    sale => {
+                        const saleDate = new Date(sale.month);
+                        return saleDate.getMonth() === monthObj.date.getMonth() &&
+                               saleDate.getFullYear() === monthObj.date.getFullYear();
+                    }
                 ) || {
                     totalSales: 0,
                     revenue: 0,
                     creditSales: 0,
                     outstandingAmount: 0
                 };
-
+                console.log('monthObj', monthObj);
                 return {
-                    month: monthDate.toISOString(),
-                    totalSales: Number(monthData.totalSales) || 0,
-                    revenue: Number(monthData.revenue) || 0,
-                    creditSales: Number(monthData.creditSales) || 0,
-                    outstandingAmount: Number(monthData.outstandingAmount) || 0
+                    month: monthObj.formatted,
+                    totalSales: Number(monthData.totalSales || 0),
+                    revenue: Number(monthData.revenue || 0),
+                    creditSales: Number(monthData.creditSales || 0),
+                    outstandingAmount: Number(monthData.outstandingAmount || 0)
                 };
+            }).sort((a, b) => {
+                const [aMonth, aYear] = a.month.split('-').map(Number);
+                const [bMonth, bYear] = b.month.split('-').map(Number);
+                return (aYear - bYear) || (aMonth - bMonth);
             });
 
             // Get existing customer metrics

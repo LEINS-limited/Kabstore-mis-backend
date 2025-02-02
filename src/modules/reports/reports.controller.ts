@@ -22,6 +22,7 @@ export class ReportsController {
 
   @Get('/store-metrics')
   getStoreMetrics() {
+    console.log('================= getStoreMetrics =================');
     return this.reportsService.getStoreMetrics();
   }
 
