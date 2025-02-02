@@ -16,7 +16,7 @@ export class SaleItem extends BaseEntity {
   @ManyToOne(() => Sale, (Sale) => Sale.saleItems)
   sale: Sale;
 
-  @Column({default:0})
+  @Column('float',{default:0})
   total: number;
 
   constructor(

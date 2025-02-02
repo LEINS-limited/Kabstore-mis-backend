@@ -31,7 +31,7 @@ export class Sale extends BaseEntity {
   @Column({enum: EPaymentType})
   paymentType: EPaymentType;
 
-  @Column({default:0})
+  @Column('float',{default:0})
   totalPrice: number;
 
   @Column('jsonb', {nullable:true})
