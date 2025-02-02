@@ -22,7 +22,7 @@ export class ReportsController {
 
   @Get('/store-metrics')
   getStoreMetrics() {
-    return this.reportsService.getStoreSalesMetrics();
+    return this.reportsService.getStoreMetrics();
   }
 
   @Get('/sales-by-category')

@@ -5,12 +5,15 @@ import { Sale } from 'src/entities/sales.entity'; // Adjust the import path as n
 import { SaleItem } from 'src/entities/saleItem.entity'; // Adjust the import path as necessary
 import { Product } from 'src/entities/products.entity'; // Adjust the import path as necessary
 import { Customer } from 'src/entities/customers.entity'; // Adjust the import path as necessary
+import { Expense } from 'src/entities/expense.entity';
 
 @Injectable()
 export class ReportsService {
     constructor(
         @InjectRepository(Sale) private salesRepository: Repository<Sale>,
         @InjectRepository(Customer) private customerRepository: Repository<Customer>,
+        @InjectRepository(Product) private productRepository: Repository<Product>,
+        @InjectRepository(Expense) private expenseRepository: Repository<Expense>,
     ) {}
 
     async calculateRevenueAndProfitsByMonth(year: number, month: number) {
@@ -70,9 +73,9 @@ export class ReportsService {
         }
     }
 
-    async getStoreSalesMetrics() {
+    async getStoreMetrics() {
         try {
-            // Best selling products by category
+            // Existing metrics
             const bestSellingProducts = await this.salesRepository
                 .createQueryBuilder('sale')
                 .leftJoinAndSelect('sale.saleItems', 'saleItem')
@@ -88,17 +91,78 @@ export class ReportsService {
                 .orderBy('totalQuantity', 'DESC')
                 .getRawMany();
 
-            // Customer metrics
+            // Total expenses
+            const totalExpenses = await this.expenseRepository
+                .createQueryBuilder('expense')
+                .select('COALESCE(SUM(expense.amount), 0)', 'total')
+                .getRawOne();
+
+            // Total products count
+            const totalProducts = await this.productRepository.count();
+
+            // Monthly sales data for charts (last 12 months)
+            const generateLast12Months = () => {
+                const months = [];
+                const today = new Date();
+                for (let i = 11; i >= 0; i--) {
+                    const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+                    months.push(date);
+                }
+                return months;
+            };
+
+            const last12Months = generateLast12Months();
+
+            const monthlySales = await this.salesRepository
+                .createQueryBuilder('sale')
+                .select([
+                    'DATE_TRUNC(\'month\', sale.saleDate) as month',
+                    'COUNT(DISTINCT sale.id) as totalSales',
+                    'COALESCE(SUM(sale.totalPrice), 0) as revenue',
+                    'COUNT(CASE WHEN sale.amountDue > 0 THEN 1 END) as creditSales',
+                    'COALESCE(SUM(sale.amountDue), 0) as outstandingAmount'
+                ])
+                .where('sale.saleDate >= :startDate', { 
+                    startDate: last12Months[0]
+                })
+                .groupBy('month')
+                .orderBy('month', 'ASC')
+                .getRawMany();
+
+            // Format monthly sales data with all months
+            const formattedMonthlySales = last12Months.map(monthDate => {
+                const monthData = monthlySales.find(
+                    sale => new Date(sale.month).getMonth() === monthDate.getMonth() &&
+                           new Date(sale.month).getFullYear() === monthDate.getFullYear()
+                ) || {
+                    totalSales: 0,
+                    revenue: 0,
+                    creditSales: 0,
+                    outstandingAmount: 0
+                };
+
+                return {
+                    month: monthDate.toISOString(),
+                    totalSales: Number(monthData.totalSales) || 0,
+                    revenue: Number(monthData.revenue) || 0,
+                    creditSales: Number(monthData.creditSales) || 0,
+                    outstandingAmount: Number(monthData.outstandingAmount) || 0
+                };
+            });
+
+            // Get existing customer metrics
             const totalCustomers = await this.customerRepository.count();
             const customersWithCredit = await this.customerRepository
                 .createQueryBuilder('customer')
+                .leftJoin('customer.sales', 'sale')
+                .where('sale.amountDue > 0')
                 .getCount();
 
             // Outstanding payments
             const totalDueAmount = await this.salesRepository
                 .createQueryBuilder('sale')
                 .where('sale.amountDue > 0')
-                .select('SUM(sale.amountDue)', 'totalDue')
+                .select('COALESCE(SUM(sale.amountDue), 0)', 'totalDue')
                 .getRawOne();
 
             // Sales by payment type
@@ -107,24 +171,34 @@ export class ReportsService {
                 .select([
                     'sale.paymentType as type',
                     'COUNT(*) as count',
-                    'SUM(sale.totalPrice) as total'
+                    'COALESCE(SUM(sale.totalPrice), 0) as total'
                 ])
                 .groupBy('sale.paymentType')
                 .getRawMany();
 
+            const formattedSalesByPaymentType = salesByPaymentType.map(type => ({
+                type: type.type,
+                count: Number(type.count),
+                total: Number(type.total)
+            }));
+
             return {
                 bestSellingProducts,
+                totalExpenses: Number(totalExpenses.total),
+                totalProducts,
+                monthlySales: formattedMonthlySales,
                 customerMetrics: {
                     totalCustomers,
                     customersWithCredit,
-                    totalDueAmount: totalDueAmount.totalDue || 0
+                    totalDueAmount: Number(totalDueAmount.totalDue)
                 },
-                salesByPaymentType
+                salesByPaymentType: formattedSalesByPaymentType
             };
         } catch (error) {
             throw new BadRequestException(error.message || 'Error fetching store metrics');
         }
     }
+
     async getSalesByCategory(startDate: Date, endDate: Date) {
         const sales = await this.salesRepository
           .createQueryBuilder('sale')
@@ -141,19 +215,57 @@ export class ReportsService {
           .getRawMany();
       
         return sales;
-      }
-      async getCustomerAnalytics() {
-        const customers = await this.customerRepository
-          .createQueryBuilder('customer')
-          .leftJoinAndSelect('customer.sales', 'sale')
-          .select([
-            'COUNT(DISTINCT customer.id) as totalCustomers',
-            'SUM(CASE WHEN customer.creditBalance > 0 THEN 1 ELSE 0 END) as customersWithCredit',
-            'SUM(customer.creditBalance) as totalCreditBalance',
-            'COUNT(sale.id) as totalTransactions'
-          ])
-          .getRawOne();
-      
-        return customers;
-      }
+    }
+
+    async getCustomerAnalytics() {
+        try {
+            const analytics = await this.customerRepository
+                .createQueryBuilder('customer')
+                .leftJoin('customer.sales', 'sale')
+                .select([
+                    'COUNT(DISTINCT customer.id) as totalCustomers',
+                    'COUNT(DISTINCT sale.id) as totalTransactions',
+                    'SUM(sale.totalPrice) as totalRevenue',
+                    'SUM(CASE WHEN sale.amountDue > 0 THEN 1 ELSE 0 END) as creditedSales',
+                    'SUM(sale.amountDue) as totalOutstandingAmount',
+                    'COUNT(DISTINCT CASE WHEN sale.amountDue > 0 THEN customer.id END) as customersWithCredit'
+                ])
+                .getRawOne();
+
+            // Get top customers by revenue
+            const topCustomers = await this.customerRepository
+                .createQueryBuilder('customer')
+                .leftJoin('customer.sales', 'sale')
+                .select([
+                    'customer.name as customerName',
+                    'customer.contactNumber as contactNumber',
+                    'COUNT(sale.id) as totalPurchases',
+                    'SUM(sale.totalPrice) as totalSpent',
+                    'SUM(sale.amountDue) as outstandingAmount'
+                ])
+                .groupBy('customer.id')
+                .orderBy('totalSpent', 'DESC')
+                .limit(10)
+                .getRawMany();
+            const formattedTopCustomers = topCustomers.map(customer => ({
+                ...customer,
+                totalpurchases: Number(customer.totalpurchases),
+                totalspent: Number(customer.totalspent),
+                outstandingamount: Number(customer.outstandingamount)
+            })).sort((a, b) => b.totalspent - a.totalspent);
+            return {
+                summary: {
+                    totalCustomers: Number(analytics.totalCustomers) || 0,
+                    totalTransactions: Number(analytics.totalTransactions) || 0,
+                    totalRevenue: Number(analytics.totalRevenue) || 0,
+                    creditedSales: Number(analytics.creditedSales) || 0,
+                    totalOutstandingAmount: Number(analytics.totalOutstandingAmount) || 0,
+                    customersWithCredit: Number(analytics.customersWithCredit) || 0
+                },
+                topCustomers: formattedTopCustomers
+            };
+        } catch (error) {
+            throw new BadRequestException('Error fetching customer analytics: ' + error.message);
+        }
+    }
 }
