@@ -235,7 +235,7 @@ export class SalesService {
       status: createSaleDto.status,
       paymentType: createSaleDto.paymentType,
       ipasiProducts,
-      installments
+      installments 
     });
 
     try {

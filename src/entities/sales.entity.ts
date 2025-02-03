@@ -38,7 +38,7 @@ export class Sale extends BaseEntity {
   @Column('jsonb', {nullable:true})
   ipasiProducts: IpasiProductDTO[];
 
-  @OneToMany(() => Installment, (installment) => installment.sale)
+  @OneToMany(() => Installment, (installment) => installment.sale, {eager:true})
   installments: Installment[];
 
   constructor(
