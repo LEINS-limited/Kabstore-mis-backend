@@ -42,6 +42,7 @@ import { Expense } from './entities/expense.entity';
 import { ReportsModule } from './modules/reports/reports.module';
 import { GeneralStoreInfoModule } from './modules/general-store-info/general-store-info.module';
 import { GeneralStoreInfo } from './entities/general-store-info.entity';
+import { Installment } from './entities/installment.entity';
 
 @Module({
   imports: [
@@ -65,7 +66,8 @@ import { GeneralStoreInfo } from './entities/general-store-info.entity';
           Sale,
           SaleItem,
           Expense,
-          GeneralStoreInfo
+          GeneralStoreInfo,
+          Installment
         ],
         synchronize: true,
       }),

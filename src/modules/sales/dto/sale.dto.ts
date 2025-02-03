@@ -1,8 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsEnum, IsNumber, IsOptional, IsUUID, ValidateNested } from "class-validator";
+import { IsArray, IsEnum, IsNumber, IsOptional, IsUUID, ValidateNested } from "class-validator";
 import { EPaymentType } from "src/common/Enum/EPaymentType.entity";
 import { ESaleStatus } from "src/common/Enum/ESaleStatus.entity";
+import { InstallmentDTO } from "src/common/dtos/installement.dto";
 import { IpasiProductDTO } from "src/common/dtos/ipasi-product.dto";
 import { CreateCustomerDTO } from "src/modules/customers/dtos/customers.dto";
 
@@ -96,4 +97,11 @@ export class CreateSaleDTO {
   @ValidateNested({ each: true })
   @Type(() => IpasiProductDTO)
   ipasiProducts?: IpasiProductDTO[];
+
+  @IsOptional()
+  @ValidateNested({each: true})
+  @Type(() => InstallmentDTO)
+  @ApiProperty({ type: InstallmentDTO, isArray: true })
+  @IsArray()
+  installments?: InstallmentDTO[];
 }
