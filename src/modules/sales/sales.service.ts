@@ -16,12 +16,16 @@ import { ESaleStatus } from 'src/common/Enum/ESaleStatus.entity';
 import { CreateSaleDTO } from './dto/sale.dto';
 import { SaleItem } from 'src/entities/saleItem.entity';
 import { Customer } from 'src/entities/customers.entity';
+import { Installment } from 'src/entities/installment.entity';
+import { EInstallmentStatus } from 'src/common/Enum/EInstallmentStatus.enum';
+import { InstallmentDTO, PayInstallmentDTO } from 'src/common/dtos/installement.dto';
 
 @Injectable()
 export class SalesService {
   constructor(
     @InjectRepository(Sale) public saleRepository: Repository<Sale>,
     @InjectRepository(SaleItem) public saleItemRepository: Repository<SaleItem>,
+    @InjectRepository(Installment) public installmentRepository: Repository<Installment>,
     private customerService: CustomersService,
     private productService: ProductsService,
   ) {}
@@ -121,6 +125,7 @@ export class SalesService {
   async create(createSaleDto: CreateSaleDTO): Promise<Sale> {
     let customer: Customer = null;
     let saleItems: SaleItem[] = [];
+    let installments: Installment[] = [];
     let total = 0;
 
     // Handle customer creation/lookup
@@ -184,6 +189,33 @@ export class SalesService {
       }
     }
 
+    // Handle installments 
+
+    if (createSaleDto.installments?.length > 0) {
+      for (const installment of createSaleDto.installments) {
+        try {
+
+          // Check stock availability
+         
+
+          // Create sale item
+          const installmentRecord = this.installmentRepository.create({
+           amount: installment.amount,
+           amountPaid : installment.amountPaid,
+          dueDate: installment.dueDate,
+            status: EInstallmentStatus.PENDING,
+          });
+
+          installments.push(await this.installmentRepository.save(installmentRecord));
+
+          // Update product quantity
+        
+        } catch (error) {
+          throw new BadRequestException(`Error processing product: ${error.message}`);
+        }
+      }
+    }
+
     // Handle IPASI products
     const ipasiProducts = createSaleDto.ipasiProducts?.map(item => ({
       productName: item.productName,
@@ -202,7 +234,8 @@ export class SalesService {
       saleDate: new Date(),
       status: createSaleDto.status,
       paymentType: createSaleDto.paymentType,
-      ipasiProducts
+      ipasiProducts,
+      installments 
     });
 
     try {
@@ -229,6 +262,34 @@ export class SalesService {
       throw new BadRequestException(`Failed to create sale: ${error.message}`);
     }
   }
+
+  async payInstallment(installmentId: string, installmentDTO: PayInstallmentDTO): Promise<Installment> {
+    
+    const installment = await this.installmentRepository.findOne({ where: { id: installmentId } });
+  
+    if (!installment) {
+      throw new NotFoundException(`Installment with ID ${installmentId} not found`);
+    }
+  
+    if (installment.status === EInstallmentStatus.PAID) {
+      throw new BadRequestException(`Installment already paid`);
+    }
+  
+    installment.amountPaid += installmentDTO.amountPaid;
+  
+    // Check if the installment is fully paid
+    if (installment.amount = installment.amountPaid) {
+      installment.status = EInstallmentStatus.PAID;
+    } else {
+      installment.status = EInstallmentStatus.PENDING;
+    }
+    installment.paidDate = installmentDTO.paidDate;
+  
+    // Save the updated installment
+    return await this.installmentRepository.save(installment);
+  }
+  
+  
 
   //   async update(
   //     id: string,

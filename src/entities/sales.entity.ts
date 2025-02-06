@@ -5,6 +5,7 @@ import { SaleItem } from "./saleItem.entity";
 import { EPaymentType } from "src/common/Enum/EPaymentType.entity";
 import { ESaleStatus } from "src/common/Enum/ESaleStatus.entity";
 import { IpasiProductDTO } from "src/common/dtos/ipasi-product.dto";
+import { Installment } from "./installment.entity";
 
 @Entity('sales')
 export class Sale extends BaseEntity {
@@ -36,6 +37,9 @@ export class Sale extends BaseEntity {
 
   @Column('jsonb', {nullable:true})
   ipasiProducts: IpasiProductDTO[];
+
+  @OneToMany(() => Installment, (installment) => installment.sale, {eager:true})
+  installments: Installment[];
 
   constructor(
     customer: Customer,

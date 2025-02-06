@@ -6,9 +6,10 @@ import { Sale } from 'src/entities/sales.entity';
 import { CustomersModule } from '../customers/customers.module';
 import { ProductsModule } from '../products/products.module';
 import { SaleItem } from 'src/entities/saleItem.entity';
+import { Installment } from 'src/entities/installment.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Sale]), TypeOrmModule.forFeature([SaleItem]), CustomersModule, ProductsModule],
+  imports: [TypeOrmModule.forFeature([Sale]), TypeOrmModule.forFeature([SaleItem, Installment]), CustomersModule, ProductsModule],
   controllers: [SalesController],
   providers: [SalesService]
 })
