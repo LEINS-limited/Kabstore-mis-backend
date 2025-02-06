@@ -67,8 +67,11 @@ import { GeneralStoreInfo } from './entities/general-store-info.entity';
           Expense,
           GeneralStoreInfo
         ],
-        synchronize: true,
-      }),
+        ssl: {
+          rejectUnauthorized: false,
+        },
+        synchronize: true
+            }),
       inject: [ConfigService],
     }),
     MailerModule.forRoot({

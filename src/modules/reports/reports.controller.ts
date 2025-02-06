@@ -38,4 +38,21 @@ export class ReportsController {
   async getCustomerAnalytics() {
     return this.reportsService.getCustomerAnalytics();
   }
+
+  @Get('/financial-summary')
+  async getFinancialSummary(
+    @Query('startDate') startDate: Date,
+    @Query('endDate') endDate: Date
+  ) {
+    return this.reportsService.getFinancialSummary(startDate, endDate);
+  }
+
+  @Get('/financial-trends')
+  async getFinancialTrends(
+    @Query('groupBy') groupBy: 'week' | 'month' = 'month',
+    @Query('startDate') startDate?: Date,
+    @Query('endDate') endDate?: Date
+  ) {
+    return this.reportsService.getFinancialTrends(groupBy, startDate, endDate);
+  }
 }
