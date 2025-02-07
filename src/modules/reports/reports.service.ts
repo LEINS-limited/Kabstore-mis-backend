@@ -354,7 +354,7 @@ export class ReportsService {
                 .select([
                     `${saleDateGroup} as period`,
                     'COALESCE(SUM(s.totalPrice), 0) as revenue',
-                    'COUNT(s.id) as totalSales',
+                    'COUNT(s.id) as "totalSales"',
                     'COALESCE(SUM(s.amountDue), 0) as outstanding'
                 ]) 
                 .where(startDate && endDate ? 's.saleDate BETWEEN :startDate AND :endDate' : '1=1', {
