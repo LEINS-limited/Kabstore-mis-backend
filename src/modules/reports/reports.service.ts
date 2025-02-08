@@ -298,9 +298,9 @@ export class ReportsService {
             const sales = await this.salesRepository
                 .createQueryBuilder('sale')
                 .select([
-                    'COALESCE(SUM(sale.totalPrice), 0) as totalRevenue',
-                    'COUNT(sale.id) as totalSales',
-                    'COALESCE(SUM(sale.amountDue), 0) as totalOutstanding'
+                    'COALESCE(SUM(sale.totalPrice), 0) as "totalRevenue"',
+                    'COUNT(sale.id) as "totalSales"',
+                    'COALESCE(SUM(sale.amountDue), 0) as "totalOutstanding"'
                 ])
                 .where('sale.saleDate BETWEEN :startDate AND :endDate', {
                     startDate,
