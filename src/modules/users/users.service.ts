@@ -179,12 +179,11 @@ export class UsersService {
     const tempPassword = crypto.randomBytes(8).toString('hex');
     const hashedPassword = await this.utilsService.hashString(tempPassword);
     account.password = hashedPassword;
-    const tokens = await this.utilsService.getTokens(account);
-    account.resetToken = tokens.accessToken.toString();
+    account.activationCode = this.generateRandomFourDigitNumber();
     if (reset) account.status = EAccountStatus[EAccountStatus.INACTIVE];
     await this.userRepo.save(account);
     this.mailingService.sendEmail('', true, account);
-    return { token: account.resetToken , temporaryPassword : tempPassword};
+    return { activationCode: account.activationCode , temporaryPassword : tempPassword};
   }
   //create admin
   async createAdmin(body: CreateAdminDto) {
@@ -318,9 +317,9 @@ export class UsersService {
       );
       return {
         success: true,
-        message: `We have sent a verification link to your inbox , please verify your account and reset your password! ${createdEnity.resetToken}`,
+        message: `We have sent a verification link to your inbox , please verify your account and reset your password! ${createdEnity.activationCode}`,
         password : tempPassword,
-        token: createdEnity.resetToken,
+        token: createdEnity.activationCode,
       };
     } catch (error) {
       console.log(error);
@@ -328,32 +327,24 @@ export class UsersService {
   }
 
   async resetPasswordForFirstTimeUser(
-    token: string,
+    code: number,
     body: ResetPasswordForFirstTimeUserDTO,
   ): Promise<void> {
     try {
       const user = await this.userRepo.findOne({
-        where: { resetToken: token },
+        where: { activationCode: code },
       });
 
       if (!user) {
-        throw new BadRequestException('Invalid or expired token');
+        throw new BadRequestException('Invalid code provided!');
       }
-      await this.jwtService.verifyAsync(token, {
-        secret: 'RCA-MIS1234@/2323o',
-      });
+
       user.password = await bcrypt.hash(body.newPassword, 10);
       user.status = EUserStatus[EUserStatus.ACTIVE];
-      user.resetToken = null;
+      user.activationCode = null;
       await this.userRepo.save(user);
     } catch (error) {
-      console.log(error);
-
-      if (error.name === 'TokenExpiredError') {
-        throw new BadRequestException('Token has expired');
-      } else {
-        throw new UnauthorizedException('Token is invalid');
-      }
+     console.log(error);
     }
   }
 

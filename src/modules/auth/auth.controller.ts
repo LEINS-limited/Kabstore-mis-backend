@@ -103,16 +103,16 @@ export class AuthController {
       await this.userService.resetPassword(dto.code, dto.newPassword),
     );
   }
-  @Put('reset_password/first_time_user/:token')
+  @Put('reset_password/first_time_user/:code')
   @Public()
   async resetPasswordFirstTimeUser(
-    @Param('token') token: string,
+    @Param('code') code: number,
     @Body() dto: ResetPasswordForFirstTimeUserDTO,
   ): Promise<ApiResponse> {
     return new ApiResponse(
       true,
       'Your password was rest successfully ',
-      await this.userService.resetPasswordForFirstTimeUser(token, dto),
+      await this.userService.resetPasswordForFirstTimeUser(code, dto),
     );
   }
   @Get('/get-profile')

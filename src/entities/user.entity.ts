@@ -82,7 +82,7 @@ export class User extends InitiatorAudit {
   national_id: String;
 
   @Column({nullable:true})
-  resetToken: string;
+  verificationCodeExpiryDate: Date;
 
   constructor(
     firstName: String,
