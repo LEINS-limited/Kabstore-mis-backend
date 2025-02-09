@@ -281,4 +281,126 @@ export class ReportsService {
             throw new BadRequestException('Error fetching customer analytics: ' + error.message);
         }
     }
+
+    async getFinancialSummary(startDate: Date, endDate: Date) {
+        try {
+            // Get total expenses
+            const expenses = await this.expenseRepository
+                .createQueryBuilder('expense')
+                .select('COALESCE(SUM(expense.amount), 0)', 'total')
+                .where('expense.expenseDate BETWEEN :startDate AND :endDate', {
+                    startDate,
+                    endDate
+                })
+                .getRawOne();
+
+            // Get total sales
+            const sales = await this.salesRepository
+                .createQueryBuilder('sale')
+                .select([
+                    'COALESCE(SUM(sale.totalPrice), 0) as "totalRevenue"',
+                    'COUNT(sale.id) as "totalSales"',
+                    'COALESCE(SUM(sale.amountDue), 0) as "totalOutstanding"'
+                ])
+                .where('sale.saleDate BETWEEN :startDate AND :endDate', {
+                    startDate,
+                    endDate
+                })
+                .getRawOne();
+
+            return {
+                totalExpenses: Number(expenses.total),
+                totalRevenue: Number(sales.totalRevenue),
+                totalSales: Number(sales.totalSales),
+                totalOutstanding: Number(sales.totalOutstanding),
+                netIncome: Number(sales.totalRevenue) - Number(expenses.total)
+            };
+        } catch (error) {
+            throw new BadRequestException('Error fetching financial summary: ' + error.message);
+        }
+    }
+
+    async getFinancialTrends(
+        groupBy: 'week' | 'month',
+        startDate?: Date,
+        endDate?: Date
+    ) {
+        try {
+            // For sales query
+            const saleDateGroup = groupBy === 'week' ? 
+                `TO_CHAR(s.saleDate, 'Dy') || ' (' || 
+                 TO_CHAR(DATE_TRUNC('week', s.saleDate), 'DD/MM') || ' - ' || 
+                 TO_CHAR(DATE_TRUNC('week', s.saleDate) + INTERVAL '6 days', 'DD/MM') || ')'` : 
+                'TO_CHAR(s.saleDate, \'Mon\')';
+            
+            const saleDateOrder = groupBy === 'week' ? 
+                'DATE_TRUNC(\'week\', s.saleDate)' : 
+                'EXTRACT(MONTH FROM s.saleDate)';
+
+            // For expense query
+            const expenseDateGroup = groupBy === 'week' ? 
+                `TO_CHAR(e.expenseDate, 'Dy') || ' (' || 
+                 TO_CHAR(DATE_TRUNC('week', e.expenseDate), 'DD/MM') || ' - ' || 
+                 TO_CHAR(DATE_TRUNC('week', e.expenseDate) + INTERVAL '6 days', 'DD/MM') || ')'` : 
+                'TO_CHAR(e.expenseDate, \'Mon\')';
+            
+            const expenseDateOrder = groupBy === 'week' ? 
+                'DATE_TRUNC(\'week\', e.expenseDate)' : 
+                'EXTRACT(MONTH FROM e.expenseDate)';
+
+            // Get sales trends
+            const salesTrends = await this.salesRepository
+                .createQueryBuilder('s')
+                .select([
+                    `${saleDateGroup} as period`,
+                    'COALESCE(SUM(s.totalPrice), 0) as revenue',
+                    'COUNT(s.id) as "totalSales"',
+                    'COALESCE(SUM(s.amountDue), 0) as outstanding'
+                ]) 
+                .where(startDate && endDate ? 's.saleDate BETWEEN :startDate AND :endDate' : '1=1', {
+                    startDate,
+                    endDate
+                })
+                .groupBy('period')
+                .addGroupBy(saleDateOrder)
+                .orderBy(saleDateOrder, 'ASC')
+                .getRawMany();
+
+            // Get expense trends
+            const expenseTrends = await this.expenseRepository
+                .createQueryBuilder('e')
+                .select([
+                    `${expenseDateGroup} as period`,
+                    'COALESCE(SUM(e.amount), 0) as total'
+                ])
+                .where(startDate && endDate ? 'e.expenseDate BETWEEN :startDate AND :endDate' : '1=1', {
+                    startDate,
+                    endDate
+                })
+                .groupBy('period')
+                .addGroupBy(expenseDateOrder)
+                .orderBy(expenseDateOrder, 'ASC')
+                .getRawMany();
+
+            // Combine sales and expenses data
+            const trends = salesTrends.map(sale => {
+                const expense = expenseTrends.find(exp => exp.period === sale.period) || { total: 0 };
+                return {
+                    period: sale.period,
+                    revenue: Number(sale.revenue),
+                    expenses: Number(expense.total),
+                    totalSales: Number(sale.totalSales),
+                    outstanding: Number(sale.outstanding),
+                    netIncome: Number(sale.revenue) - Number(expense.total)
+                };
+            });
+
+            return {
+                groupBy,
+                trends
+            };
+        } catch (error) {
+            throw new BadRequestException('Error fetching financial trends: ' + error.message);
+        }
+    }
 }
