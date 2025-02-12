@@ -26,7 +26,7 @@ import { EUserType } from 'src/common/Enum/EUserType.enum';
 import { MailingService } from 'src/integrations/mailing/mailing.service';
 import { RoleService } from '../roles/role.service';
 import { CreateAdminDto } from 'src/common/dtos/create-admin.dto';
-import { CreateUserByAdminDto, CreateUserDto } from 'src/common/dtos/create-user.dto';
+import { CreateUserByAdminDto } from 'src/common/dtos/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { create } from 'domain';
@@ -49,7 +49,7 @@ export class UsersService {
     private jwtService: JwtService,
     private utilsService: UtilsService,
     private mailingService: MailingService,
-  ) {}
+  ) { }
 
   async getUsers() {
     const response = await this.userRepo.find({ relations: ['roles'] });
@@ -144,17 +144,16 @@ export class UsersService {
     const account = await this.getUserByVerificationCode(code);
     if (!account)
       throw new BadRequestException(
-        'The provided code is invalid does not exist',
+        'The provided code is invalid',
       );
-    if (
-      account.status == EAccountStatus[EAccountStatus.WAIT_EMAIL_VERIFICATION]
-    )
-      throw new BadRequestException(
-        "Please first verify your account and we'll help you to remember your password later",
-      );
+
     account.password = await this.utilsService.hashString(
       newPassword.toString(),
     );
+    if (
+      account.status == EAccountStatus[EAccountStatus.WAIT_EMAIL_VERIFICATION]
+    )
+      account.status = EAccountStatus[EAccountStatus.ACTIVE]
     const savedUser = await this.userRepo.save(account);
     const tokens = await this.utilsService.getTokens(account);
     delete savedUser.password;
@@ -165,11 +164,11 @@ export class UsersService {
   async getVerificationCode(email: string, reset: boolean) {
     const account = await this.getUserByEmail(email);
     if (!account) throw new BadRequestException('This account does not exist');
-   
+
     account.activationCode = this.generateRandomFourDigitNumber();
     if (reset) account.status = EAccountStatus[EAccountStatus.WAIT_EMAIL_VERIFICATION];
     await this.userRepo.save(account);
-    this.mailingService.sendEmail('', true, account);
+    this.mailingService.sendEmail(`https://${process.env.FRONT_END_URL}/verify-account?email=${account.email}&code=${account.activationCode}r`, true, account);
     return { code: account.activationCode };
   }
 
@@ -182,8 +181,8 @@ export class UsersService {
     account.activationCode = this.generateRandomFourDigitNumber();
     if (reset) account.status = EAccountStatus[EAccountStatus.INACTIVE];
     await this.userRepo.save(account);
-    this.mailingService.sendEmail('', true, account);
-    return { activationCode: account.activationCode , temporaryPassword : tempPassword};
+    this.mailingService.sendEmail(`https://${process.env.FRONT_END_URL}/forgot-password?email=${account.email}&code=${account.activationCode}`, true, account);
+    return { activationCode: account.activationCode, temporaryPassword: tempPassword };
   }
   //create admin
   async createAdmin(body: CreateAdminDto) {
@@ -236,18 +235,17 @@ export class UsersService {
       national_id,
       phonenumber,
       password,
-      EAccountStatus.WAIT_EMAIL_VERIFICATION,
+      EAccountStatus.ACTIVE,
     );
     userToCreate.activationCode = this.generateRandomFourDigitNumber();
     userToCreate.password = await this.utilsService.hashString(password);
     try {
       const userEntity = this.userRepo.create(userToCreate);
-      const createdEnity = this.userRepo.save({ ...userEntity, roles: [role] });
-      await this.mailingService.sendEmail('', false, createdEnity);
+      const createdEnity = await this.userRepo.save({ ...userEntity, roles: [role] });
+      await this.mailingService.sendEmail(`https://${process.env.FRONT_END_URL}/forgot-password?email=${createdEnity.email}&code=${createdEnity.activationCode}`, false, createdEnity);
       return {
         success: true,
-        message: `We have sent a verification code to your inbox , please verify your account! ${userToCreate.activationCode}`,
-        activationCode: userToCreate.activationCode,
+        message: `Account created successfully!`,
       };
     } catch (error) {
       console.log(error);
@@ -311,14 +309,14 @@ export class UsersService {
         roles: [erole],
       });
       await this.mailingService.sendEmail(
-        `https://your-frontend.com/reset-password?token=${tokens.accessToken}`,
+        `https://${process.env.FRONT_END_URL}/forgot-password?email=${createdEnity.email}&code=${createdEnity.activationCode}`,
         true,
         createdEnity,
       );
       return {
         success: true,
-        message: `We have sent a verification link to your inbox , please verify your account and reset your password! ${createdEnity.activationCode}`,
-        password : tempPassword,
+        message: `User account created successfully! ${createdEnity.activationCode}`,
+        password: tempPassword,
         token: createdEnity.activationCode,
       };
     } catch (error) {
@@ -326,27 +324,7 @@ export class UsersService {
     }
   }
 
-  async resetPasswordForFirstTimeUser(
-    code: number,
-    body: ResetPasswordForFirstTimeUserDTO,
-  ): Promise<void> {
-    try {
-      const user = await this.userRepo.findOne({
-        where: { activationCode: code },
-      });
-
-      if (!user) {
-        throw new BadRequestException('Invalid code provided!');
-      }
-
-      user.password = await bcrypt.hash(body.newPassword, 10);
-      user.status = EUserStatus[EUserStatus.ACTIVE];
-      user.activationCode = null;
-      await this.userRepo.save(user);
-    } catch (error) {
-     console.log(error);
-    }
-  }
+ 
 
   async verifyProfile(code: number) {
     try {
@@ -362,7 +340,7 @@ export class UsersService {
     }
     Object.assign(user, dto);
     const erole = await this.roleService.getRoleByName(dto.role);
-    
+
     user.roles = [erole];
     return this.userRepo.save(user);
   }
