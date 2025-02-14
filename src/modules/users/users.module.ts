@@ -13,30 +13,22 @@ import { UsersService } from './users.service';
 import { User } from '../../entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UtilsModule } from 'src/utils/utils.module';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { RoleModule } from '../roles/role.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-
+import { Sale } from 'src/entities/sales.entity';
+import { SalesModule } from '../sales/sales.module';
 @Global()
 @Module({
   controllers: [UsersController],
   
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Sale]),
     RoleModule,
-    JwtModule.registerAsync({
-          imports: [ConfigModule],
-          useFactory: async (configService: ConfigService) => ({
-            secret: configService.get<string>('SECRET_KEY'),
-            signOptions: {
-              expiresIn: '1d',
-            },
-          }),
-          inject: [ConfigService],
-        }),
+    SalesModule,
     UtilsModule,
   ],
-  providers: [UsersService],
+  providers: [UsersService,JwtService],
   exports: [UsersService],
 })
 export class UsersModule {}

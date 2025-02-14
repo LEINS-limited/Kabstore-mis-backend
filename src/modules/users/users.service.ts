@@ -27,20 +27,17 @@ import { MailingService } from 'src/integrations/mailing/mailing.service';
 import { RoleService } from '../roles/role.service';
 import { CreateAdminDto } from 'src/common/dtos/create-admin.dto';
 import { CreateUserByAdminDto } from 'src/common/dtos/create-user.dto';
-import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import { create } from 'domain';
 import { JwtService } from '@nestjs/jwt';
-import { EUserStatus } from 'src/common/Enum/EUserStatus.enum';
-import { ResetPasswordForFirstTimeUserDTO } from 'src/common/dtos/reset-password-first-time-user.dto';
 import { ConfigService } from '@nestjs/config';
-import { UpdateCategoryDTO } from '../categories/dto/categories.dto';
 import { UpdateUserDto } from 'src/common/dtos/update-user.dto';
-
+import { SalesService } from '../sales/sales.service';
+import { Sale } from 'src/entities/sales.entity';
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) public userRepo: Repository<User>,
+    @InjectRepository(Sale) public saleRepo: Repository<Sale>,
     // @Inject(forwardRef(() => RoleService))
     private roleService: RoleService,
     @Inject(forwardRef(() => UtilsService))
@@ -373,5 +370,103 @@ export class UsersService {
     }
     this.userRepo.remove(user);
     return user;
+  }
+
+  async getUserPerformance(userId: UUID, startDate?: Date, endDate?: Date) {
+    try {
+      const user = await this.getUserById(userId, 'User');
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      // Get base query for user's sales
+      const baseQuery = this.saleRepo.createQueryBuilder('sale')
+        .where('sale.doneBy = :userId', { userId })
+        .andWhere(startDate && endDate ? 
+          'sale."saleDate" BETWEEN :startDate AND :endDate' : '1=1', 
+          { startDate, endDate }
+        );
+
+      // Get sales summary
+      const salesSummary = await baseQuery
+        .select([
+          'COUNT(DISTINCT sale.id) as "totalSales"',
+          'COUNT(DISTINCT sale.customer_id) as "totalCustomers"',
+          'COALESCE(SUM(sale.totalPrice), 0) as "totalRevenue"',
+          'COALESCE(SUM(sale.amountDue), 0) as "totalOutstanding"',
+          // Payment methods count
+          'COUNT(CASE WHEN sale.paymentType = \'MOBILE_MONEY\' THEN 1 END) as "mobileMoneyCount"',
+          'COUNT(CASE WHEN sale.paymentType = \'CASH\' THEN 1 END) as "cashCount"',
+          'COUNT(CASE WHEN sale.paymentType = \'BANK\' THEN 1 END) as "bankCount"',
+          // Sales status count
+          'COUNT(CASE WHEN sale.amountDue > 0 THEN 1 END) as "creditSales"',
+          'COUNT(CASE WHEN sale.amountDue = 0 THEN 1 END) as "completedSales"'
+        ])
+        .getRawOne();
+
+      // Get sales trends
+      const salesTrends = await baseQuery
+        .select([
+          'DATE_TRUNC(\'day\', sale.saleDate) as date',
+          'COUNT(DISTINCT sale.id) as "dailySales"',
+          'COALESCE(SUM(sale.totalPrice), 0) as "dailyRevenue"'
+        ])
+        .groupBy('DATE_TRUNC(\'day\', sale.saleDate)')
+        .orderBy('DATE_TRUNC(\'day\', sale.saleDate)', 'DESC')
+        .limit(30)
+        .getRawMany();
+
+      // Get recent sales - Separate query without grouping
+      const recentSales = await this.saleRepo
+        .createQueryBuilder('sale')
+        .where('sale.doneBy = :userId', { userId })
+        .andWhere(startDate && endDate ? 
+          'sale.saleDate BETWEEN :startDate AND :endDate' : '1=1', 
+          { startDate, endDate }
+        )
+        .leftJoinAndSelect('sale.customer', 'customer')
+        .leftJoinAndSelect('sale.saleItems', 'saleItems')
+        .leftJoinAndSelect('saleItems.product', 'product')
+        .orderBy('sale.saleDate', 'DESC')
+        .limit(10)
+        .getMany();
+
+      return {
+        summary: {
+          totalSales: Number(salesSummary.totalSales),
+          totalCustomers: Number(salesSummary.totalCustomers),
+          totalRevenue: Number(salesSummary.totalRevenue),
+          totalOutstanding: Number(salesSummary.totalOutstanding),
+          paymentMethods: {
+            mobileMoney: Number(salesSummary.mobileMoneyCount),
+            cash: Number(salesSummary.cashCount),
+            bank: Number(salesSummary.bankCount)
+          },
+          salesStatus: {
+            credit: Number(salesSummary.creditSales),
+            completed: Number(salesSummary.completedSales)
+          }
+        },
+        trends: salesTrends.map(trend => ({
+          date: trend.date,
+          sales: Number(trend.dailySales),
+          revenue: Number(trend.dailyRevenue)
+        })),
+        recentSales: recentSales.map(sale => ({
+          id: sale.id,
+          date: sale.saleDate,
+          customer: sale.customer ? `${sale.customer.name}` : 'N/A',
+          amount: sale.totalPrice,
+          outstanding: sale.amountDue,
+          paymentMethod: sale.paymentType,
+          items: sale.saleItems.map(item => ({
+            product: item.product.name,
+            quantity: item.quantity
+          }))
+        }))
+      };
+    } catch (error) {
+      throw new BadRequestException('Error fetching user performance: ' + error.message);
+    }
   }
 }

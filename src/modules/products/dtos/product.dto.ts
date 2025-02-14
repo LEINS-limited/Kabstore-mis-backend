@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, PartialType } from "@nestjs/swagger";
 import { Transform, Type } from "class-transformer";
 import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString, Min } from "class-validator";
 import { EProductStatus } from "src/common/Enum/EProductStatus.enum";
@@ -119,50 +119,50 @@ export class CreateProductDTO {
   status: EProductStatus;
 }
 
-export class UpdateProductDto {
+export class UpdateProductDto extends PartialType(CreateProductDTO) {
   @ApiProperty()
   @IsString()
-  name: string;
+  name?: string;
 
   @ApiProperty()
-  categoryId: string;
+  categoryId?: string;
 
   @ApiProperty()
-  sellingPrice: number;
+  sellingPrice?: number;
 
   @ApiProperty()
-  costPrice: number;
+  costPrice?: number;
   
   @ApiProperty()
   @Min(0)
-  shippingCost: number;
+  shippingCost?: number;
 
 
   @ApiProperty()
   @IsBoolean()
-  taxable : boolean;
+  taxable?: boolean;
 
   @ApiProperty()
   @IsNumber()
-  additionalExpenses: number;
+  additionalExpenses?: number;
 
   @ApiProperty()
-  profitPercentage: number;
+  profitPercentage?: number;
 
   @ApiProperty()
-  quantity: number;
+  quantity?: number;
 
   @ApiProperty()
-  safetyStock: number;
+  safetyStock?: number;
 
   @ApiProperty()
   // @IsISO8601()
   @Transform(({ value }) => new Date(value))
-  addedDate: Date;
+  addedDate?: Date;
 
   @ApiProperty({ enum: EProductStatus })
   @IsEnum(EProductStatus)
-  status: EProductStatus;
+  status?: EProductStatus;
 }
 
 export class UpdateVendorDTO {
