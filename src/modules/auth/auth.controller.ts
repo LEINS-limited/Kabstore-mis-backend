@@ -29,10 +29,9 @@ import { User } from 'src/entities/user.entity';
 import { ResetPasswordDTO } from 'src/common/dtos/reset-password.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import { Public } from 'src/decorators/public.decorator';
 import { AuthGuard } from './guards/auth.guard';
-import { ResetPasswordForFirstTimeUserDTO } from 'src/common/dtos/reset-password-first-time-user.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -99,22 +98,11 @@ export class AuthController {
   async resetPassword(@Body() dto: ResetPasswordDTO): Promise<ApiResponse> {
     return new ApiResponse(
       true,
-      'Your password was rest successfully ',
+      'Your password was reset successfully ',
       await this.userService.resetPassword(dto.code, dto.newPassword),
     );
   }
-  @Put('reset_password/first_time_user/:token')
-  @Public()
-  async resetPasswordFirstTimeUser(
-    @Param('token') token: string,
-    @Body() dto: ResetPasswordForFirstTimeUserDTO,
-  ): Promise<ApiResponse> {
-    return new ApiResponse(
-      true,
-      'Your password was rest successfully ',
-      await this.userService.resetPasswordForFirstTimeUser(token, dto),
-    );
-  }
+
   @Get('/get-profile')
   @UseGuards(AuthGuard)
   async getProfile(@Req() req: Request) {
