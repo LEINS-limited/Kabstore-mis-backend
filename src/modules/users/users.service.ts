@@ -168,7 +168,7 @@ export class UsersService {
     account.activationCode = this.generateRandomFourDigitNumber();
     if (reset) account.status = EAccountStatus[EAccountStatus.WAIT_EMAIL_VERIFICATION];
     await this.userRepo.save(account);
-    this.mailingService.sendEmail(`https://${process.env.FRONT_END_URL}/verify-account?email=${account.email}&code=${account.activationCode}r`, true, account);
+    this.mailingService.sendEmail(`${process.env.FRONT_END_URL}/forgot-password?email=${account.email}&code=${account.activationCode}`, true, account);
     return { code: account.activationCode };
   }
 
