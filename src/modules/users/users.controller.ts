@@ -15,6 +15,7 @@ import {
   Body,
   Post,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { NotFoundException } from '@nestjs/common';
@@ -36,6 +37,11 @@ export class UsersController {
   @Roles('ADMIN')
   getUsers() {
     return this.usersService.getUsers();
+  }
+
+  @Get('/user-performance/:userId')
+  getUserPerformance(@Param('userId') userId: UUID, @Query('startDate') startDate?: Date, @Query('endDate') endDate?: Date) {
+    return this.usersService.getUserPerformance(userId, startDate, endDate);
   }
 
   @Get('/:id')
@@ -62,7 +68,6 @@ export class UsersController {
   createUserAccount(@Body() body: CreateUserByAdminDto) {
     return this.usersService.createUser(body);
   }
-
 
   @Patch('update/:id')
   @Roles('ADMIN')

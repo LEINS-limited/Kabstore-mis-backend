@@ -19,6 +19,7 @@ import { Customer } from 'src/entities/customers.entity';
 import { Installment } from 'src/entities/installment.entity';
 import { EInstallmentStatus } from 'src/common/Enum/EInstallmentStatus.enum';
 import { InstallmentDTO, PayInstallmentDTO } from 'src/common/dtos/installement.dto';
+import { User } from 'src/entities/user.entity';
 
 @Injectable()
 export class SalesService {
@@ -122,7 +123,7 @@ export class SalesService {
     return { sales, meta };
   }
 
-  async create(createSaleDto: CreateSaleDTO): Promise<Sale> {
+  async create(createSaleDto: CreateSaleDTO, user: User): Promise<Sale> {
     let customer: Customer = null;
     let saleItems: SaleItem[] = [];
     let installments: Installment[] = [];
@@ -157,12 +158,19 @@ export class SalesService {
               `Insufficient stock for product ${product.name}. Available: ${product.quantity}`
             );
           }
-
+          const ipasiProducts = createSaleDto.ipasiProducts?.map(item => ({
+            productName: item.productName,
+            quantitySold: item.quantitySold,
+            initialPrice: item.initialPrice,
+            sellingPrice: item.sellingPrice
+          })) || [];
+          console.log('ipasiProducts', ipasiProducts);
+          const totalIpasiAmount = ipasiProducts.reduce((acc, curr) => acc + curr.quantitySold * curr.sellingPrice, 0);
           // Create sale item
           const saleItem = this.saleItemRepository.create({
             product,
             quantity: item.quantitySold,
-            total: item.quantitySold * product.sellingPrice
+            total: item.quantitySold * product.sellingPrice + totalIpasiAmount
           });
 
           saleItems.push(await this.saleItemRepository.save(saleItem));
@@ -230,6 +238,7 @@ export class SalesService {
       saleItems,
       code: generateCode('S'),
       totalPrice: total,
+      doneBy: user,
       amountDue: createSaleDto.status === ESaleStatus.CREDITED ? (createSaleDto.amountDue || total) : 0,
       saleDate: new Date(),
       status: createSaleDto.status,

@@ -15,6 +15,7 @@ import {
   TableInheritance,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 import { EGender } from '../common/Enum/EGender.enum';
 import { EAccountStatus } from '../common/Enum/EAccountStatus.enum';
@@ -22,6 +23,7 @@ import { Role } from 'src/entities/role.entity';
 import { InitiatorAudit } from 'src/audits/Initiator.audit';
 import { UUID } from 'crypto';
 import { ERole } from 'src/common/Enum/ERole.enum';
+import { Sale } from './sales.entity';
 
 @Entity('users')
 @TableInheritance({ column: { type: 'varchar', name: 'type' } })
@@ -49,6 +51,9 @@ export class User extends InitiatorAudit {
     default: null,
   })
   last_login: Date;
+
+  @OneToMany(() => Sale, (Sale) => Sale.doneBy)
+  sales: Sale[];
 
   @Column({
     type: String,

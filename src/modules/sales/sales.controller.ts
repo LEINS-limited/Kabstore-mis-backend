@@ -7,6 +7,9 @@ import {
   Patch,
   Post,
   Query,
+  Req,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ApiResponse } from 'src/common/payload/ApiResponse';
@@ -14,9 +17,11 @@ import { Public } from 'src/decorators/public.decorator';
 import { SalesService } from './sales.service';
 import { CreateSaleDTO } from './dto/sale.dto';
 import { InstallmentDTO, PayInstallmentDTO } from 'src/common/dtos/installement.dto';
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { User } from 'src/entities/user.entity';
+import { GetUser } from 'src/decorators/get-user.decorator';
 
 @Controller('sales')
-@Public()
 @ApiTags('sales')
 @ApiBearerAuth('JWT-auth')
 export class SalesController {
@@ -55,8 +60,10 @@ export class SalesController {
 
   
   @Post()
-  create(@Body() createSaleDto: CreateSaleDTO) {
-    return this.saleService.create(createSaleDto);
+  @UseGuards(AuthGuard)
+  create(@Body() createSaleDto: CreateSaleDTO, @GetUser() user: User) {
+    console.log("user",user);
+    return this.saleService.create(createSaleDto, user);
   }
 
   //   @Patch(':id')

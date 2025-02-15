@@ -15,8 +15,8 @@ import * as cors from 'cors';
 import { GlobalExceptionFilter } from './filters/global-exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    logger: ['error', 'warn', 'debug', 'log', 'verbose'], // Enable all log levels
+  const app = await NestFactory.create(AppModule,{
+    logger:['error', 'warn']
   });
 
   // Enable console logging for development
@@ -32,7 +32,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('KABSTORE BACKEND API')
     .setDescription(
-      'This is the inventory management for Kabstore sho, By LEINS',
+      'This is the inventory management for Kabstore shop, By LEINS',
     )
     .setVersion('1.0')
     .addTag('Kabstore')
