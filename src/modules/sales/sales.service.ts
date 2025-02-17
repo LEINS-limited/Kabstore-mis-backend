@@ -158,18 +158,11 @@ export class SalesService {
               `Insufficient stock for product ${product.name}. Available: ${product.quantity}`
             );
           }
-          const ipasiProducts = createSaleDto.ipasiProducts?.map(item => ({
-            productName: item.productName,
-            quantitySold: item.quantitySold,
-            initialPrice: item.initialPrice,
-            sellingPrice: item.sellingPrice
-          })) || [];
-          const totalIpasiAmount = ipasiProducts.reduce((acc, curr) => acc + curr.quantitySold * curr.sellingPrice, 0);
           // Create sale item
           const saleItem = this.saleItemRepository.create({
             product,
             quantity: item.quantitySold,
-            total: item.quantitySold * product.sellingPrice + totalIpasiAmount
+            total: item.quantitySold * product.sellingPrice
           });
 
           saleItems.push(await this.saleItemRepository.save(saleItem));
@@ -230,7 +223,7 @@ export class SalesService {
       initialPrice: item.initialPrice,
       sellingPrice: item.sellingPrice
     })) || [];
-
+    total += ipasiProducts.reduce((acc, curr) => acc + curr.quantitySold * curr.sellingPrice, 0);
     // Create the sale
     const newSale = this.saleRepository.create({
       customer,
