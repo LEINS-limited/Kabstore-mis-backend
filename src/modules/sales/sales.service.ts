@@ -87,7 +87,8 @@ export class SalesService {
       .createQueryBuilder('sale')
       .leftJoinAndSelect('sale.customer', 'customer')
       .leftJoinAndSelect('sale.saleItems', 'saleItems')
-      .leftJoinAndSelect('saleItems.product', 'product');
+      .leftJoinAndSelect('saleItems.product', 'product')
+      .leftJoinAndSelect('sale.installments', 'installments');
 
     if (search) {
       query.where('sale.status ILIKE :search OR customer.name ILIKE :search', {
@@ -110,6 +111,7 @@ export class SalesService {
       .leftJoinAndSelect('sale.customer', 'customer')
       .leftJoinAndSelect('sale.saleItems', 'saleItems')
       .leftJoinAndSelect('saleItems.product', 'product')
+      .leftJoinAndSelect('sale.installments', 'installments')
       .where('product.id = :productId', {
         productId: `${productId}`,
       });
@@ -339,7 +341,8 @@ export class SalesService {
     if (!sale) {
         throw new NotFoundException(`Sale with ID ${saleId} not found`);
     }
-
+    console.log(sale.status);
+    
     if (sale.status === ESaleStatus.CANCELED) {
         throw new BadRequestException(`Sale is already canceled`);
     }
