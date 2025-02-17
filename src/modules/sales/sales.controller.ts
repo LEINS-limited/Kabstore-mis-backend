@@ -85,10 +85,10 @@ export class SalesController {
     return this.saleService.payInstallment(id, body);
   }
 
-  // @Put('sale-status/:id/:status')
-  // async updateSaleStatus(@Param('sale-id') id : string, @Param('status') status : ESaleStatus ){
-  //   return this.saleService.updateSalesStatus(id, status);
-  // }
+  @Put('cancel-sale/:id')
+  async updateSaleStatus(@Param('sale-id') id : string ){
+    return this.saleService.cancelSale(id);
+  }
 
   @Delete(':id')
   remove(@Param('id') id: string) {

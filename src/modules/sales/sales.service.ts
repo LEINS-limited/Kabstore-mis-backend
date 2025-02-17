@@ -333,6 +333,46 @@ export class SalesService {
   //     return this.saleRepository.save(product);
   //   }
 
+  async cancelSale(saleId: string): Promise<Sale> {
+    const sale = await this.getSaleById(saleId);
+
+    if (!sale) {
+        throw new NotFoundException(`Sale with ID ${saleId} not found`);
+    }
+
+    if (sale.status === ESaleStatus.CANCELED) {
+        throw new BadRequestException(`Sale is already canceled`);
+    }
+
+    // Restore product quantities
+    for (const saleItem of sale.saleItems) {
+        const product = saleItem.product;
+        product.quantity += saleItem.quantity;
+        
+        await this.productService.update(product.id, {
+            quantity: product.quantity,
+            categoryId: product.category.id,
+            name: product.name,
+            sellingPrice: product.sellingPrice,
+            profitPercentage: null,
+            costPrice: product.costPrice,
+            shippingCost: product.shippingCost,
+            taxable: product.taxable,
+            additionalExpenses: product.additionalExpenses,
+            safetyStock: product.safetyStock,
+            addedDate: product.dateAdded,
+            status: product.status
+        });
+    }
+
+    // Mark sale as canceled
+    sale.status = ESaleStatus.CANCELED;
+    await this.saleRepository.save(sale);
+
+    return sale;
+}
+
+
   async delete(id: string): Promise<void> {
     const result = await this.saleRepository.delete(id);
     if (result.affected === 0) {
