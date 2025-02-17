@@ -67,7 +67,7 @@ export class CreateSaleDTO {
 
   @ApiProperty({
     example: 1000,
-    description: "Amount due for credit sales. Required when status is CREDITED",
+    description: "Amount due for credit sales. Required when status is PENDING",
     required: false
   })
   @IsOptional()
@@ -76,8 +76,8 @@ export class CreateSaleDTO {
 
   @ApiProperty({
     enum: ESaleStatus,
-    example: ESaleStatus.CREDITED,
-    description: "Sale status (PENDING, IN_PROGRESS, COMPLETED, CREDITED)"
+    example: ESaleStatus.PENDING,
+    description: "Sale status (PENDING, IN_PROGRESS, COMPLETED)"
   })
   @IsEnum(ESaleStatus)
   status: ESaleStatus;

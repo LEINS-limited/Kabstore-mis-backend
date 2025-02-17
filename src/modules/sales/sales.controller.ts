@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   Req,
   Request,
@@ -20,6 +21,7 @@ import { InstallmentDTO, PayInstallmentDTO } from 'src/common/dtos/installement.
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from 'src/entities/user.entity';
 import { GetUser } from 'src/decorators/get-user.decorator';
+import { ESaleStatus } from 'src/common/Enum/ESaleStatus.entity';
 
 @Controller('sales')
 @ApiTags('sales')
@@ -62,7 +64,6 @@ export class SalesController {
   @Post()
   @UseGuards(AuthGuard)
   create(@Body() createSaleDto: CreateSaleDTO, @GetUser() user: User) {
-    console.log("user",user);
     return this.saleService.create(createSaleDto, user);
   }
 
@@ -79,10 +80,15 @@ export class SalesController {
       await this.saleService.salesStats(),
     );
   }
-    @Patch('/installments/:id/pay')
+  @Patch('/installments/:id/pay')
   async payInstallment(@Param('id') id: string, @Body() body: PayInstallmentDTO) {
     return this.saleService.payInstallment(id, body);
   }
+
+  // @Put('sale-status/:id/:status')
+  // async updateSaleStatus(@Param('sale-id') id : string, @Param('status') status : ESaleStatus ){
+  //   return this.saleService.updateSalesStatus(id, status);
+  // }
 
   @Delete(':id')
   remove(@Param('id') id: string) {

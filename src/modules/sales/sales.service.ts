@@ -29,7 +29,7 @@ export class SalesService {
     @InjectRepository(Installment) public installmentRepository: Repository<Installment>,
     private customerService: CustomersService,
     private productService: ProductsService,
-  ) {}
+  ) { }
   async getSales(): Promise<Sale[]> {
     const response = await this.saleRepository.find();
     return response;
@@ -104,14 +104,14 @@ export class SalesService {
     return { sales, meta };
   }
 
-  async getSalesByProductPaginated(page: number, limit: number, productId:string) {
+  async getSalesByProductPaginated(page: number, limit: number, productId: string) {
     const query = this.saleRepository
       .createQueryBuilder('sale')
       .leftJoinAndSelect('sale.customer', 'customer')
       .leftJoinAndSelect('sale.saleItems', 'saleItems')
       .leftJoinAndSelect('saleItems.product', 'product')
       .where('product.id = :productId', {
-        productId: `${productId}`, 
+        productId: `${productId}`,
       });
 
     const [sales, count] = await query
@@ -141,8 +141,8 @@ export class SalesService {
     }
 
     // Validate at least one type of sale items exists
-    if ((!createSaleDto.saleItems || createSaleDto.saleItems.length === 0) && 
-        (!createSaleDto.ipasiProducts || createSaleDto.ipasiProducts.length === 0)) {
+    if ((!createSaleDto.saleItems || createSaleDto.saleItems.length === 0) &&
+      (!createSaleDto.ipasiProducts || createSaleDto.ipasiProducts.length === 0)) {
       throw new BadRequestException('Please provide either regular sale items or IPASI items');
     }
 
@@ -151,7 +151,7 @@ export class SalesService {
       for (const item of createSaleDto.saleItems) {
         try {
           const product = await this.productService.getProductById(item.productId);
-          
+
           // Check stock availability
           if (product.quantity < item.quantitySold) {
             throw new BadRequestException(
@@ -164,7 +164,6 @@ export class SalesService {
             initialPrice: item.initialPrice,
             sellingPrice: item.sellingPrice
           })) || [];
-          console.log('ipasiProducts', ipasiProducts);
           const totalIpasiAmount = ipasiProducts.reduce((acc, curr) => acc + curr.quantitySold * curr.sellingPrice, 0);
           // Create sale item
           const saleItem = this.saleItemRepository.create({
@@ -182,7 +181,7 @@ export class SalesService {
             categoryId: product.category.id,
             name: product.name,
             sellingPrice: product.sellingPrice,
-            profitPercentage:null,
+            profitPercentage: null,
             costPrice: product.costPrice,
             shippingCost: product.shippingCost,
             taxable: product.taxable,
@@ -204,20 +203,20 @@ export class SalesService {
         try {
 
           // Check stock availability
-         
+
 
           // Create sale item
           const installmentRecord = this.installmentRepository.create({
-           amount: installment.amount,
-           amountPaid : installment.amountPaid,
-          dueDate: installment.dueDate,
+            amount: installment.amount,
+            amountPaid: installment.amountPaid,
+            dueDate: installment.dueDate,
             status: EInstallmentStatus.PENDING,
           });
 
           installments.push(await this.installmentRepository.save(installmentRecord));
 
           // Update product quantity
-        
+
         } catch (error) {
           throw new BadRequestException(`Error processing product: ${error.message}`);
         }
@@ -239,12 +238,12 @@ export class SalesService {
       code: generateCode('S'),
       totalPrice: total,
       doneBy: user,
-      amountDue: createSaleDto.status === ESaleStatus.CREDITED ? (createSaleDto.amountDue || total) : 0,
+      amountDue: createSaleDto.status === ESaleStatus.PENDING ? (createSaleDto.amountDue || total) : 0,
       saleDate: new Date(),
       status: createSaleDto.status,
       paymentType: createSaleDto.paymentType,
       ipasiProducts,
-      installments 
+      installments
     });
 
     try {
@@ -273,19 +272,19 @@ export class SalesService {
   }
 
   async payInstallment(installmentId: string, installmentDTO: PayInstallmentDTO): Promise<Installment> {
-    
+
     const installment = await this.installmentRepository.findOne({ where: { id: installmentId } });
-  
+    
     if (!installment) {
       throw new NotFoundException(`Installment with ID ${installmentId} not found`);
     }
-  
+
     if (installment.status === EInstallmentStatus.PAID) {
       throw new BadRequestException(`Installment already paid`);
     }
-  
+
     installment.amountPaid += installmentDTO.amountPaid;
-  
+
     // Check if the installment is fully paid
     if (installment.amount = installment.amountPaid) {
       installment.status = EInstallmentStatus.PAID;
@@ -293,12 +292,23 @@ export class SalesService {
       installment.status = EInstallmentStatus.PENDING;
     }
     installment.paidDate = installmentDTO.paidDate;
-  
+    //update the sale status
+    const sale = installment.sale;
+    const allInstallmentsPaid = sale.installments.every(inst => inst.status === EInstallmentStatus.PAID);
+
+    if (allInstallmentsPaid) {
+        sale.status = ESaleStatus.COMPLETED; 
+        await this.saleRepository.save(sale);
+    }else{
+      sale.status = ESaleStatus.IN_PROGRESS
+      await this.saleRepository.save(sale);
+    }
+
     // Save the updated installment
     return await this.installmentRepository.save(installment);
   }
-  
-  
+
+
 
   //   async update(
   //     id: string,
@@ -336,4 +346,6 @@ export class SalesService {
       throw new NotFoundException(`Sale with ID ${id} not found`);
     }
   }
+
+ 
 }
