@@ -12,10 +12,12 @@ import { CustomersService } from './customers.service';
 import { CreateCustomerDTO } from './dtos/customers.dto';
 import { Public } from 'src/decorators/public.decorator';
 import { ApiResponse } from 'src/common/payload/ApiResponse';
+import { Roles } from 'src/utils/decorators/roles.decorator';
 
 @Controller('customers')
 @ApiTags('customers')
 @ApiBearerAuth('JWT-auth')
+@Roles('OPERATIONS_MANAGER', 'ADMIN', 'SALES_PERSON')
 @Public()
 export class CustomersController {
   constructor(private readonly customerService: CustomersService) {}

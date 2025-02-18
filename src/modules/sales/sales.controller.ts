@@ -22,10 +22,12 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from 'src/entities/user.entity';
 import { GetUser } from 'src/decorators/get-user.decorator';
 import { ESaleStatus } from 'src/common/Enum/ESaleStatus.entity';
+import { Roles } from 'src/utils/decorators/roles.decorator';
 
 @Controller('sales')
 @ApiTags('sales')
 @ApiBearerAuth('JWT-auth')
+@Roles('OPERATIONS_MANAGER', 'ADMIN', 'SALES_PERSON')
 export class SalesController {
   constructor(private readonly saleService: SalesService) {}
 

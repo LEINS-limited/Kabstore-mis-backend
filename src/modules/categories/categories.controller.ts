@@ -15,11 +15,13 @@ import { CategoriesService } from './categories.service';
 import { CreateCategoryDTO, UpdateCategoryDTO } from './dto/categories.dto';
 import { Public } from 'src/decorators/public.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Roles } from 'src/utils/decorators/roles.decorator';
 
 @Controller('categories')
 @ApiTags('categories')
 @ApiBearerAuth('JWT-auth')
 @Public()
+@Roles('OPERATIONS_MANAGER', 'ADMIN')
 export class CategoriesController {
   constructor(private readonly categoryService: CategoriesService) {}
 

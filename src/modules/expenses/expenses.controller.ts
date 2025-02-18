@@ -5,11 +5,13 @@ import { ExpensesService } from './expenses.service';
 import { ApiResponse } from 'src/common/payload/ApiResponse';
 import { CreateExpenseDTO } from './dto/expense.dto';
 import { ExpenseStatus } from 'src/common/Enum/ExpenseStatus.enum';
+import { Roles } from 'src/utils/decorators/roles.decorator';
 
 @Controller('expenses')
 @Public()
 @ApiTags('expenses')
 @ApiBearerAuth('JWT-auth')
+@Roles('OPERATIONS_MANAGER', 'ADMIN')
 export class ExpensesController {
   constructor(private readonly expenseService: ExpensesService) {}
 

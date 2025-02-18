@@ -4,11 +4,13 @@ import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/decorators/public.decorator';
+import { Roles } from 'src/utils/decorators/roles.decorator';
 
 @Controller('reports')
 @ApiTags('reports')
 @Public()
 @ApiBearerAuth('JWT-auth')
+@Roles('OPERATIONS_MANAGER', 'ADMIN')
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 

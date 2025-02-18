@@ -7,11 +7,13 @@ import { Public } from 'src/decorators/public.decorator';
 import { UUIDValidationPipe } from 'src/common/pipes/uuid.validation.pipe';
 import { EnumValidationPipe } from 'src/common/pipes/enum.validation.pipe';
 import { EProductStatus } from 'src/common/Enum/EProductStatus.enum';
+import { Roles } from 'src/utils/decorators/roles.decorator';
 
 @Controller('products')
 @ApiTags('products')
 @ApiBearerAuth('JWT-auth')
 @Public()
+@Roles('OPERATION_MANAGER', 'ADMIN', 'SALES_PERSON')
 export class ProductsController {
   constructor(private readonly productService: ProductsService) {}
 
