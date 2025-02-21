@@ -268,8 +268,8 @@ export class SalesService {
 
   async payInstallment(installmentId: string, installmentDTO: PayInstallmentDTO): Promise<Installment> {
 
-    const installment = await this.installmentRepository.findOne({ where: { id: installmentId } });
-    
+    let installment = await this.installmentRepository.findOne({ where: { id: installmentId }, relations: ['sale'] });
+
     if (!installment) {
       throw new NotFoundException(`Installment with ID ${installmentId} not found`);
     }
@@ -278,26 +278,33 @@ export class SalesService {
       throw new BadRequestException(`Installment already paid`);
     }
 
+    if(installmentDTO.amountPaid > (installment.amount - installment.amountPaid)){
+      throw new BadRequestException(`Amount paid exceeds the remaining amount`);
+    }
+
     installment.amountPaid += installmentDTO.amountPaid;
 
     // Check if the installment is fully paid
-    if (installment.amount = installment.amountPaid) {
+    if (installment.amount == installment.amountPaid) {
       installment.status = EInstallmentStatus.PAID;
     } else {
       installment.status = EInstallmentStatus.PENDING;
     }
     installment.paidDate = installmentDTO.paidDate;
+    installment = await this.installmentRepository.save(installment)
     //update the sale status
     const sale = installment.sale;
+    
     const allInstallmentsPaid = sale.installments.every(inst => inst.status === EInstallmentStatus.PAID);
 
+    console.log(allInstallmentsPaid);
+    
     if (allInstallmentsPaid) {
-        sale.status = ESaleStatus.COMPLETED; 
-        await this.saleRepository.save(sale);
-    }else{
+      sale.status = ESaleStatus.COMPLETED;
+    } else {
       sale.status = ESaleStatus.IN_PROGRESS
-      await this.saleRepository.save(sale);
     }
+    await this.saleRepository.save(sale);
 
     // Save the updated installment
     return await this.installmentRepository.save(installment);
@@ -337,35 +344,36 @@ export class SalesService {
 
   async cancelSale(saleId: string): Promise<Sale> {
     const sale = await this.getSaleById(saleId);
+    console.log(sale);
 
     if (!sale) {
-        throw new NotFoundException(`Sale with ID ${saleId} not found`);
+      throw new NotFoundException(`Sale with ID ${saleId} not found`);
     }
     console.log(sale.status);
-    
+
     if (sale.status === ESaleStatus.CANCELED) {
-        throw new BadRequestException(`Sale is already canceled`);
+      throw new BadRequestException(`Sale is already canceled`);
     }
 
     // Restore product quantities
     for (const saleItem of sale.saleItems) {
-        const product = saleItem.product;
-        product.quantity += saleItem.quantity;
-        
-        await this.productService.update(product.id, {
-            quantity: product.quantity,
-            categoryId: product.category.id,
-            name: product.name,
-            sellingPrice: product.sellingPrice,
-            profitPercentage: null,
-            costPrice: product.costPrice,
-            shippingCost: product.shippingCost,
-            taxable: product.taxable,
-            additionalExpenses: product.additionalExpenses,
-            safetyStock: product.safetyStock,
-            addedDate: product.dateAdded,
-            status: product.status
-        });
+      const product = saleItem.product;
+      product.quantity += saleItem.quantity;
+
+      await this.productService.update(product.id, {
+        quantity: product.quantity,
+        categoryId: product.category.id,
+        name: product.name,
+        sellingPrice: product.sellingPrice,
+        profitPercentage: null,
+        costPrice: product.costPrice,
+        shippingCost: product.shippingCost,
+        taxable: product.taxable,
+        additionalExpenses: product.additionalExpenses,
+        safetyStock: product.safetyStock,
+        addedDate: product.dateAdded,
+        status: product.status
+      });
     }
 
     // Mark sale as canceled
@@ -373,7 +381,7 @@ export class SalesService {
     await this.saleRepository.save(sale);
 
     return sale;
-}
+  }
 
 
   async delete(id: string): Promise<void> {
@@ -383,5 +391,5 @@ export class SalesService {
     }
   }
 
- 
+
 }

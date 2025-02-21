@@ -13,7 +13,7 @@ import { Roles } from 'src/utils/decorators/roles.decorator';
 @ApiBearerAuth('JWT-auth')
 @Roles('OPERATIONS_MANAGER', 'ADMIN')
 export class ExpensesController {
-  constructor(private readonly expenseService: ExpensesService) {}
+  constructor(private readonly expenseService: ExpensesService) { }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -57,7 +57,7 @@ export class ExpensesController {
 
   @Patch(':id/status')
   @ApiParam({ name: 'id', required: true })
-  @ApiBody({ 
+  @ApiBody({
     schema: {
       type: 'object',
       properties: {

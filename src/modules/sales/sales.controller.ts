@@ -29,7 +29,7 @@ import { Roles } from 'src/utils/decorators/roles.decorator';
 @ApiBearerAuth('JWT-auth')
 @Roles('OPERATIONS_MANAGER', 'ADMIN', 'SALES_PERSON')
 export class SalesController {
-  constructor(private readonly saleService: SalesService) {}
+  constructor(private readonly saleService: SalesService) { }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -62,7 +62,7 @@ export class SalesController {
     return new ApiResponse(true, 'Sales retrieved successfully!', sales);
   }
 
-  
+
   @Post()
   @UseGuards(AuthGuard)
   create(@Body() createSaleDto: CreateSaleDTO, @GetUser() user: User) {
@@ -87,8 +87,10 @@ export class SalesController {
     return this.saleService.payInstallment(id, body);
   }
 
-  @Put('cancel-sale/:id')
-  async updateSaleStatus(@Param('sale-id') id : string ){
+  @Put('cancel-sale/:saleId')
+  async updateSaleStatus(@Param('saleId') id: string) {
+    console.log("id" + id);
+
     return this.saleService.cancelSale(id);
   }
 
