@@ -18,7 +18,7 @@ export class Sale extends BaseEntity {
   @OneToMany(() => SaleItem, (SaleItem) => SaleItem.sale, { eager: true })
   saleItems: SaleItem[];
 
-  @Column({ default: 0 })
+  @Column('float',{ default: 0 })
   amountDue: number;
 
   @Column({nullable:false})
