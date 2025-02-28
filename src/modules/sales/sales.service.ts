@@ -130,6 +130,7 @@ export class SalesService {
     let saleItems: SaleItem[] = [];
     let installments: Installment[] = [];
     let total = 0;
+    let totalInstallment = 0;
 
     // Handle customer creation/lookup
     try {
@@ -194,13 +195,9 @@ export class SalesService {
     // Handle installments 
 
     if (createSaleDto.installments?.length > 0) {
-      for (const installment of createSaleDto.installments) {
+      for (const installment of createSaleDto.installments) { 
         try {
 
-          // Check stock availability
-
-
-          // Create sale item
           const installmentRecord = this.installmentRepository.create({
             amount: installment.amount,
             amountPaid: installment.amountPaid,
@@ -293,15 +290,23 @@ export class SalesService {
     installment.paidDate = installmentDTO.paidDate;
     installment = await this.installmentRepository.save(installment)
     //update the sale status
-    const sale = installment.sale;
+    const sale = await this.saleRepository.findOne({
+      where: { id: installment.sale.id },
+      relations: ['installments']
+    });
     
     const allInstallmentsPaid = sale.installments.every(inst => inst.status === EInstallmentStatus.PAID);
 
     console.log(allInstallmentsPaid);
     
     if (allInstallmentsPaid) {
+      sale.amountDue = 0;
       sale.status = ESaleStatus.COMPLETED;
     } else {
+      const totalAmountDue = sale.installments
+        .filter(inst => inst.status !== EInstallmentStatus.PAID) 
+        .reduce((sum, inst) => sum + (inst.amount - inst.amountPaid), 0);
+      sale.amountDue = totalAmountDue
       sale.status = ESaleStatus.IN_PROGRESS
     }
     await this.saleRepository.save(sale);
