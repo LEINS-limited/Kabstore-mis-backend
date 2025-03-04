@@ -159,13 +159,15 @@ export class UsersService {
   }
 
   async getVerificationCode(email: string, reset: boolean) {
+    console.log(process.env.FRONT_END_URL);
+    
     const account = await this.getUserByEmail(email);
     if (!account) throw new BadRequestException('This account does not exist');
 
     account.activationCode = this.generateRandomFourDigitNumber();
     if (reset) account.status = EAccountStatus[EAccountStatus.WAIT_EMAIL_VERIFICATION];
     await this.userRepo.save(account);
-    this.mailingService.sendEmail(`${process.env.FRONT_END_URL}/forgot-password?email=${account.email}&code=${account.activationCode}`, true, account);
+    this.mailingService.sendEmail(`${process.env.FRONT_END_URL}/auth/forgot-password?email=${account.email}&code=${account.activationCode}`, true, account);
     return { code: account.activationCode };
   }
 
@@ -178,7 +180,7 @@ export class UsersService {
     account.activationCode = this.generateRandomFourDigitNumber();
     if (reset) account.status = EAccountStatus[EAccountStatus.INACTIVE];
     await this.userRepo.save(account);
-    this.mailingService.sendEmail(`https://${process.env.FRONT_END_URL}/forgot-password?email=${account.email}&code=${account.activationCode}`, true, account);
+    this.mailingService.sendEmail(`${process.env.FRONT_END_URL}/auth/forgot-password?email=${account.email}&code=${account.activationCode}`, true, account);
     return { activationCode: account.activationCode, temporaryPassword: tempPassword };
   }
   //create admin
@@ -239,7 +241,7 @@ export class UsersService {
     try {
       const userEntity = this.userRepo.create(userToCreate);
       const createdEnity = await this.userRepo.save({ ...userEntity, roles: [role] });
-      await this.mailingService.sendEmail(`https://${process.env.FRONT_END_URL}/forgot-password?email=${createdEnity.email}&code=${createdEnity.activationCode}`, false, createdEnity);
+      await this.mailingService.sendEmail(`${process.env.FRONT_END_URL}/auth/forgot-password?email=${createdEnity.email}&code=${createdEnity.activationCode}`, false, createdEnity);
       return {
         success: true,
         message: `Account created successfully!`,
@@ -306,7 +308,7 @@ export class UsersService {
         roles: [erole],
       });
       await this.mailingService.sendEmail(
-        `https://${process.env.FRONT_END_URL}/forgot-password?email=${createdEnity.email}&code=${createdEnity.activationCode}`,
+        `${process.env.FRONT_END_URL}/auth/forgot-password?email=${createdEnity.email}&code=${createdEnity.activationCode}`,
         true,
         createdEnity,
       );

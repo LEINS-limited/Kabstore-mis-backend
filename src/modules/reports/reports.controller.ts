@@ -10,7 +10,7 @@ import { Roles } from 'src/utils/decorators/roles.decorator';
 @ApiTags('reports')
 @Public()
 @ApiBearerAuth('JWT-auth')
-@Roles('OPERATIONS_MANAGER', 'ADMIN')
+@Roles('OPERATIONS_MANAGER', 'ADMIN', 'SALES_PERSON')
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
