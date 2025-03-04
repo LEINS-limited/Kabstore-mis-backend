@@ -21,7 +21,6 @@ import { Roles } from 'src/utils/decorators/roles.decorator';
 @ApiTags('categories')
 @ApiBearerAuth('JWT-auth')
 @Public()
-@Roles('OPERATIONS_MANAGER', 'ADMIN')
 export class CategoriesController {
   constructor(private readonly categoryService: CategoriesService) {}
 
