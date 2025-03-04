@@ -56,7 +56,6 @@ export class UsersController {
 
   @Public()
   @Post('/create/admin')
-  @Roles('ADMIN')
   @ApiBody({ type: CreateAdminDto })
   createAdminAccount(@Body() body: CreateAdminDto) {
     return this.usersService.createAdmin(body);
