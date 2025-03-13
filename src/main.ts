@@ -1,12 +1,3 @@
-/* eslint-disable */
-/*
- @auhor : © 2024 Valens Niyonsenga <valensniyonsenga2003@gmail.com>
-*/
-
-/**
- * @file
- * @brief file for Main App
- */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
@@ -15,9 +6,7 @@ import * as cors from 'cors';
 import { GlobalExceptionFilter } from './filters/global-exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule,{
-    logger:['error', 'warn']
-  });
+  const app = await NestFactory.create(AppModule);
 
   // Enable console logging for development
   if (process.env.NODE_ENV !== 'production') {

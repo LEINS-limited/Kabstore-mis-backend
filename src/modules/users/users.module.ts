@@ -15,7 +15,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UtilsModule } from 'src/utils/utils.module';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { RoleModule } from '../roles/role.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Sale } from 'src/entities/sales.entity';
 import { SalesModule } from '../sales/sales.module';
 @Global()

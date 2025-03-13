@@ -11,6 +11,8 @@ import {
   Req,
   Request,
   UseGuards,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ApiResponse } from 'src/common/payload/ApiResponse';
@@ -23,6 +25,7 @@ import { User } from 'src/entities/user.entity';
 import { GetUser } from 'src/decorators/get-user.decorator';
 import { ESaleStatus } from 'src/common/Enum/ESaleStatus.entity';
 import { Roles } from 'src/utils/decorators/roles.decorator';
+import { DateRangeDto } from 'src/common/dtos/date-range.dto';
 
 @Controller('sales')
 @ApiTags('sales')
@@ -40,12 +43,15 @@ export class SalesController {
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
   @ApiQuery({ name: 'q', required: false })
+  @ApiQuery({ name: 'startDate', required: false })
+  @ApiQuery({ name: 'endDate', required: false })
   async getSales(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
+    @Query() dateRangeDto: DateRangeDto,
     @Query('q') q?: string,
   ) {
-    const sales = await this.saleService.getSalesPaginated(page, limit, q);
+    const sales = await this.saleService.getSalesPaginated(page, limit, q, dateRangeDto);
     return new ApiResponse(true, 'Sales retrieved successfully!', sales);
   }
 
@@ -53,12 +59,15 @@ export class SalesController {
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
   @ApiQuery({ name: 'productId', required: true })
+  @ApiQuery({ name: 'startDate', required: false })
+  @ApiQuery({ name: 'endDate', required: false })
   async getSalesByProduct(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
+    @Query() dateRangeDto: DateRangeDto,
     @Query('productId') productId?: string,
   ) {
-    const sales = await this.saleService.getSalesByProductPaginated(page, limit, productId);
+    const sales = await this.saleService.getSalesByProductPaginated(page, limit, productId, dateRangeDto);
     return new ApiResponse(true, 'Sales retrieved successfully!', sales);
   }
 
@@ -75,12 +84,20 @@ export class SalesController {
   //   }
 
   @Get('all/statistics')
-  async countTotalProducts() {
-    return new ApiResponse(
-      true,
-      'Successful!',
-      await this.saleService.salesStats(),
-    );
+  @ApiQuery({ name: 'startDate', required: false })
+  @ApiQuery({ name: 'endDate', required: false })
+  async countTotalProducts(
+    @Query() dateRangeDto: DateRangeDto,
+  ) {
+    try {
+      return new ApiResponse(
+        true,
+        'Successful!',
+        await this.saleService.salesStats(dateRangeDto),
+      );     
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
   @Patch('/installments/:id/pay')
   async payInstallment(@Param('id') id: string, @Body() body: PayInstallmentDTO) {

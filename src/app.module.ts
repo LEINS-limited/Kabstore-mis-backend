@@ -1,12 +1,3 @@
-/* eslint-disable */
-/*
- @auhor : © 2024 Valens Niyonsenga <valensniyonsenga2003@gmail.com>
-*/
-
-/**
- * @file
- * @brief file App module
- */
 import { Module, OnModuleInit } from '@nestjs/common';
 import { UsersModule } from './modules/users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -70,7 +61,7 @@ import { Installment } from './entities/installment.entity';
           Installment
         ],
         // ssl: {
-        //   rejectUnauthorized: false,
+        //   rejectUnauthorized: true,
         // },
         synchronize: true
             }),

@@ -115,7 +115,7 @@ export class ProductsService {
     const vatAmount = createProductDto.taxable ? (baseCost * 0.18) : 0;
 
     // Get profit percentage (from category or general store)
-    const profitPercentage = category.profitPercentage || 
+    const profitPercentage = category.profitPercentage ?? 
                             (await this.generalStoreService.findAll())[0].generalProfitPercentage;
     
     // Calculate profit amount
