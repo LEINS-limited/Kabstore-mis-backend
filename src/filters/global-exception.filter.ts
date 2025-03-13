@@ -24,9 +24,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     if(!(exception instanceof HttpException)){
       message = "Internal server error!";
     }
-    if (message.includes("Expected ',' or '}' after property value in JSON")) {
-      message = "Invalid JSON format in request body. Please check your JSON syntax.";
-    }
 
     response.status(status).json({
       success: false,
