@@ -71,7 +71,7 @@ export class UsersController {
 
   @Patch('update/:id')
   @Roles('ADMIN')
-  @ApiBody({ type: UpdateUserDto })
+  @ApiBody({ type: UpdateUserDto})
   updateUser(@Param('id') id: UUID, @Body() body: UpdateUserDto) {
     return this.usersService.updateUser(id, body);
   }

@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from "typeorm";
 import { EPaymentType } from "src/common/Enum/EPaymentType.entity";
 import { ExpenseStatus } from "src/common/Enum/ExpenseStatus.enum";
 import { BaseEntity } from "src/db/base-entity";
+import { EExpenseCategory } from "src/common/Enum/EExpenseCategory.enum";
 
 @Entity('expenses')
 export class Expense extends BaseEntity {
@@ -26,6 +27,9 @@ export class Expense extends BaseEntity {
 
   @Column({ enum: ExpenseStatus })
   status: ExpenseStatus;
+
+  @Column({ enum: EExpenseCategory })
+  category: EExpenseCategory;
 
   @Column({ enum: EPaymentType })
   paymentType: EPaymentType;

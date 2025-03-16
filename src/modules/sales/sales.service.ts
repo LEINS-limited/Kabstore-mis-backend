@@ -165,7 +165,7 @@ export class SalesService {
           const saleItem = this.saleItemRepository.create({
             product,
             quantity: item.quantitySold,
-            total: item.quantitySold * product.sellingPrice
+            total: item.sellingOnCustomPrice ? item.customPrice * item.quantitySold : item.quantitySold * product.sellingPrice
           });
 
           saleItems.push(await this.saleItemRepository.save(saleItem));
@@ -197,7 +197,6 @@ export class SalesService {
     if (createSaleDto.installments?.length > 0) {
       for (const installment of createSaleDto.installments) { 
         try {
-
           const installmentRecord = this.installmentRepository.create({
             amount: installment.amount,
             amountPaid: installment.amountPaid,
@@ -297,7 +296,6 @@ export class SalesService {
     
     const allInstallmentsPaid = sale.installments.every(inst => inst.status === EInstallmentStatus.PAID);
 
-    console.log(allInstallmentsPaid);
     
     if (allInstallmentsPaid) {
       sale.amountDue = 0;

@@ -19,6 +19,12 @@ export class SaleItem extends BaseEntity {
   @Column('float',{default:0})
   total: number;
 
+  @Column('float',{default:0})
+  customSellingPrice  :  number;
+
+  @Column('boolean', {default : false})
+  sellingOnCustomPrice : boolean;
+
   constructor(
     quantity: number,
     sale: Sale,

@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsArray, IsEnum, IsNumber, IsOptional, IsUUID, ValidateNested } from "class-validator";
+import { IsArray, IsBoolean, IsEnum, IsNumber, IsOptional, IsUUID, ValidateNested } from "class-validator";
 import { EPaymentType } from "src/common/Enum/EPaymentType.entity";
 import { ESaleStatus } from "src/common/Enum/ESaleStatus.entity";
 import { InstallmentDTO } from "src/common/dtos/installement.dto";
@@ -21,6 +21,20 @@ class SaleItemDTO {
   })
   @IsNumber()
   quantitySold: number;
+
+  @ApiProperty({
+    example: false,
+    description: "Selling item for custom price"
+  })
+  @IsBoolean()
+  sellingOnCustomPrice: boolean;
+
+  @ApiProperty({
+    example: 10000,
+    description: "Price in case sellingOnCustomPrice is true"
+  })
+  @IsNumber()
+  customPrice: number;
 }
 
 export class CreateSaleDTO {
@@ -47,10 +61,13 @@ export class CreateSaleDTO {
 
   @ApiProperty({
     type: [SaleItemDTO],
-    example: [{
-      productId: "550e8400-e29b-41d4-a716-446655440000",
-      quantitySold: 2
-    }],
+    example: [
+      {
+        productId: "550e8400-e29b-41d4-a716-446655440000",
+        quantitySold: 2,
+        sellingOnCustomPrice: true,
+        customPrice: 2000
+      }],
     description: "Regular products being sold"
   })
   @ValidateNested({ each: true })
@@ -99,7 +116,7 @@ export class CreateSaleDTO {
   ipasiProducts?: IpasiProductDTO[];
 
   @IsOptional()
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   @Type(() => InstallmentDTO)
   @ApiProperty({ type: InstallmentDTO, isArray: true })
   @IsArray()

@@ -10,6 +10,10 @@ export class CreateExpenseDTO {
   @IsOptional()
   expenseCategoryOrName?: string;
 
+  @ApiProperty({ required: true , enum: EExpenseCategory})
+  @IsOptional()
+  expenseCategory: EExpenseCategory;
+
   @ApiProperty()
   @Transform(({ value }) => new Date(value))
   expenseDate: Date;
