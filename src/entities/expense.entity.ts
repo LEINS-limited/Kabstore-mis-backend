@@ -28,7 +28,7 @@ export class Expense extends BaseEntity {
   @Column({ enum: ExpenseStatus })
   status: ExpenseStatus;
 
-  @Column({ enum: EExpenseCategory })
+  @Column({ enum: EExpenseCategory, default : EExpenseCategory.INTERNAL })
   category: EExpenseCategory;
 
   @Column({ enum: EPaymentType })
