@@ -3,11 +3,13 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as cors from 'cors';
-import { GlobalExceptionFilter } from './filters/global-exception.filter';
+import { AppExceptionFilter } from './filters/global-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalFilters(new AppExceptionFilter());
   // Enable console logging for development
   if (process.env.NODE_ENV !== 'production') {
     app.useLogger(console);
@@ -44,8 +46,6 @@ async function bootstrap() {
       persistAuthorization:true
     }
   });
-  app.useGlobalPipes(new ValidationPipe());
-  app.useGlobalFilters(new GlobalExceptionFilter());
   await app.listen(3001).then(_d => {
     console.log(`Server listening at: http://localhost:3001`);
     console.log('Swagger api: http://localhost:3001/api');

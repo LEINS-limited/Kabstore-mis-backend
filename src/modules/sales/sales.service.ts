@@ -45,44 +45,45 @@ export class SalesService {
 
   async salesStats(dateRangeDto?: DateRangeDto): Promise<any> {
     const totalCount = await this.saleRepository.count();
+    const saleDate = (dateRangeDto.startDate && dateRangeDto.endDate) ? Between(new Date(dateRangeDto.startDate), new Date(dateRangeDto.endDate)):undefined;
     const payment_pending = await this.saleRepository.count({
       where: { 
         status: ESaleStatus.PENDING, 
-        saleDate: Between(new Date(dateRangeDto.startDate), new Date(dateRangeDto.endDate)) 
+        saleDate
       },
     });
     const payment_completed = await this.saleRepository.count({
       where: { 
         status: ESaleStatus.COMPLETED, 
-        saleDate: Between(new Date(dateRangeDto.startDate), new Date(dateRangeDto.endDate)) 
+        saleDate
       },
     });
 
     const payment_in_progress = await this.saleRepository.count({
       where: { 
         status: ESaleStatus.IN_PROGRESS, 
-        saleDate: Between(new Date(dateRangeDto.startDate), new Date(dateRangeDto.endDate)) 
+        saleDate
       },
     });
 
     const paid_by_cash = await this.saleRepository.count({
       where: { 
         paymentType: EPaymentType.CASH, 
-        saleDate: Between(new Date(dateRangeDto.startDate), new Date(dateRangeDto.endDate)) 
+        saleDate
       },
     });
 
     const paid_by_momo = await this.saleRepository.count({
       where: { 
         paymentType: EPaymentType.MOMO, 
-        saleDate: Between(new Date(dateRangeDto.startDate), new Date(dateRangeDto.endDate)) 
+        saleDate
       },
     });
 
     const paid_by_bank = await this.saleRepository.count({
       where: { 
         paymentType: EPaymentType.BANK, 
-        saleDate: Between(new Date(dateRangeDto.startDate), new Date(dateRangeDto.endDate)) 
+        saleDate
       },
     });
 
@@ -101,6 +102,7 @@ export class SalesService {
   }
 
   async getSalesPaginated(page: number, limit: number, search?: string, dateRangeDto?: DateRangeDto) {
+    try{
     const query = this.saleRepository
       .createQueryBuilder('sale')
       .leftJoinAndSelect('sale.customer', 'customer')
@@ -114,11 +116,10 @@ export class SalesService {
       });
     }
 
-    if (dateRangeDto) {
-      query.andWhere('sale.saleDate BETWEEN :startDate AND :endDate', {
-        startDate: dateRangeDto.startDate,
-        endDate: dateRangeDto.endDate,
-      });
+    if (dateRangeDto.startDate && dateRangeDto.endDate) {
+      query
+      .where('sale.saleDate >= :starDate', { startDate: dateRangeDto.startDate })
+      .andWhere('sale.saleDate <= :endDate', { endDate: dateRangeDto.endDate });
     }
     const [sales, count] = await query  
       .skip((page - 1) * limit)
@@ -127,6 +128,9 @@ export class SalesService {
 
     const meta = paginator({ page, limit, total: count });
     return { sales, meta };
+  }catch(error){
+    throw error;
+  }
   }
 
   async getSalesByProductPaginated(page: number, limit: number, productId: string, dateRangeDto?: DateRangeDto) {
@@ -140,7 +144,7 @@ export class SalesService {
         productId: `${productId}`,
       });
 
-    if (dateRangeDto) {
+    if (dateRangeDto.endDate && dateRangeDto.startDate) {
       query.andWhere('sale.saleDate BETWEEN :startDate AND :endDate', {
         startDate: dateRangeDto.startDate,
         endDate: dateRangeDto.endDate,

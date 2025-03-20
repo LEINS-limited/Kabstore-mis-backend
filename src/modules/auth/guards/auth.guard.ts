@@ -44,6 +44,7 @@ export class AuthGuard implements CanActivate {
             }
 
             if (user.status.toLowerCase() !== 'active') {
+                console.log(user.status.toLowerCase())
                 throw new UnauthorizedException("User account is deactivated");
             }
 
