@@ -35,7 +35,8 @@ export class ExpensesService {
   }
 
   async expenseStats(): Promise<any> {
-    const totalCount = await this.expenseRepository.count();
+    try {
+      const totalCount = await this.expenseRepository.count();
     const payment_pending = await this.expenseRepository.count({
       where: { status: ExpenseStatus.PENDING },
     });
@@ -68,10 +69,14 @@ export class ExpensesService {
       paid_by_cash,
       paid_by_momo,
     };
+    } catch (error) {
+      throw error;
+    }
   }
 
   async getExpensesPaginated(page: number, limit: number, search?: string) {
-    const query = this.expenseRepository
+    try {
+      const query = this.expenseRepository
       .createQueryBuilder('expense')
 
     if (search) {
@@ -90,6 +95,9 @@ export class ExpensesService {
 
     const meta = paginator({ page, limit, total: count });
     return { expenses, meta };
+    } catch (error) {
+      throw error;
+    }
   }
 
   async getExpenseByItemPaginated(
@@ -97,7 +105,8 @@ export class ExpensesService {
     limit: number,
     expenseItemId: string,
   ) {
-    const query = this.expenseRepository
+    try {
+      const query = this.expenseRepository
       .createQueryBuilder('expense')
       .leftJoinAndSelect('expense.expenseItem', 'expenseItem')
       .where('expenseItem.id = :expenseItemId', {
@@ -111,18 +120,26 @@ export class ExpensesService {
 
     const meta = paginator({ page, limit, total: count });
     return { expenses, meta };
+    } catch (error) {
+      throw error;
+    }
   }
 
   async create(createExpenseDto: CreateExpenseDTO): Promise<Expense> {
-    const newExpense = this.expenseRepository.create({
-      ...createExpenseDto,
-      code: generateCode('E'),
-    });
-
-    return await this.expenseRepository.save(newExpense);
+    try {
+      const newExpense = this.expenseRepository.create({
+        ...createExpenseDto,
+        code: generateCode('E'),
+      });
+  
+      return await this.expenseRepository.save(newExpense);
+    } catch (error) {
+      throw error;
+    }
   }
 
   async updateStatus(id: string, status: ExpenseStatus): Promise<Expense> {
+    try{
     const expense = await this.getExpenseById(id);
     
     if (!expense) {
@@ -131,6 +148,9 @@ export class ExpensesService {
 
     expense.status = status;
     return await this.expenseRepository.save(expense);
+  }catch(error){
+    throw error;
+  }
   }
 
   //   async update(
@@ -176,9 +196,13 @@ export class ExpensesService {
   }
 
   async delete(id: string): Promise<void> {
+    try{
     const result = await this.expenseRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(`Expense with ID ${id} not found`);
     }
+  }catch(error){
+    throw error;
+  }
   }
 }

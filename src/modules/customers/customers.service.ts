@@ -10,26 +10,42 @@ export class CustomersService {
     @InjectRepository(Customer) public customerRepository: Repository<Customer>,
   ) {}
   async getCustomers(): Promise<Customer[]> {
+    try{
     const response = await this.customerRepository.find();
     return response;
+    }catch(error){
+      throw error;
+    }
   }
 
   async getCustomerById(id: string): Promise<Customer> {
+    try{
     const customer = await this.customerRepository.findOne({ where: { id } });
     if (!customer) {
       throw new NotFoundException(`Customer with ID ${id} not found`);
     }
     return customer;
+  }catch(error){
+    throw error;
+  }
   }
 
   async getCustomerCount(): Promise<number>{
-    const total = await this.customerRepository.count();
-    return total;
+    try {
+      const total = await this.customerRepository.count();
+      return total;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async create(createCustomerDto: CreateCustomerDTO ): Promise<Customer> {
-    const newCustomer = this.customerRepository.create(createCustomerDto);
+    try {
+      const newCustomer = this.customerRepository.create(createCustomerDto);
     return  this.customerRepository.save(newCustomer);
+    } catch (error) {
+      throw error;
+    }
   }
 
   async update(
