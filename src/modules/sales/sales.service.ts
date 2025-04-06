@@ -199,6 +199,8 @@ export class SalesService {
           const saleItem = this.saleItemRepository.create({
             product,
             quantity: item.quantitySold,
+            sellingOnCustomPrice: item.sellingOnCustomPrice,
+            customSellingPrice: item.customPrice,
             total: item.sellingOnCustomPrice ? item.customPrice * item.quantitySold : item.quantitySold * product.sellingPrice
           });
 
