@@ -16,7 +16,7 @@ export class Expense extends BaseEntity {
   @Column({ nullable: true })
   expenseCategoryOrName: string;
 
-  @Column({ default: 0 })
+  @Column('float',{ default: 0 })
   amount: number;
 
   @Column({ nullable: false })
