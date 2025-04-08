@@ -29,7 +29,17 @@ export class CreateProductDTO {
   @IsNumber()
   @Min(0)
   customSellingPrice?: number;
+ 
 
+  @ApiProperty({
+    example: 2499000,
+    description: 'Optional: Selling price got from the calculation',
+    required: false
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  sellingPrice?: number;
 
   @ApiProperty({
     example: 75000,

@@ -112,18 +112,11 @@ export class ProductsService {
                     createProductDto.additionalExpenses;
 
     // Calculate VAT if product is taxable
-    const vatAmount = createProductDto.taxable ? (baseCost * 0.18) : 0;
-
-    // Get profit percentage (from category or general store)
-    const profitPercentage = category.profitPercentage ?? 
-                            (await this.generalStoreService.findAll())[0].generalProfitPercentage;
+    const vatAmount = createProductDto.taxable ? (baseCost * 18/118) : 0;
     
-    // Calculate profit amount
-    const profitAmount = baseCost * (profitPercentage / 100);
-
     // Use custom selling price if provided, otherwise use calculated price
-    const sellingPrice = createProductDto.customSellingPrice || 
-                        (baseCost + vatAmount + profitAmount);
+    const sellingPrice = createProductDto.customSellingPrice ?? createProductDto.sellingPrice;
+
 
     // Handle vendor creation/lookup
     let vendor = null;

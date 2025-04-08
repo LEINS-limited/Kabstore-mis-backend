@@ -33,8 +33,9 @@ class SaleItemDTO {
     example: 10000,
     description: "Price in case sellingOnCustomPrice is true"
   })
+  @IsOptional()
   @IsNumber()
-  customPrice: number;
+  customPrice?: number;
 }
 
 export class CreateSaleDTO {
