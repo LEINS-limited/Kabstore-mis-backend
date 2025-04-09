@@ -86,15 +86,16 @@ export class UsersService {
     return user;
   }
 
-  async getUserById(id: UUID, entity: String) {
+  async getUserById(id: UUID) {
     const response = await this.userRepo.findOne({
       where: {
         id: id,
       },
       relations: ['roles'],
     });
+    console.log("response and id",response," ",id)
     if (!response) {
-      throw new NotFoundException(`${entity} not found`);
+      throw new NotFoundException(`User not found`);
     }
     return response;
   }
@@ -333,7 +334,7 @@ export class UsersService {
   }
 
   async updateUser(id: UUID, dto: UpdateUserDto) {
-    const user = await this.getUserById(id, 'User');
+    const user = await this.getUserById(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -366,7 +367,7 @@ export class UsersService {
   }
 
   async deleteUser(id: UUID) {
-    const user = await this.getUserById(id, 'User');
+    const user = await this.getUserById(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -376,7 +377,7 @@ export class UsersService {
 
   async getUserPerformance(userId: UUID, startDate?: Date, endDate?: Date) {
     try {
-      const user = await this.getUserById(userId, 'User');
+      const user = await this.getUserById(userId);
       if (!user) {
         throw new NotFoundException('User not found');
       }

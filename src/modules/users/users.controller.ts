@@ -47,7 +47,7 @@ export class UsersController {
   @Get('/:id')
   @Roles('ADMIN')
   async getUserById(@Param('id') id: UUID) {
-    const user = await this.usersService.getUserById(id, 'User');
+    const user = await this.usersService.getUserById(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }

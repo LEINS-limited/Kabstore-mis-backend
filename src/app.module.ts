@@ -60,9 +60,9 @@ import { Installment } from './entities/installment.entity';
           GeneralStoreInfo,
           Installment
         ],
-        // ssl: {
-        //   rejectUnauthorized: true,
-        // },
+        ssl: {
+          rejectUnauthorized: false,
+        },
         synchronize: true
             }),
       inject: [ConfigService],

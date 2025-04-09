@@ -26,7 +26,7 @@ export class AuthGuard implements CanActivate {
 
         const request = context.switchToHttp().getRequest();
         const token = this.extractTokenFromHeader(request);
-        
+        console.log(token)
         if (!token) {
             throw new UnauthorizedException("No token provided");
         }
@@ -36,9 +36,10 @@ export class AuthGuard implements CanActivate {
             const payload = await this.jwtService.verifyAsync(token, {
                 secret: this.configService.get<string>('SECRET_KEY')
             });
-
+            console.log("payload",payload)
             // Check if user still exists and is active
-            const user = await this.usersService.getUserById(payload.sub, payload.email);
+            const user = await this.usersService.getUserById(payload.id);
+            console.log("user",user)
             if (!user) {
                 throw new UnauthorizedException("User no longer exists");
             }

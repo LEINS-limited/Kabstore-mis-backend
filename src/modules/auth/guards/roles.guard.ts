@@ -50,8 +50,9 @@ export class RolesGuard implements CanActivate {
           secret: this.configService.get('SECRET_KEY'),
         });
         req['user'] = payload;
-        user = await this.userService.getUserById(payload.id, 'User');
+        user = await this.userService.getUserById(payload.id);
       } catch (error) {
+        console.log(error)
         if (error.name === 'TokenExpiredError') {
           throw new BadRequestException('Token has expired');
         } else {

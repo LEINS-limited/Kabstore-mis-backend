@@ -70,7 +70,7 @@ export class UtilsService {
           'Errow accured while getting the profile ' + error.message,
         );
       const details: any = await this.jwt.decode(token);
-      return await this.userService.getUserById(details.id, 'User');
+      return await this.userService.getUserById(details.id);
     } else {
       throw new UnauthorizedException(
         'You are not authorized to access resource',
