@@ -18,32 +18,34 @@ export class MailingService {
         this.options = {
           transporterName: null,
           to: recipient.email,
-          subject: 'KabStore password reset',
+          subject: 'Password Reset - Kabstore',
           html: `${headerHTML}
-          </div>
-          <div class='content'>
-            <p>Hello ${recipient.lastName}
-            <p>Your verification code is  ${recipient.activationCode}</p>
-            <p> You can also verify your account by click on this link <a class='button' href='${link}'>Verify Email</a>
-          </div>
-            ${footerHTML}  
-            `,
+            </div>
+            <div class='content'>
+              <p>Hello ${recipient.lastName},</p>
+              <p>We received a request to reset your password.</p>
+              <p>Your verification code:</p>
+              <div class='code-box'>${recipient.activationCode}</div>
+              <p><a class='button' href='${link}'>Reset Password</a></p>
+              <p>If you didn't request this, you can ignore this email.</p>
+            </div>
+            ${footerHTML}`,
         };
       } else {
         this.options = {
           transporterName: null,
           to: recipient.email,
-          subject: 'Kabstore Email verification',
+          subject: 'Verify Your Email - Kabstore',
           html: `${headerHTML}
-        </div>
-        <div class='content'>
-          <p>Hello ${recipient.lastName}, Welcome to Kabstore </p>
-          <p>Thank you for signing up! Please click the button below to reset  your password :</p>
-          <p>Your verification code is  ${recipient.activationCode}</p>
-          <p> You can also verify your account by click on this link <a class='button' href='${link}'>Reset your password</a>
-        </div>
-          ${footerHTML}  
-          `,
+            </div>
+            <div class='content'>
+              <p>Hello ${recipient.lastName},</p>
+              <p>Welcome to Kabstore. Please verify your email to get started.</p>
+              <p>Your verification code:</p>
+              <div class='code-box'>${recipient.activationCode}</div>
+              <p><a class='button' href='${link}'>Verify Email</a></p>
+            </div>
+            ${footerHTML}`,
         };
       }
       await this.mailService.sendMail(this.options);
@@ -58,32 +60,34 @@ export class MailingService {
         this.options = {
           transporterName: null,
           to: recipient.email,
-          subject: 'KabStore password reset',
+          subject: 'Temporary Password - Kabstore',
           html: `${headerHTML}
-          </div>
-          <div class='content'>
-            <p>Hello ${recipient.lastName}
-            <p>Your temporary password is  ${password}</p>
-            <p> You can also verify your account by click on this link <a class='button' href='${link}'>Verify Email</a>
-          </div>
-            ${footerHTML}  
-            `,
+            </div>
+            <div class='content'>
+              <p>Hello ${recipient.lastName},</p>
+              <p>Your temporary password has been generated.</p>
+              <p>Temporary password:</p>
+              <div class='code-box'>${password}</div>
+              <p><a class='button' href='${link}'>Login Now</a></p>
+              <p>Please change your password after logging in.</p>
+            </div>
+            ${footerHTML}`,
         };
       } else {
         this.options = {
           transporterName: null,
           to: recipient.email,
-          subject: 'Kabstore Email verification',
+          subject: 'Verify Your Email - Kabstore',
           html: `${headerHTML}
-        </div>
-        <div class='content'>
-          <p>Hello ${recipient.lastName}, Welcome to Kabstore </p>
-          <p>Thank you for signing up! Please click the button below to reset  your password :</p>
-          <p>Your verification code is  ${recipient.activationCode}</p>
-          <p> You can also verify your account by click on this link <a class='button' href='${link}'>Reset your password</a>
-        </div>
-          ${footerHTML}  
-          `,
+            </div>
+            <div class='content'>
+              <p>Hello ${recipient.lastName},</p>
+              <p>Welcome to Kabstore. Please verify your email to get started.</p>
+              <p>Your verification code:</p>
+              <div class='code-box'>${recipient.activationCode}</div>
+              <p><a class='button' href='${link}'>Verify Email</a></p>
+            </div>
+            ${footerHTML}`,
         };
       }
       await this.mailService.sendMail(this.options);
@@ -91,10 +95,5 @@ export class MailingService {
       console.log(error);
     }
   }
-  async sendNotificationEmail(
-    to: string,
-    name: string,
-    message: string,
-    link: string,
-  ) {}
+  
 }
