@@ -81,8 +81,7 @@ export class MailingService {
           subject: 'Verify Your Email - Kabstore',
           html: `${headerHTML}
             </div>
-            <div class='content'>
-            
+            <div class='content'>do
               <p>Hello ${recipient.lastName},</p>
               <p>Welcome to Kabstore. Please verify your email to get started.</p>
               <p>Your verification code:</p>

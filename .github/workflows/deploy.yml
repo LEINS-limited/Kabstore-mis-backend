@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout code
@@ -25,6 +25,16 @@ jobs:
 
       - name: Build application
         run: npm run build
+
+      - name: Debug - Check secrets are set
+        run: |
+          echo "SERVER_HOST is set: ${{ secrets.SERVER_HOST != '' }}"
+          echo "SERVER_USER is set: ${{ secrets.SERVER_USER != '' }}"
+          echo "SERVER_SSH_KEY is set: ${{ secrets.SERVER_SSH_KEY != '' }}"
+          echo "SERVER_PATH is set: ${{ secrets.SERVER_PATH != '' }}"
+          echo "SERVER_HOST length: ${#SERVER_HOST}"
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
 
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1.0.3
