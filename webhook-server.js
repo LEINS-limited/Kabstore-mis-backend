@@ -63,5 +63,5 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, () => {
   console.log(`🎣 Webhook server listening on port ${PORT}`);
-  console.log(`📍 Endpoint: http://your-server-ip:${PORT}/webhook`);
+  console.log(`📍 Endpoint: http://46.202.175.32:${PORT}/webhook`);
 });
