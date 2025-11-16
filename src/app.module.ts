@@ -60,9 +60,7 @@ import { Installment } from './entities/installment.entity';
           GeneralStoreInfo,
           Installment
         ],
-        ssl: configService.get('NODE_ENV') === 'production' ? {
-          rejectUnauthorized: true,
-        } : true,
+        ssl: false,
         synchronize: true
             }),
       inject: [ConfigService],
