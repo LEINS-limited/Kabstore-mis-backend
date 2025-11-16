@@ -2,7 +2,7 @@ const http = require('http');
 const { exec } = require('child_process');
 
 const PORT = 9000;
-const PROJECT_PATH = '/root/Kabstore-mis-backend';
+const PROJECT_PATH = '/home/kabstore/Kabstore-mis-backend';
 
 // Execute deployment commands
 function deploy() {
