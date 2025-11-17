@@ -16,6 +16,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { RoleService } from './modules/roles/role.service';
 import { RoleModule } from './modules/roles/role.module';
+import { GeneralStoreInfoService } from './modules/general-store-info/general-store-info.service';
+import { ECurrencyType } from './common/Enum/ECurrenyType.enum';
 import { ProductsModule } from './modules/products/products.module';
 import { Product } from './entities/products.entity';
 import { VendorsModule } from './modules/vendors/vendors.module';
@@ -96,12 +98,28 @@ import { Installment } from './entities/installment.entity';
   providers: [{ provide: APP_GUARD, useClass: RolesGuard }],
 })
 export class AppModule implements OnModuleInit {
-  constructor(private readonly roleService: RoleService) {}
+  constructor(
+    private readonly roleService: RoleService,
+    private readonly generalStoreInfoService: GeneralStoreInfoService,
+  ) {}
 
   async onModuleInit() {
+    // Initialize roles
     let roles = await this.roleService.getAllRoles();
     if (!roles || roles.length == 0) {
       this.roleService.createRoles();
+    }
+
+    // Initialize general store info with default values
+    let storeInfo = await this.generalStoreInfoService.findAll();
+    if (!storeInfo || storeInfo.length === 0) {
+      await this.generalStoreInfoService.create({
+        generalProfitPercentage: 10,
+        baseCurrency: ECurrencyType.RWF,
+        toUSD: 1000,
+        toDirham: 250,
+      });
+      console.log('✅ Default general store info created');
     }
   }
 }

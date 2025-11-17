@@ -13,7 +13,7 @@ function deploy() {
     git pull origin main &&
     npm ci --production=false &&
     npm run build &&
-    pm2 restart kabstore-api || pm2 start dist/main.js -i 1 --name kabstore-api --max-memory-restart 1G &&
+    pm2 reload kabstore-api || pm2 start dist/main.js -i 2 --name kabstore-api --max-memory-restart 1G &&
     pm2 save
   `;
 

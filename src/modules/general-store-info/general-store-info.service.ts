@@ -33,6 +33,9 @@ export class GeneralStoreInfoService {
 
   async update(updateDto: UpdateGeneralStoreInfoDto): Promise<GeneralStoreInfo> {
     const generalStoreInfo = await this.findAll();
+    if (!generalStoreInfo || generalStoreInfo.length === 0) {
+      throw new NotFoundException('General store info record does not exist. Please restart the application to create default settings.');
+    }
     Object.assign(generalStoreInfo[0], updateDto);
     return await this.generalStoreInfoRepository.save(generalStoreInfo[0]);
   }
