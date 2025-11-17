@@ -40,6 +40,7 @@ export class UpdateGeneralStoreInfoDto {
   generalProfitPercentage: number;
 
   @IsString()
+  @IsNotEmpty()
   @IsOptional()
   @ApiProperty({
     description: 'The base currency for the store',

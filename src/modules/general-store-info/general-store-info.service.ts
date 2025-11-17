@@ -36,7 +36,13 @@ export class GeneralStoreInfoService {
     if (!generalStoreInfo || generalStoreInfo.length === 0) {
       throw new NotFoundException('General store info record does not exist. Please restart the application to create default settings.');
     }
-    Object.assign(generalStoreInfo[0], updateDto);
+
+    // Filter out undefined and empty string values
+    const cleanedDto = Object.fromEntries(
+      Object.entries(updateDto).filter(([_, value]) => value !== undefined && value !== '')
+    );
+
+    Object.assign(generalStoreInfo[0], cleanedDto);
     return await this.generalStoreInfoRepository.save(generalStoreInfo[0]);
   }
 
